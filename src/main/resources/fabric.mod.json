@@ -2,7 +2,6 @@
   "schemaVersion": 1,
   "id": "silent-mc",
   "version": "${version}",
-
   "name": "Silent Minecraft",
   "description": "Give MC a More Silent and Scary Experience",
   "authors": [
@@ -12,10 +11,8 @@
     "homepage": "https://github.com/ye-yu",
     "sources": "https://github.com/ye-yu"
   },
-
   "license": "CC0-1.0",
   "icon": "assets/modid/icon.png",
-
   "environment": "*",
   "entrypoints": {
     "client": [

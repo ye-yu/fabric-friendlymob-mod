@@ -3,7 +3,7 @@
   "package": "fp.yeyu.mcvisualmod.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ServerWorldMixin"
+    "DefaultAttributeRegistryMixin"
   ],
   "client": [
   ],
