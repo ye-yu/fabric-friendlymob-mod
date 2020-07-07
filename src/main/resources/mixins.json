@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "fp.yeyu.mcvisualmod.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ServerWorldMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
