@@ -12,11 +12,16 @@ version = project.mod_version
 group = project.maven_group
 
 minecraft {
+    accessWidener = file("src/main/resources/fabric.accesswidener")
 }
 
 
 repositories {
     maven { url = "http://maven.fabricmc.net/" }
+    maven {
+        name = "CottonMC"
+        url = "https://server.bbkr.space/artifactory/libs-release"
+    }
 }
 
 dependencies {
@@ -28,6 +33,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
+
+    modImplementation "io.github.cottonmc:LibGui:2.1.1+1.16.1"
 }
 
 processResources {
@@ -54,6 +61,7 @@ tasks.withType(JavaCompile) {
 // if it is present.
 // If you remove this task, sources will not be generated.
 task sourcesJar(type: Jar, dependsOn: classes) {
+    //noinspection GrDeprecatedAPIUsage
     classifier = "sources"
 //    getArchiveClassifier().set("sources")
     from sourceSets.main.allSource

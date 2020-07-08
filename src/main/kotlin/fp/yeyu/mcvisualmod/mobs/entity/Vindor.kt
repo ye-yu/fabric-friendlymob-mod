@@ -1,25 +1,47 @@
 package fp.yeyu.mcvisualmod.mobs.entity
 
+import fp.yeyu.mcvisualmod.screens.VindorGUI
+import io.github.cottonmc.cotton.gui.PropertyDelegateHolder
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
+import net.minecraft.block.BlockState
+import net.minecraft.block.InventoryProvider
+import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.goal.*
+import net.minecraft.entity.attribute.EntityAttributes
+import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.mob.CreeperEntity
 import net.minecraft.entity.mob.MobEntity
 import net.minecraft.entity.mob.Monster
 import net.minecraft.entity.passive.IronGolemEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.SidedInventory
+import net.minecraft.item.AxeItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.screen.*
+import net.minecraft.sound.SoundEvent
+import net.minecraft.sound.SoundEvents
+import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Direction
+import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
+import net.minecraft.world.WorldAccess
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.function.Predicate
+import java.util.stream.IntStream
 
-class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : IronGolemEntity(entityType, world) {
+class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : IronGolemEntity(entityType, world),
+    InventoryProvider, PropertyDelegateHolder, NamedScreenHandlerFactory {
 
     init {
         equipStack(EquipmentSlot.MAINHAND, ItemStack(Items.IRON_AXE))
@@ -79,17 +101,159 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         val interactMob = super.interactMob(player, hand)
         if (interactMob == ActionResult.PASS || interactMob.isAccepted) {
             LOGGER.info(String.format("%s is interacting with a Vindor.", player?.displayName))
-            trade(player)
-            return ActionResult.SUCCESS
+            return trade(player)
         }
         return interactMob
     }
 
-    private fun trade(player: PlayerEntity?) {
-        if (player == null) return
-
-        if (currentCustomer != null) return
-
+    private fun trade(player: PlayerEntity?): ActionResult {
+        if (player == null) return ActionResult.success(this.world.isClient)
+        if (currentCustomer != null) return ActionResult.success(this.world.isClient)
+        player.openHandledScreen(this)
         currentCustomer = player
+        return ActionResult.success(this.world.isClient)
+    }
+
+    override fun tryAttack(target: Entity): Boolean {
+        var f = getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE).toFloat()
+        var g = getAttributeValue(EntityAttributes.GENERIC_ATTACK_KNOCKBACK).toFloat()
+        if (target is LivingEntity) {
+            f += EnchantmentHelper.getAttackDamage(this.mainHandStack, target.group)
+            g += EnchantmentHelper.getKnockback(this).toFloat()
+        }
+        val i = EnchantmentHelper.getFireAspect(this)
+        if (i > 0) {
+            target.setOnFireFor(i * 4)
+        }
+        val bl = target.damage(DamageSource.mob(this), f)
+        if (bl) {
+            if (g > 0.0f && target is LivingEntity) {
+                target.takeKnockback(
+                    g * 0.5f,
+                    MathHelper.sin(yaw * 0.017453292f).toDouble(),
+                    (-MathHelper.cos(yaw * 0.017453292f)).toDouble()
+                )
+                velocity = velocity.multiply(0.6, 1.0, 0.6)
+            }
+            if (target is PlayerEntity) {
+                disablePlayerShield(
+                    target,
+                    this.mainHandStack,
+                    if (target.isUsingItem) target.activeItem else ItemStack.EMPTY
+                )
+            }
+            dealDamage(this, target)
+            onAttacking(target)
+        }
+        return bl
+    }
+
+    private fun disablePlayerShield(
+        player: PlayerEntity,
+        mobStack: ItemStack,
+        playerStack: ItemStack
+    ) {
+        if (!mobStack.isEmpty && !playerStack.isEmpty && mobStack.item is AxeItem && playerStack.item === Items.SHIELD) {
+            val f = 0.25f + EnchantmentHelper.getEfficiency(this).toFloat() * 0.05f
+            if (random.nextFloat() < f) {
+                player.itemCooldownManager[Items.SHIELD] = 100
+                world.sendEntityStatus(player, 30.toByte())
+            }
+        }
+    }
+
+    override fun getAmbientSound(): SoundEvent? {
+        return SoundEvents.ENTITY_VILLAGER_AMBIENT
+    }
+
+    override fun getHurtSound(source: DamageSource?): SoundEvent? {
+        return SoundEvents.ENTITY_VINDICATOR_HURT
+    }
+
+    val vindorInv = VindorInventory()
+    override fun getInventory(state: BlockState?, world: WorldAccess?, pos: BlockPos?): SidedInventory {
+        LOGGER.info("Accessing Vindor's inventory")
+        return vindorInv
+    }
+
+    val propertyDelegate = ArrayPropertyDelegate(1)
+    override fun getPropertyDelegate(): PropertyDelegate {
+        return propertyDelegate
+    }
+
+    override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
+        return VindorGUI(syncId, inv, ScreenHandlerContext.create(player.world, player.blockPos), this)
+    }
+
+    override fun getDisplayName(): Text {
+        return super.getDisplayName()
+    }
+
+    class VindorInventory : SidedInventory {
+        var currentItem: ItemStack = ItemStack.EMPTY
+        var dirty = false
+        override fun canExtract(slot: Int, stack: ItemStack?, dir: Direction?): Boolean {
+            return false
+        }
+
+        override fun markDirty() {
+            dirty = true
+        }
+
+        override fun canInsert(slot: Int, stack: ItemStack?, dir: Direction?): Boolean {
+            return false
+        }
+
+        override fun clear() {
+            currentItem = ItemStack.EMPTY
+        }
+
+        override fun setStack(slot: Int, stack: ItemStack?) {
+            assert(slot == 0) { "Out of bound." }
+            println("Putting item in the vindor's slot.")
+            if (stack == null) {
+                currentItem = ItemStack.EMPTY
+            } else {
+                currentItem = stack
+            }
+        }
+
+        override fun isEmpty(): Boolean {
+            return currentItem == ItemStack.EMPTY
+        }
+
+        override fun removeStack(slot: Int, amount: Int): ItemStack {
+            assert(slot == 0) { "Out of bound." }
+            return currentItem.split(amount)
+        }
+
+        override fun removeStack(slot: Int): ItemStack {
+            assert(slot == 0) { "Out of bound." }
+            val ret = currentItem
+            currentItem = ItemStack.EMPTY
+            return ret
+        }
+
+        override fun getStack(slot: Int): ItemStack? {
+            assert(slot == 0) { "Out of bound." }
+            return currentItem
+        }
+
+        override fun canPlayerUse(player: PlayerEntity?): Boolean {
+            return false
+        }
+
+        override fun size(): Int {
+            return 1
+        }
+
+        override fun getAvailableSlots(side: Direction?): IntArray {
+            return if (currentItem != ItemStack.EMPTY) {
+                IntArray(0)
+            } else {
+                IntStream.range(0, 1).toArray()
+            }
+        }
+
     }
 }

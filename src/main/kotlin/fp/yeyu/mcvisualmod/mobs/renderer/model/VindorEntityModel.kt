@@ -3,16 +3,13 @@ package fp.yeyu.mcvisualmod.mobs.renderer.model
 import com.google.common.collect.ImmutableList
 import fp.yeyu.mcvisualmod.mobs.entity.Vindor
 import net.minecraft.client.model.ModelPart
-import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.render.entity.model.CompositeEntityModel
 import net.minecraft.client.render.entity.model.CrossbowPosing
 import net.minecraft.client.render.entity.model.ModelWithArms
 import net.minecraft.client.render.entity.model.ModelWithHead
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.Arm
-import net.minecraft.util.Identifier
 import net.minecraft.util.math.MathHelper
-import java.util.function.Function
 
 
 class VindorEntityModel(
