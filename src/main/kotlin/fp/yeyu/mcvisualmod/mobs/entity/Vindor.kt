@@ -28,6 +28,7 @@ import net.minecraft.screen.*
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.math.BlockPos
@@ -41,7 +42,7 @@ import java.util.function.Predicate
 import java.util.stream.IntStream
 
 class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : IronGolemEntity(entityType, world),
-    InventoryProvider, PropertyDelegateHolder, NamedScreenHandlerFactory {
+    InventoryProvider, PropertyDelegateHolder {
 
     init {
         equipStack(EquipmentSlot.MAINHAND, ItemStack(Items.IRON_AXE))
@@ -103,10 +104,11 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         return interactMob
     }
 
+    val guiHandler = VindorGuiHandler(this)
     private fun trade(player: PlayerEntity?): ActionResult {
         if (player == null) return ActionResult.success(this.world.isClient)
         if (currentCustomer != null) return ActionResult.success(this.world.isClient)
-        player.openHandledScreen(this)
+        player.openHandledScreen(guiHandler)
         currentCustomer = player
         return ActionResult.success(this.world.isClient)
     }
@@ -178,12 +180,14 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         return propertyDelegate
     }
 
-    override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
-        return VindorGUI(syncId, inv, ScreenHandlerContext.create(player.world, player.blockPos), this)
-    }
+    class VindorGuiHandler(val who: Vindor): NamedScreenHandlerFactory {
+        override fun createMenu(syncId: Int, inv: PlayerInventory?, player: PlayerEntity?): ScreenHandler? {
+            return VindorGUI(syncId, inv, ScreenHandlerContext.create(player?.world, player?.blockPos), who)
+        }
 
-    override fun getDisplayName(): Text {
-        return super.getDisplayName()
+        override fun getDisplayName(): Text {
+            return TranslatableText("container.friendlymob.vindor")
+        }
     }
 
     class VindorInventory : SidedInventory {
