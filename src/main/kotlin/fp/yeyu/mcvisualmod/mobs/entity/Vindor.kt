@@ -76,11 +76,8 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         goalSelector.add(1, MeleeAttackGoal(this, 1.0, true))
         goalSelector.add(2, WanderNearTargetGoal(this, 0.9, 32.0f))
         goalSelector.add(2, WanderAroundPointOfInterestGoal(this, 0.6, false))
-//        goalSelector.add(4, IronGolemWanderAroundGoal(this, 0.6))
-//        goalSelector.add(5, IronGolemLookGoal(this))
         goalSelector.add(7, LookAtEntityGoal(this, PlayerEntity::class.java, 6.0f))
         goalSelector.add(8, LookAroundGoal(this))
-//        targetSelector.add(1, TrackIronGolemTargetGoal(this))
         targetSelector.add(2, RevengeGoal(this, *arrayOfNulls(0)))
         targetSelector.add(
             3, FollowTargetGoal(this,
