@@ -1,9 +1,14 @@
 package fp.yeyu.mcvisualmod.screens
 
 import fp.yeyu.mcvisualmod.mobs.entity.Vindor
+import fp.yeyu.mcvisualmod.screens.widget.WTextField
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription
+import io.github.cottonmc.cotton.gui.client.BackgroundPainter
 import io.github.cottonmc.cotton.gui.widget.WGridPanel
 import io.github.cottonmc.cotton.gui.widget.WItemSlot
+import io.github.cottonmc.cotton.gui.widget.WLabel
+import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment
+import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
@@ -13,7 +18,12 @@ import net.minecraft.screen.slot.SlotActionType
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-class VindorGUI(syncId: Int, playerInventory: PlayerInventory?, context: ScreenHandlerContext, val trader: Vindor?) :
+class VindorGUI(
+    syncId: Int,
+    playerInventory: PlayerInventory?,
+    context: ScreenHandlerContext,
+    private val trader: Vindor?
+) :
     SyncedGuiDescription(
         Screens.VINDOR_SCREEN,
         syncId,
@@ -21,6 +31,9 @@ class VindorGUI(syncId: Int, playerInventory: PlayerInventory?, context: ScreenH
         getBlockInventory(context, SIZE),
         getBlockPropertyDelegate(context, SIZE)
     ) {
+
+    private val msgField = WTextField()
+
     init {
         val root = WGridPanel()
         setRootPanel(root)
@@ -38,17 +51,44 @@ class VindorGUI(syncId: Int, playerInventory: PlayerInventory?, context: ScreenH
             }
         }
 
+        root.add(
+            WLabel("Send")
+                .setVerticalAlignment(VerticalAlignment.CENTER)
+                .setHorizontalAlignment(HorizontalAlignment.CENTER),
+            5,
+            2
+        )
         val toSendSlot = WItemSlot.of(blockInventory, 0)
-        root.add(toSendSlot, 2, 1)
+        root.add(toSendSlot, 5, 1)
 
+
+        root.add(
+            WLabel("Receive")
+                .setVerticalAlignment(VerticalAlignment.CENTER)
+                .setHorizontalAlignment(HorizontalAlignment.CENTER),
+            7,
+            2
+        )
         val toReceiveSlot = WItemSlot.of(blockInventory, 1)
-        root.add(toReceiveSlot, 6, 1)
+        root.add(toReceiveSlot, 7, 1)
 
         val playerSlot = createPlayerInventoryPanel()
         root.add(playerSlot, 0, 3)
 
-        root.setSize(playerSlot.width, 80)
+        msgField.isEditable = true
+        msgField.maxLength = 50
+        msgField.width = 4 * 18 - io.github.cottonmc.cotton.gui.widget.WTextField.OFFSET_X_TEXT * 2
+        root.add(msgField, 0, 1, 4, 1)
+        root.add(
+            WLabel("Your Message")
+                .setVerticalAlignment(VerticalAlignment.CENTER),
+            0,
+            2
+        )
+
+        root.setSize(playerSlot.width, 100)
         root.validate(this)
+        msgField.validate(this)
     }
 
     companion object {
