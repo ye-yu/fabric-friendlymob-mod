@@ -51,9 +51,6 @@ class WTextField : WTextFieldLibGui() {
                 return
             }
             GLFW.GLFW_KEY_LEFT -> {
-                if (cursorAt == CursorAt.RIGHT) {
-                    cursorAt = CursorAt.MIDDLE
-                }
                 if (Screen.hasShiftDown()) {
                     select -= 1
                 } else {
@@ -67,9 +64,6 @@ class WTextField : WTextFieldLibGui() {
                 return
             }
             GLFW.GLFW_KEY_RIGHT -> {
-                if (cursorAt == CursorAt.LEFT) {
-                    cursorAt = CursorAt.MIDDLE
-                }
                 if (Screen.hasShiftDown()) {
                     select += 1
                 } else {
@@ -159,21 +153,25 @@ class WTextField : WTextFieldLibGui() {
         return fieldWidth
     }
 
-    enum class CursorAt {
-        LEFT, MIDDLE, RIGHT
-    }
-
-    private var cursorAt = CursorAt.RIGHT
     private var caretTimeout = 0
     private var blink = false
+    var focusedBackgroundColor = -0x1000000
+    var enabledBackgroundColor = -0x1000000
+    var disabledBackgroundColor = -0x1000000
+
+    var focusedBorderColor = -0x60
+    var outfocusedBorderColor = -0x5f5f60
+    var caretColor = -0x2f2f30
+    var shadowColor = -0xf2f2f30
 
     @Environment(EnvType.CLIENT)
     override fun renderTextField(matrices: MatrixStack?, x: Int, y: Int) {
         validateCursors()
         val font = MinecraftClient.getInstance().textRenderer
-        val borderColor = if (this.isFocused) -0x60 else -0x5f5f60
-        ScreenDrawing.coloredRect(x - 1, y - 1, width + 2, height + 2, borderColor)
-        ScreenDrawing.coloredRect(x, y, width, height, -0x1000000)
+        val borderColor = if (this.isFocused) focusedBorderColor else outfocusedBorderColor
+        val backgroundColor = if (!this.editable) disabledBackgroundColor else if (this.isFocused) focusedBackgroundColor else enabledBackgroundColor
+        ScreenDrawing.coloredRect(x, y, width, height - 3, borderColor)
+        ScreenDrawing.coloredRect(x + 1, y + 1, width - 1, height - 3 - 1, backgroundColor)
         val textColor = if (editable) enabledColor else uneditableColor
         val textY = (y + (height - 8) / 2)
 
@@ -183,11 +181,14 @@ class WTextField : WTextFieldLibGui() {
 
         val postcursorCandidate = text.substring(cursor + select)
         val postcursorTrimmed = font.trimToWidth(postcursorCandidate, max(fieldWidth - precursorWidth, 0))
-        font.drawWithShadow(matrices, precursorTrimmed, (x + OFFSET_X_TEXT).toFloat(), textY.toFloat(), textColor)
-        font.drawWithShadow(matrices, postcursorTrimmed, (x + precursorWidth + OFFSET_X_TEXT).toFloat(), textY.toFloat(), textColor)
+        font.draw(matrices, precursorTrimmed, (x + OFFSET_X_TEXT).toFloat() + 0.5f, textY.toFloat() + 0.5f, shadowColor)
+        font.draw(matrices, postcursorTrimmed, (x + precursorWidth + OFFSET_X_TEXT).toFloat() + 0.5f, textY.toFloat() + 0.5f, shadowColor)
+
+        font.draw(matrices, precursorTrimmed, (x + OFFSET_X_TEXT).toFloat(), textY.toFloat(), textColor)
+        font.draw(matrices, postcursorTrimmed, (x + precursorWidth + OFFSET_X_TEXT).toFloat(), textY.toFloat(), textColor)
 
         if (isFocused && blink)
-            ScreenDrawing.coloredRect(x + precursorWidth + OFFSET_X_TEXT, textY - 2, 1, 12, -0x2f2f30)
+            ScreenDrawing.coloredRect(x + precursorWidth + OFFSET_X_TEXT, textY - 2, 1, font.fontHeight + 2, caretColor)
 
         caretTimeout = (++caretTimeout) % CARET_MAX_TIMEOUT
         if (caretTimeout == 0) {

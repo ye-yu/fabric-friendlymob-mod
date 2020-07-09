@@ -78,6 +78,12 @@ class VindorGUI(
         msgField.isEditable = true
         msgField.maxLength = 50
         msgField.width = 4 * 18 - io.github.cottonmc.cotton.gui.widget.WTextField.OFFSET_X_TEXT * 2
+        msgField.focusedBackgroundColor = -0x1666666
+        msgField.enabledBackgroundColor = -0x1AAAAAA
+        msgField.focusedBorderColor = -0x1000000
+        msgField.outfocusedBorderColor = -0x1000000
+        msgField.caretColor = -0x1000000
+        msgField.setEnabledColor(0x0)
         root.add(msgField, 0, 1, 4, 1)
         root.add(
             WLabel("Your Message")
