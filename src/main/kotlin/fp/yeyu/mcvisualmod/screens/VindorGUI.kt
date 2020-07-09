@@ -7,6 +7,7 @@ import io.github.cottonmc.cotton.gui.widget.WItemSlot
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.screen.slot.SlotActionType
 import org.apache.logging.log4j.LogManager
@@ -26,13 +27,22 @@ class VindorGUI(syncId: Int, playerInventory: PlayerInventory?, context: ScreenH
 
         if (trader != null) {
             val inv = trader.getInventory()
-            val invStack = inv.getStack(0)
-            if (!isEmptyOrNull(invStack))
-                blockInventory.setStack(0, invStack)
+            val sendStack = inv.getStack(0)
+            if (!sendStack.isEmpty) {
+                blockInventory.setStack(0, sendStack)
+            }
+
+            val receiveStack = inv.getStack(1)
+            if (!receiveStack.isEmpty) {
+                blockInventory.setStack(1, receiveStack)
+            }
         }
 
-        val vindorSlot = WItemSlot.of(blockInventory, 0)
-        root.add(vindorSlot, 4, 1)
+        val toSendSlot = WItemSlot.of(blockInventory, 0)
+        root.add(toSendSlot, 2, 1)
+
+        val toReceiveSlot = WItemSlot.of(blockInventory, 1)
+        root.add(toReceiveSlot, 6, 1)
 
         val playerSlot = createPlayerInventoryPanel()
         root.add(playerSlot, 0, 3)
@@ -42,7 +52,7 @@ class VindorGUI(syncId: Int, playerInventory: PlayerInventory?, context: ScreenH
     }
 
     companion object {
-        val SIZE = 1
+        const val SIZE = 2
         val LOGGER: Logger = LogManager.getLogger()
     }
 
@@ -52,18 +62,33 @@ class VindorGUI(syncId: Int, playerInventory: PlayerInventory?, context: ScreenH
         trader.currentCustomer = null
 
         val inv = trader.getInventory()
-        val blockStack = blockInventory.getStack(0)
-        if (!isEmptyOrNull(blockStack))
-            inv.setStack(0, blockStack)
+        val sendStack = blockInventory.getStack(0)
+        val receiveStack = blockInventory.getStack(1)
+
+        if (sendStack != null && !sendStack.isEmpty) {
+            inv.setStack(0, sendStack)
+        } else {
+            inv.setStack(0, ItemStack.EMPTY)
+        }
+
+        if (receiveStack != null && !receiveStack.isEmpty) {
+            inv.setStack(1, receiveStack)
+        } else {
+            inv.setStack(1, ItemStack.EMPTY)
+        }
     }
 
     override fun onSlotClick(slotNumber: Int, button: Int, action: SlotActionType?, player: PlayerEntity?): ItemStack {
-        LOGGER.info(String.format("%s clicked on slot %d", player?.entityName, slotNumber))
+        if (slotNumber == 1) {
+            if (action == SlotActionType.PICKUP || action == SlotActionType.PICKUP_ALL) {
+                val outputStack = blockInventory.getStack(1)
+                if (outputStack == null || outputStack.isEmpty || outputStack.item == Items.AIR) {
+                    return ItemStack.EMPTY
+                }
+            } else {
+                return ItemStack.EMPTY
+            }
+        }
         return super.onSlotClick(slotNumber, button, action, player)
     }
-
-    fun isEmptyOrNull(itemStack: ItemStack?): Boolean {
-        return itemStack == null || itemStack.isEmpty
-    }
-
 }

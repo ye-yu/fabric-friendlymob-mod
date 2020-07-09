@@ -19,7 +19,6 @@ import net.minecraft.entity.passive.IronGolemEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
-import net.minecraft.inventory.SidedInventory
 import net.minecraft.item.AxeItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
@@ -31,13 +30,11 @@ import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
-import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.function.Predicate
-import java.util.stream.IntStream
 
 class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : IronGolemEntity(entityType, world),
     PropertyDelegateHolder {
@@ -51,8 +48,10 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     }
 
     companion object {
-        val NAME = "vindor"
+        const val NAME = "vindor"
         val LOGGER: Logger = LogManager.getLogger()
+        const val WONDER_SLOT_ONE = "wonder_one"
+        const val WONDER_SLOT_TWO = "wonder_two"
     }
 
     @Environment(EnvType.CLIENT)
@@ -102,7 +101,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         return interactMob
     }
 
-    val guiHandler = VindorGuiHandler(this)
+    private val guiHandler = VindorGuiHandler(this)
     private fun trade(player: PlayerEntity?): ActionResult {
         if (player == null) return ActionResult.success(this.world.isClient)
         if (currentCustomer != null) return ActionResult.success(this.world.isClient)
@@ -161,21 +160,28 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
 
     override fun writeCustomDataToTag(tag: CompoundTag?) {
         super.writeCustomDataToTag(tag)
-        val vindorInvTag = CompoundTag()
-        if (!vindorInv.isEmpty && !vindorInv.currentItem.isEmpty) {
-            vindorInv.currentItem.toTag(vindorInvTag)
+        if (!inventory.isEmpty) {
+            val vindorInvTag = CompoundTag()
+            val slot1 = inventory.getStack(0)
+            val slot2 = inventory.getStack(1)
+            if (!slot1.isEmpty)
+                tag?.put(WONDER_SLOT_ONE, slot1.toTag(vindorInvTag))
+            if (!slot2.isEmpty)
+                tag?.put(WONDER_SLOT_TWO, slot2.toTag(vindorInvTag))
         }
-
-        tag?.put("wonder_item", vindorInvTag)
     }
 
     override fun readCustomDataFromTag(tag: CompoundTag?) {
         super.readCustomDataFromTag(tag)
-        if (!(tag?.contains("wonder_item"))!!) return
-        val vindorInvTag = tag.get("wonder_item") as CompoundTag
-        val vindorInvItem = ItemStack.fromTag(vindorInvTag)
+        if (tag == null) return
 
-        vindorInv.setStack(0, vindorInvItem)
+        if (tag.contains(WONDER_SLOT_ONE)) {
+            inventory.setStack(0, ItemStack.fromTag(tag.getCompound(WONDER_SLOT_ONE)))
+        }
+
+        if (tag.contains(WONDER_SLOT_TWO)) {
+            inventory.setStack(1, ItemStack.fromTag(tag.getCompound(WONDER_SLOT_TWO)))
+        }
     }
 
     override fun getAmbientSound(): SoundEvent? {
@@ -186,13 +192,13 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         return SoundEvents.ENTITY_VINDICATOR_HURT
     }
 
-    val vindorInv = VindorInventory()
+    private val inventory = VindorInventory()
     fun getInventory(): Inventory {
         LOGGER.info("Accessing Vindor's inventory")
-        return vindorInv
+        return inventory
     }
 
-    val propertyDelegate = ArrayPropertyDelegate(1)
+    private val propertyDelegate = ArrayPropertyDelegate(1)
     override fun getPropertyDelegate(): PropertyDelegate {
         return propertyDelegate
     }
@@ -208,46 +214,39 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     }
 
     class VindorInventory : Inventory {
-        var currentItem: ItemStack = ItemStack.EMPTY
-        var dirty = false
+        private val slots = arrayOf(ItemStack.EMPTY, ItemStack.EMPTY)
 
         override fun markDirty() {
-            dirty = true
+            throw IllegalAccessError("Access is not relevant.")
         }
 
         override fun clear() {
-            currentItem = ItemStack.EMPTY
+            slots[0] = ItemStack.EMPTY
+            slots[1] = ItemStack.EMPTY
         }
 
-        override fun setStack(slot: Int, stack: ItemStack?) {
-            assert(slot == 0) { "Out of bound." }
-            println("Putting item in the vindor's slot.")
-            if (stack == null) {
-                currentItem = ItemStack.EMPTY
-            } else {
-                currentItem = stack
-            }
+        override fun setStack(slot: Int, stack: ItemStack) {
+            slots[slot] = stack
         }
 
         override fun isEmpty(): Boolean {
-            return currentItem == ItemStack.EMPTY
+            return slots[0] == ItemStack.EMPTY && slots[1] == ItemStack.EMPTY
         }
 
         override fun removeStack(slot: Int, amount: Int): ItemStack {
-            assert(slot == 0) { "Out of bound." }
-            return currentItem.split(amount)
+            val stack = slots[slot].split(amount)
+            LOGGER.info(String.format("Vindor's inventory slot %d is empty: %s", slot, slots[slot].isEmpty))
+            return stack
         }
 
         override fun removeStack(slot: Int): ItemStack {
-            assert(slot == 0) { "Out of bound." }
-            val ret = currentItem
-            currentItem = ItemStack.EMPTY
-            return ret
+            val stack = slots[slot]
+            slots[slot] = ItemStack.EMPTY
+            return stack
         }
 
-        override fun getStack(slot: Int): ItemStack? {
-            assert(slot == 0) { "Out of bound." }
-            return currentItem
+        override fun getStack(slot: Int): ItemStack {
+            return slots[slot]
         }
 
         override fun canPlayerUse(player: PlayerEntity?): Boolean {
@@ -255,7 +254,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         }
 
         override fun size(): Int {
-            return 1
+            return 2
         }
     }
 }
