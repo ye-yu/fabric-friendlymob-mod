@@ -4,8 +4,6 @@ import fp.yeyu.mcvisualmod.screens.VindorGUI
 import io.github.cottonmc.cotton.gui.PropertyDelegateHolder
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
-import net.minecraft.block.BlockState
-import net.minecraft.block.InventoryProvider
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
@@ -20,10 +18,12 @@ import net.minecraft.entity.mob.Monster
 import net.minecraft.entity.passive.IronGolemEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.Inventory
 import net.minecraft.inventory.SidedInventory
 import net.minecraft.item.AxeItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.screen.*
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
@@ -31,18 +31,16 @@ import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
-import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
-import net.minecraft.world.WorldAccess
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.function.Predicate
 import java.util.stream.IntStream
 
 class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : IronGolemEntity(entityType, world),
-    InventoryProvider, PropertyDelegateHolder {
+    PropertyDelegateHolder {
 
     init {
         equipStack(EquipmentSlot.MAINHAND, ItemStack(Items.IRON_AXE))
@@ -161,6 +159,25 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         }
     }
 
+    override fun writeCustomDataToTag(tag: CompoundTag?) {
+        super.writeCustomDataToTag(tag)
+        val vindorInvTag = CompoundTag()
+        if (!vindorInv.isEmpty && !vindorInv.currentItem.isEmpty) {
+            vindorInv.currentItem.toTag(vindorInvTag)
+        }
+
+        tag?.put("wonder_item", vindorInvTag)
+    }
+
+    override fun readCustomDataFromTag(tag: CompoundTag?) {
+        super.readCustomDataFromTag(tag)
+        if (!(tag?.contains("wonder_item"))!!) return
+        val vindorInvTag = tag.get("wonder_item") as CompoundTag
+        val vindorInvItem = ItemStack.fromTag(vindorInvTag)
+
+        vindorInv.setStack(0, vindorInvItem)
+    }
+
     override fun getAmbientSound(): SoundEvent? {
         return SoundEvents.ENTITY_VILLAGER_AMBIENT
     }
@@ -170,7 +187,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     }
 
     val vindorInv = VindorInventory()
-    override fun getInventory(state: BlockState?, world: WorldAccess?, pos: BlockPos?): SidedInventory {
+    fun getInventory(): Inventory {
         LOGGER.info("Accessing Vindor's inventory")
         return vindorInv
     }
@@ -190,19 +207,12 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         }
     }
 
-    class VindorInventory : SidedInventory {
+    class VindorInventory : Inventory {
         var currentItem: ItemStack = ItemStack.EMPTY
         var dirty = false
-        override fun canExtract(slot: Int, stack: ItemStack?, dir: Direction?): Boolean {
-            return false
-        }
 
         override fun markDirty() {
             dirty = true
-        }
-
-        override fun canInsert(slot: Int, stack: ItemStack?, dir: Direction?): Boolean {
-            return false
         }
 
         override fun clear() {
@@ -247,14 +257,5 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         override fun size(): Int {
             return 1
         }
-
-        override fun getAvailableSlots(side: Direction?): IntArray {
-            return if (currentItem != ItemStack.EMPTY) {
-                IntArray(0)
-            } else {
-                IntStream.range(0, 1).toArray()
-            }
-        }
-
     }
 }

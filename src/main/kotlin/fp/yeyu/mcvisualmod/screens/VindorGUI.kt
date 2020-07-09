@@ -25,7 +25,7 @@ class VindorGUI(syncId: Int, playerInventory: PlayerInventory?, context: ScreenH
         setRootPanel(root)
 
         if (trader != null) {
-            val inv = trader.getInventory(null, null, null)
+            val inv = trader.getInventory()
             val invStack = inv.getStack(0)
             if (!isEmptyOrNull(invStack))
                 blockInventory.setStack(0, invStack)
@@ -51,7 +51,7 @@ class VindorGUI(syncId: Int, playerInventory: PlayerInventory?, context: ScreenH
         if (trader == null) return
         trader.currentCustomer = null
 
-        val inv = trader.getInventory(null, null, null)
+        val inv = trader.getInventory()
         val blockStack = blockInventory.getStack(0)
         if (!isEmptyOrNull(blockStack))
             inv.setStack(0, blockStack)
