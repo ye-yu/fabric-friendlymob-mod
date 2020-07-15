@@ -17,8 +17,6 @@ import net.minecraft.item.Items
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.screen.slot.SlotActionType
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.server.world.ServerWorld
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 

@@ -4,14 +4,12 @@ import com.google.common.collect.Maps
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.PositionTracker
-import net.minecraft.server.MinecraftServer
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.*
-import java.lang.IllegalArgumentException
 import java.time.Instant
 import java.util.*
 import kotlin.math.max
@@ -92,13 +90,12 @@ class VindorUtils {
             INTERACTIONS[player] = vindor
         }
 
-        fun pop(player: ServerPlayerEntity): Vindor{
+        fun pop(player: ServerPlayerEntity): Vindor {
             return INTERACTIONS.remove(player)!!
         }
     }
 }
 
 
-class WonderProps(val item: ItemStack, val msg: String) {
-}
+class WonderProps(val item: ItemStack, val msg: String)
 

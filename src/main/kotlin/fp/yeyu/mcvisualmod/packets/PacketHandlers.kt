@@ -1,15 +1,12 @@
 package fp.yeyu.mcvisualmod.packets
 
 import fp.yeyu.mcvisualmod.SilentMinecraft
-import fp.yeyu.mcvisualmod.mobs.entity.Vindor
 import fp.yeyu.mcvisualmod.screens.VindorGUI
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
 import net.fabricmc.fabric.api.network.PacketContext
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry
-import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.network.PacketByteBuf
-import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Identifier
 import net.minecraft.world.World
 import org.apache.logging.log4j.LogManager

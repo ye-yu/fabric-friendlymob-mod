@@ -12,7 +12,6 @@ import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
-import java.util.function.Consumer
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -173,7 +172,8 @@ class WTextField : WTextFieldLibGui() {
         validateCursors()
         val font = MinecraftClient.getInstance().textRenderer
         val borderColor = if (this.isFocused) focusedBorderColor else outfocusedBorderColor
-        val backgroundColor = if (!this.editable) disabledBackgroundColor else if (this.isFocused) focusedBackgroundColor else enabledBackgroundColor
+        val backgroundColor =
+            if (!this.editable) disabledBackgroundColor else if (this.isFocused) focusedBackgroundColor else enabledBackgroundColor
         ScreenDrawing.coloredRect(x, y, width, height - 3, borderColor)
         ScreenDrawing.coloredRect(x + 1, y + 1, width - 1, height - 3 - 1, backgroundColor)
         val textColor = if (editable) enabledColor else uneditableColor
@@ -186,10 +186,22 @@ class WTextField : WTextFieldLibGui() {
         val postcursorCandidate = text.substring(cursor + select)
         val postcursorTrimmed = font.trimToWidth(postcursorCandidate, max(fieldWidth - precursorWidth, 0))
         font.draw(matrices, precursorTrimmed, (x + OFFSET_X_TEXT).toFloat() + 0.5f, textY.toFloat() + 0.5f, shadowColor)
-        font.draw(matrices, postcursorTrimmed, (x + precursorWidth + OFFSET_X_TEXT).toFloat() + 0.5f, textY.toFloat() + 0.5f, shadowColor)
+        font.draw(
+            matrices,
+            postcursorTrimmed,
+            (x + precursorWidth + OFFSET_X_TEXT).toFloat() + 0.5f,
+            textY.toFloat() + 0.5f,
+            shadowColor
+        )
 
         font.draw(matrices, precursorTrimmed, (x + OFFSET_X_TEXT).toFloat(), textY.toFloat(), textColor)
-        font.draw(matrices, postcursorTrimmed, (x + precursorWidth + OFFSET_X_TEXT).toFloat(), textY.toFloat(), textColor)
+        font.draw(
+            matrices,
+            postcursorTrimmed,
+            (x + precursorWidth + OFFSET_X_TEXT).toFloat(),
+            textY.toFloat(),
+            textColor
+        )
 
         if (isFocused && blink)
             ScreenDrawing.coloredRect(x + precursorWidth + OFFSET_X_TEXT, textY - 2, 1, font.fontHeight + 2, caretColor)

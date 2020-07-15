@@ -4,7 +4,6 @@ import fp.yeyu.mcvisualmod.screens.VindorGUI
 import io.github.cottonmc.cotton.gui.PropertyDelegateHolder
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
-import net.minecraft.client.world.ClientWorld
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
@@ -24,9 +23,7 @@ import net.minecraft.item.AxeItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.packet.s2c.play.TitleS2CPacket
 import net.minecraft.screen.*
-import net.minecraft.server.command.TitleCommand
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
@@ -255,7 +252,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
 
     fun finishTrading() {
         wonderTick = if (inventory.getStack(0).isEmpty) -1
-                     else 20 * 30 + this.world.random.nextInt(20 * 30)
+        else 20 * 30 + this.world.random.nextInt(20 * 30)
         LOGGER.info("Vindor will wonder trade in $wonderTick ticks. Sending message: ${getSenderMessage()}")
 
         if (!inventory.getStack(0).isEmpty) {
