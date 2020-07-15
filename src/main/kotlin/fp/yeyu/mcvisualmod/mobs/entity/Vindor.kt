@@ -4,6 +4,7 @@ import fp.yeyu.mcvisualmod.screens.VindorGUI
 import io.github.cottonmc.cotton.gui.PropertyDelegateHolder
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
+import net.minecraft.client.world.ClientWorld
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
@@ -23,9 +24,13 @@ import net.minecraft.item.AxeItem
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.packet.s2c.play.TitleS2CPacket
 import net.minecraft.screen.*
+import net.minecraft.server.command.TitleCommand
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
+import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.ActionResult
@@ -48,10 +53,12 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     }
 
     companion object {
+        const val WONDER_MSG_TAG = "wonder_msg_tag"
         const val NAME = "vindor"
         val LOGGER: Logger = LogManager.getLogger()
         const val WONDER_SLOT_ONE = "wonder_one"
         const val WONDER_SLOT_TWO = "wonder_two"
+        private const val WONDER_TIMEOUT = "wonder_timout"
     }
 
     @Environment(EnvType.CLIENT)
@@ -66,6 +73,10 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     @Environment(EnvType.CLIENT)
     enum class State {
         CROSSED, ATTACKING
+    }
+
+    private fun receivedWonderItem(): Boolean {
+        return !inventory.getStack(1).isEmpty
     }
 
     var currentCustomer: PlayerEntity? = null
@@ -95,7 +106,6 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     override fun interactMob(player: PlayerEntity?, hand: Hand?): ActionResult {
         val interactMob = super.interactMob(player, hand)
         if (interactMob == ActionResult.PASS || interactMob.isAccepted) {
-            LOGGER.info(String.format("%s is interacting with a Vindor.", player?.displayName))
             return trade(player)
         }
         return interactMob
@@ -158,8 +168,10 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         }
     }
 
+    var wonderTick = -1 // means, no item to trade
     override fun writeCustomDataToTag(tag: CompoundTag?) {
         super.writeCustomDataToTag(tag)
+        tag?.putInt(WONDER_TIMEOUT, wonderTick)
         if (!inventory.isEmpty) {
             val vindorInvTag = CompoundTag()
             val slot1 = inventory.getStack(0)
@@ -182,14 +194,76 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         if (tag.contains(WONDER_SLOT_TWO)) {
             inventory.setStack(1, ItemStack.fromTag(tag.getCompound(WONDER_SLOT_TWO)))
         }
+
+        if (tag.contains(WONDER_TIMEOUT)) {
+            wonderTick = tag.getInt(WONDER_TIMEOUT)
+        }
     }
 
     override fun getAmbientSound(): SoundEvent? {
+        if (receivedWonderItem()) return SoundEvents.ENTITY_VILLAGER_TRADE
         return SoundEvents.ENTITY_VILLAGER_AMBIENT
+    }
+
+    override fun mobTick() {
+        super.mobTick()
+
+        if (world !is ServerWorld) return
+        if (wonderTick > 0) {
+            wonderTick--
+        }
+        if (wonderTick == 0) {
+            val util = VindorUtils.INSTANCE.util
+            if (util.lock()) {
+                val poppedItem = util.popWonderItem(world as ServerWorld, inventory.getStack(0), senderMsg)
+                inventory.clear()
+                inventory.setStack(1, poppedItem.item)
+                receivedMessage = poppedItem.msg
+                setSenderMessage("")
+                util.unlock()
+            }
+            wonderTick = -1
+        }
+    }
+
+    var receivedMessage = ""
+    var senderMsg = ""
+
+    fun setSenderMessage(msg: String) {
+        senderMsg = msg
+    }
+
+    fun getSenderMessage(): String {
+        return senderMsg
+    }
+
+    fun flushMessage(player: PlayerEntity) {
+        if (receivedMessage.isEmpty()) return
+        if (this.world !is ServerWorld) return
+        player.sendMessage(LiteralText("Wonder trade succesful! They said: $receivedMessage"), false)
+        player.sendMessage(LiteralText("\"$receivedMessage\""), true)
+        receivedMessage = ""
     }
 
     override fun getHurtSound(source: DamageSource?): SoundEvent? {
         return SoundEvents.ENTITY_VINDICATOR_HURT
+    }
+
+    override fun getDeathSound(): SoundEvent? {
+        return SoundEvents.ENTITY_VINDICATOR_DEATH
+    }
+
+    fun finishTrading() {
+        wonderTick = if (inventory.getStack(0).isEmpty) -1
+                     else 20 * 30 + this.world.random.nextInt(20 * 30)
+        LOGGER.info("Vindor will wonder trade in $wonderTick ticks. Sending message: ${getSenderMessage()}")
+
+        if (!inventory.getStack(0).isEmpty) {
+            val tag = CompoundTag()
+            tag.putString("msg", getSenderMessage())
+            inventory.getStack(0).putSubTag(WONDER_MSG_TAG, tag)
+        }
+        currentCustomer = null
     }
 
     private val inventory = VindorInventory()
@@ -203,8 +277,10 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         return propertyDelegate
     }
 
-    class VindorGuiHandler(val who: Vindor): NamedScreenHandlerFactory {
+    class VindorGuiHandler(private val who: Vindor?) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory?, player: PlayerEntity?): ScreenHandler? {
+            if (who != null)
+                who.wonderTick = -1
             return VindorGUI(syncId, inv, ScreenHandlerContext.create(player?.world, player?.blockPos), who)
         }
 

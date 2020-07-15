@@ -2,8 +2,10 @@ package fp.yeyu.mcvisualmod
 
 import fp.yeyu.mcvisualmod.mobs.egg.VindorEgg
 import fp.yeyu.mcvisualmod.mobs.entity.Vindor
+import fp.yeyu.mcvisualmod.packets.PacketHandlers
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricEntityTypeBuilder
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry
 import net.minecraft.entity.EntityDimensions
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
@@ -19,6 +21,7 @@ class SilentMinecraft : ModInitializer {
     companion object {
         val NAMESPACE = "friendlymob"
         val VINDOR_ENTITY_ID = Identifier(NAMESPACE, Vindor.NAME)
+        val LOGGER: Logger = LogManager.getLogger()
 
         fun registerItem(id: String, instantiation: Item) {
             Registry.register(
@@ -41,9 +44,8 @@ class SilentMinecraft : ModInitializer {
         );
     }
 
-    private val logger: Logger = LogManager.getLogger()
     override fun onInitialize() {
-        logger.info("Mod is loaded. [Main]")
+        LOGGER.info("Mod is loaded. [Main]")
         registerItem(
             VindorEgg.NAME,
             VindorEgg(
@@ -53,5 +55,12 @@ class SilentMinecraft : ModInitializer {
                 Item.Settings().maxDamage(1).group(ItemGroup.MISC)
             )
         )
+
+        PacketHandlers.values().forEach {
+            if (it.toServer) {
+                ServerSidePacketRegistry.INSTANCE.register(it.id, it.handler)
+                LOGGER.info("[Server] Registered $it")
+            }
+        }
     }
 }

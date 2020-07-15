@@ -12,6 +12,7 @@ import net.minecraft.client.render.VertexFormats
 import net.minecraft.client.util.math.MatrixStack
 import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
+import java.util.function.Consumer
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -95,6 +96,7 @@ class WTextField : WTextFieldLibGui() {
         }
     }
 
+    var onChangeListener: (String) -> Unit = {}
     override fun onCharTyped(ch: Char) {
         if (!editable) return
         if (text.length >= maxLength) return
@@ -104,6 +106,7 @@ class WTextField : WTextFieldLibGui() {
         this.text = this.text.substring(0, curLeft) + ch + this.text.substring(curRight, this.text.length)
         cursor++
         select = 0
+        onChangeListener(text)
     }
 
     private fun eraseFromCursor(forward: Boolean) {
@@ -121,6 +124,7 @@ class WTextField : WTextFieldLibGui() {
         this.text = this.text.substring(0, curLeft) + this.text.substring(curRight, this.text.length)
         setCursorPos(curLeft)
         select = 0
+        onChangeListener(text)
     }
 
     private fun insertText(clipboard: String) {
