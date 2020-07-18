@@ -41,7 +41,6 @@ class VindorGUI(
         setRootPanel(root)
 
         if (vindor != null) {
-//            msgField.text = vindor.getSenderMessage()
             val inv = vindor.getInventory()
             val sendStack = inv.getStack(0)
             if (!sendStack.isEmpty) {
@@ -82,7 +81,7 @@ class VindorGUI(
         val playerSlot = createPlayerInventoryPanel()
         root.add(playerSlot, 0, 3)
 
-        msgField.isEditable = true
+        msgField.isEditable = false
         msgField.maxLength = MAX_TEXT_LENGTH
         msgField.width = 4 * 18 - io.github.cottonmc.cotton.gui.widget.WTextField.OFFSET_X_TEXT * 2
         msgField.focusedBackgroundColor = -0x1666666
@@ -99,6 +98,7 @@ class VindorGUI(
                 buf.writeString(it)
                 PacketHandlers.VINDOR_SEND_TEXT.send(this.world, buf, null)
             }
+            requestVindorText()
         }
 
         root.add(msgField, 0, 1, 4, 1)
@@ -111,6 +111,12 @@ class VindorGUI(
 
         root.setSize(playerSlot.width, 100)
         root.validate(this)
+    }
+
+    private fun requestVindorText() {
+        LOGGER.info("Requesting vindor text from client side.")
+        Magic.push(Magic.Key.OPEN_SCREEN, this)
+        PacketHandlers.VINDOR_REQUEST_TEXT.send(this.world, PacketByteBuf(Unpooled.buffer()), null)
     }
 
     companion object {
@@ -154,5 +160,11 @@ class VindorGUI(
             }
         }
         return super.onSlotClick(slotNumber, button, action, player)
+    }
+
+    fun initText(msg: String) {
+        msgField.text = msg
+        msgField.isEditable = true
+        vindor?.setSenderMessage(msg)
     }
 }
