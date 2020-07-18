@@ -38,8 +38,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.function.Predicate
 
-class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : IronGolemEntity(entityType, world),
-    PropertyDelegateHolder {
+class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : IronGolemEntity(entityType, world) {
 
     init {
         equipStack(EquipmentSlot.MAINHAND, ItemStack(Items.IRON_AXE))
@@ -244,11 +243,12 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         return senderMsg
     }
 
-    fun flushMessage(player: PlayerEntity) {
+    private fun flushMessage() {
         if (receivedMessage.isEmpty()) return
         if (this.world !is ServerWorld) return
-        player.sendMessage(LiteralText("Wonder trade succesful! They said: $receivedMessage"), false)
-        player.sendMessage(LiteralText("\"$receivedMessage\""), true)
+        if (currentCustomer == null) return
+        currentCustomer!!.sendMessage(LiteralText("Wonder trade succesful! They said: $receivedMessage"), false)
+        currentCustomer!!.sendMessage(LiteralText("\"$receivedMessage\""), true)
         receivedMessage = ""
     }
 
@@ -260,20 +260,29 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         return SoundEvents.ENTITY_VINDICATOR_DEATH
     }
 
-    fun finishTrading() {
+    fun finishTrading(itemSlot1: ItemStack?, itemSlot2: ItemStack?) {
+        if (itemSlot1 != null && !itemSlot1.isEmpty) {
+            getInventory().setStack(0, itemSlot1)
+        } else {
+            getInventory().setStack(0, ItemStack.EMPTY)
+        }
+
+        getInventory().setStack(1, ItemStack.EMPTY)
+
+        if (itemSlot2 != null && !itemSlot2.isEmpty) {
+            currentCustomer!!.dropStack(itemSlot2)
+        }
+
         wonderTick = if (inventory.getStack(0).isEmpty) -1
         else 20 * 30 + this.world.random.nextInt(20 * 30)
+
+        flushMessage()
         currentCustomer = null
     }
 
     private val inventory = VindorInventory()
     fun getInventory(): Inventory {
         return inventory
-    }
-
-    private val propertyDelegate = ArrayPropertyDelegate(1)
-    override fun getPropertyDelegate(): PropertyDelegate {
-        return propertyDelegate
     }
 
     class VindorGuiHandler(private val who: Vindor?) : NamedScreenHandlerFactory {

@@ -31,7 +31,7 @@ class VindorGUI(
         syncId,
         playerInventory,
         getBlockInventory(context, SIZE),
-        getBlockPropertyDelegate(context, SIZE)
+        getBlockPropertyDelegate(context, 0)
     ) {
 
     private val msgField = WTextField()
@@ -117,24 +117,9 @@ class VindorGUI(
     override fun close(player: PlayerEntity?) {
         super.close(player)
         if (vindor == null) return
-        val inv = vindor.getInventory()
         val sendStack = blockInventory.getStack(0)
         val receiveStack = blockInventory.getStack(1)
-
-        if (sendStack != null && !sendStack.isEmpty) {
-            inv.setStack(0, sendStack)
-        } else {
-            inv.setStack(0, ItemStack.EMPTY)
-        }
-
-        if (receiveStack == null || receiveStack.isEmpty) {
-            inv.setStack(1, ItemStack.EMPTY)
-            vindor.dropStack(receiveStack)
-            if (player != null) {
-                vindor.flushMessage(player)
-            }
-        }
-        vindor.finishTrading()
+        vindor.finishTrading(sendStack, receiveStack)
     }
 
     override fun onSlotClick(slotNumber: Int, button: Int, action: SlotActionType?, player: PlayerEntity?): ItemStack {
