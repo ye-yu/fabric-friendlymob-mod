@@ -43,44 +43,33 @@ class VindorGUI(
         if (vindor != null) {
             val inv = vindor.getInventory()
             val sendStack = inv.getStack(0)
-            if (!sendStack.isEmpty) {
-                blockInventory.setStack(0, sendStack)
-                if (sendStack.getSubTag(Vindor.WONDER_MSG_TAG) != null) {
-                    val msg = sendStack.getSubTag(Vindor.WONDER_MSG_TAG)!!.getString("msg")
-                    msgField.text = msg
-                }
-            }
-
             val receiveStack = inv.getStack(1)
-            if (!receiveStack.isEmpty) {
-                blockInventory.setStack(1, receiveStack)
-            }
+            setBlockInventoryIfNotEmpty(0, sendStack)
+            setBlockInventoryIfNotEmpty(1, receiveStack)
         }
 
-        root.add(
-            WLabel("Send")
-                .setVerticalAlignment(VerticalAlignment.CENTER)
-                .setHorizontalAlignment(HorizontalAlignment.CENTER),
-            5,
-            2
-        )
+        root.add(createCenteredLabel("Send"), 5, 2)
         val toSendSlot = WItemSlot.of(blockInventory, 0)
         root.add(toSendSlot, 5, 1)
 
 
-        root.add(
-            WLabel("Receive")
-                .setVerticalAlignment(VerticalAlignment.CENTER)
-                .setHorizontalAlignment(HorizontalAlignment.CENTER),
-            7,
-            2
-        )
+        root.add(createCenteredLabel("Receive"), 7, 2)
         val toReceiveSlot = WItemSlot.of(blockInventory, 1)
         root.add(toReceiveSlot, 7, 1)
 
         val playerSlot = createPlayerInventoryPanel()
         root.add(playerSlot, 0, 3)
 
+        initMessageField()
+
+        root.add(msgField, 0, 1, 4, 1)
+        root.add(createCenteredLabel("Your Message"), 0, 2)
+
+        root.setSize(playerSlot.width, 100)
+        root.validate(this)
+    }
+
+    private fun initMessageField() {
         msgField.isEditable = false
         msgField.maxLength = MAX_TEXT_LENGTH
         msgField.width = 4 * 18 - io.github.cottonmc.cotton.gui.widget.WTextField.OFFSET_X_TEXT * 2
@@ -101,22 +90,21 @@ class VindorGUI(
             }
             requestVindorText()
         }
+    }
 
-        root.add(msgField, 0, 1, 4, 1)
-        root.add(
-            WLabel("Your Message")
-                .setVerticalAlignment(VerticalAlignment.CENTER),
-            0,
-            2
-        )
+    private fun createCenteredLabel(label: String): WLabel {
+        return WLabel(label)
+            .setVerticalAlignment(VerticalAlignment.CENTER)
+            .setHorizontalAlignment(HorizontalAlignment.CENTER)
+    }
 
-        root.setSize(playerSlot.width, 100)
-        root.validate(this)
+    private fun setBlockInventoryIfNotEmpty(slotNumber: Int, itemStack: ItemStack) {
+        if (itemStack.isEmpty) return
+        blockInventory.setStack(slotNumber, itemStack)
     }
 
     private fun requestVindorText() {
-        LOGGER.info("Requesting vindor text from client side.")
-        Magic.push(Magic.Key.OPEN_SCREEN, this)
+        OpenedScreen.set(this)
         PacketHandlers.VINDOR_REQUEST_TEXT.send(this.world, PacketByteBuf(Unpooled.buffer()), null)
     }
 

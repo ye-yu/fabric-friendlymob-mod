@@ -1,7 +1,7 @@
 package fp.yeyu.mcvisualmod.packets
 
 import fp.yeyu.mcvisualmod.SilentMinecraft
-import fp.yeyu.mcvisualmod.screens.Magic
+import fp.yeyu.mcvisualmod.screens.OpenedScreen
 import fp.yeyu.mcvisualmod.screens.VindorGUI
 import io.netty.buffer.Unpooled
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
@@ -42,9 +42,8 @@ enum class PacketHandlers(val toServer: Boolean, val handler: (PacketContext, Pa
 }
 
 fun initVindorText(@Suppress("UNUSED_PARAMETER") ignored: PacketContext, packetByteBuf: PacketByteBuf) {
-    val screen = Magic.pop(Magic.Key.OPEN_SCREEN)
+    val screen = OpenedScreen.unset()
     (screen as VindorGUI).initText(packetByteBuf.readString())
-
 }
 
 fun requestVindorText(packetContext: PacketContext, @Suppress("UNUSED_PARAMETER") packetByteBuf: PacketByteBuf) {

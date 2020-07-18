@@ -14,20 +14,16 @@ import java.time.Instant
 import java.util.*
 import kotlin.math.max
 
-class VindorUtils {
-    object INSTANCE {
-        val util = VindorUtils()
-    }
-
-    private val wonderItemTag: String = "wonder_item"
-    private val wonderMsgTag = "wonder_msg"
-    val scheduleFile = "wonder.schedule"
-    var key = false
+object VindorUtils {
+    private const val wonderItemTag: String = "wonder_item"
+    private const val wonderMsgTag = "wonder_msg"
+    private const val scheduleFile = "wonder.schedule"
+    private var key = false
     private val logger: Logger = LogManager.getLogger()
 
     fun popWonderItem(world: ServerWorld, item: ItemStack, msg: String): WonderProps {
         val file = world.server.getFile(scheduleFile)
-        createIfNotExists(world, scheduleFile)
+        createIfNotExists(world)
         val tag = CompoundTag().reader.read(DataInputStream(FileInputStream(file)), 0, PositionTracker(Long.MAX_VALUE))
 
         val itemStack = ItemStack.fromTag(tag.getCompound(wonderItemTag))
@@ -52,7 +48,7 @@ class VindorUtils {
     }
 
     fun hasWonderItem(world: ServerWorld): Boolean {
-        return !createIfNotExists(world, scheduleFile)
+        return !createIfNotExists(world)
     }
 
     fun lock(): Boolean {
@@ -65,8 +61,8 @@ class VindorUtils {
         key = false
     }
 
-    fun createIfNotExists(world: ServerWorld, filename: String): Boolean {
-        val file = world.server.getFile(filename)
+    private fun createIfNotExists(world: ServerWorld): Boolean {
+        val file = world.server.getFile(scheduleFile)
         if (!file.exists()) {
             if (file.createNewFile()) {
                 logger.info(String.format("Created wonder file at: %s", file.absolutePath))
@@ -81,21 +77,6 @@ class VindorUtils {
         }
         return false
     }
-
-    object VindorInteraction {
-        private val INTERACTIONS = Maps.newHashMap<ServerPlayerEntity, Vindor>()
-
-        @JvmStatic
-        fun push(player: ServerPlayerEntity, vindor: Vindor) {
-            INTERACTIONS[player] = vindor
-        }
-
-        fun pop(player: ServerPlayerEntity): Vindor {
-            return INTERACTIONS.remove(player)!!
-        }
-    }
 }
 
-
 class WonderProps(val item: ItemStack, val msg: String)
-

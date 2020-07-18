@@ -50,12 +50,13 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     }
 
     companion object {
-        const val WONDER_MSG_TAG = "wonder_msg_tag"
         const val NAME = "vindor"
         val LOGGER: Logger = LogManager.getLogger()
-        const val WONDER_SLOT_ONE = "wonder_one"
-        const val WONDER_SLOT_TWO = "wonder_two"
-        private const val WONDER_TIMEOUT = "wonder_timout"
+        private const val WONDER_SLOT_ONE = "wonder_one"
+        private const val WONDER_SLOT_TWO = "wonder_two"
+        private const val WONDER_TIMEOUT = "wonder_timeout"
+        private const val WONDER_SENDER_MSG = "wonder_sender_msg"
+        private const val WONDER_RECEIVER_MSG = "wonder_receiver_msg"
     }
 
     @Environment(EnvType.CLIENT)
@@ -166,17 +167,19 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     }
 
     var wonderTick = -1 // means, no item to trade
-    override fun writeCustomDataToTag(tag: CompoundTag?) {
+    override fun writeCustomDataToTag(tag: CompoundTag) {
         super.writeCustomDataToTag(tag)
-        tag?.putInt(WONDER_TIMEOUT, wonderTick)
+        tag.putInt(WONDER_TIMEOUT, wonderTick)
         if (!inventory.isEmpty) {
             val vindorInvTag = CompoundTag()
             val slot1 = inventory.getStack(0)
             val slot2 = inventory.getStack(1)
             if (!slot1.isEmpty)
-                tag?.put(WONDER_SLOT_ONE, slot1.toTag(vindorInvTag))
+                tag.put(WONDER_SLOT_ONE, slot1.toTag(vindorInvTag))
             if (!slot2.isEmpty)
-                tag?.put(WONDER_SLOT_TWO, slot2.toTag(vindorInvTag))
+                tag.put(WONDER_SLOT_TWO, slot2.toTag(vindorInvTag))
+            tag.putString(WONDER_SENDER_MSG, getSenderMessage())
+            tag.putString(WONDER_RECEIVER_MSG, receivedMessage)
         }
     }
 
@@ -195,6 +198,14 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         if (tag.contains(WONDER_TIMEOUT)) {
             wonderTick = tag.getInt(WONDER_TIMEOUT)
         }
+
+        if (tag.contains(WONDER_SENDER_MSG)) {
+            setSenderMessage(tag.getString(WONDER_SENDER_MSG))
+        }
+
+        if (tag.contains(WONDER_RECEIVER_MSG)) {
+            receivedMessage = tag.getString(WONDER_RECEIVER_MSG)
+        }
     }
 
     override fun getAmbientSound(): SoundEvent? {
@@ -210,20 +221,19 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
             wonderTick--
         }
         if (wonderTick == 0) {
-            val util = VindorUtils.INSTANCE.util
-            if (util.lock()) {
-                val poppedItem = util.popWonderItem(world as ServerWorld, inventory.getStack(0), senderMsg)
+            if (VindorUtils.lock()) {
+                val poppedItem = VindorUtils.popWonderItem(world as ServerWorld, inventory.getStack(0), senderMsg)
                 inventory.clear()
                 inventory.setStack(1, poppedItem.item)
                 receivedMessage = poppedItem.msg
                 setSenderMessage("")
-                util.unlock()
+                VindorUtils.unlock()
             }
             wonderTick = -1
         }
     }
 
-    var receivedMessage = ""
+    private var receivedMessage = ""
     var senderMsg = ""
 
     fun setSenderMessage(msg: String) {
@@ -253,19 +263,11 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     fun finishTrading() {
         wonderTick = if (inventory.getStack(0).isEmpty) -1
         else 20 * 30 + this.world.random.nextInt(20 * 30)
-        LOGGER.info("Vindor will wonder trade in $wonderTick ticks. Sending message: ${getSenderMessage()}")
-
-        if (!inventory.getStack(0).isEmpty) {
-            val tag = CompoundTag()
-            tag.putString("msg", getSenderMessage())
-            inventory.getStack(0).putSubTag(WONDER_MSG_TAG, tag)
-        }
         currentCustomer = null
     }
 
     private val inventory = VindorInventory()
     fun getInventory(): Inventory {
-        LOGGER.info("Accessing Vindor's inventory")
         return inventory
     }
 
@@ -276,8 +278,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
 
     class VindorGuiHandler(private val who: Vindor?) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory?, player: PlayerEntity?): ScreenHandler? {
-            if (who != null)
-                who.wonderTick = -1
+            if (who != null) who.wonderTick = -1
             return VindorGUI(syncId, inv, ScreenHandlerContext.create(player?.world, player?.blockPos), who)
         }
 
@@ -307,9 +308,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         }
 
         override fun removeStack(slot: Int, amount: Int): ItemStack {
-            val stack = slots[slot].split(amount)
-            LOGGER.info(String.format("Vindor's inventory slot %d is empty: %s", slot, slots[slot].isEmpty))
-            return stack
+            return slots[slot].split(amount)
         }
 
         override fun removeStack(slot: Int): ItemStack {
