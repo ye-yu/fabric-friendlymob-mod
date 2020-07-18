@@ -64,6 +64,6 @@ class SilentMinecraft : ModInitializer {
             }
         }
 
-        VindorUtils.forceInvoke()
+        VindorUtils.forceInvoke(this)
     }
 }

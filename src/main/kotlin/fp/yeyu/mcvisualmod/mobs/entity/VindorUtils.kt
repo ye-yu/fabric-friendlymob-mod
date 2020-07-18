@@ -33,7 +33,7 @@ object VindorUtils {
         createIfNotExists()
     }
 
-    fun forceInvoke() {}
+    fun forceInvoke(@Suppress("UNUSED_PARAMETER") silentMinecraft: SilentMinecraft) {}
 
     private fun getFile(filename: String): File {
         val parent = Paths.get(".").resolve("mods").resolve(SilentMinecraft::class.simpleName!!).toFile()
