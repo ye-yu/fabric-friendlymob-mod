@@ -88,8 +88,9 @@ class VindorGUI(
         msgField.enabledBackgroundColor = -0x1AAAAAA
         msgField.disabledBackgroundColor = -0x1000000
         msgField.focusedBorderColor = -0x1000000
-        msgField.outfocusedBorderColor = -0x1000000
+        msgField.outFocusedBorderColor = -0x1000000
         msgField.caretColor = -0x1000000
+        msgField.outFocusedTextColor = 0xFFFFFFF
         msgField.setEnabledColor(0x0)
 
         if (this.world.isClient) {

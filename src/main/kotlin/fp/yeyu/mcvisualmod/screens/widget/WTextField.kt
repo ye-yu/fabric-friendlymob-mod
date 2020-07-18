@@ -161,9 +161,10 @@ class WTextField : WTextFieldLibGui() {
     var focusedBackgroundColor = -0x1000000
     var enabledBackgroundColor = -0x1000000
     var disabledBackgroundColor = -0x1000000
+    var outFocusedTextColor = -0x1000000
 
     var focusedBorderColor = -0x60
-    var outfocusedBorderColor = -0x5f5f60
+    var outFocusedBorderColor = -0x5f5f60
     var caretColor = -0x2f2f30
     var shadowColor = -0xf2f2f30
 
@@ -171,12 +172,12 @@ class WTextField : WTextFieldLibGui() {
     override fun renderTextField(matrices: MatrixStack?, x: Int, y: Int) {
         validateCursors()
         val font = MinecraftClient.getInstance().textRenderer
-        val borderColor = if (this.isFocused) focusedBorderColor else outfocusedBorderColor
+        val borderColor = if (this.isFocused) focusedBorderColor else outFocusedBorderColor
         val backgroundColor =
             if (!this.editable) disabledBackgroundColor else if (this.isFocused) focusedBackgroundColor else enabledBackgroundColor
         ScreenDrawing.coloredRect(x, y, width, height - 3, borderColor)
         ScreenDrawing.coloredRect(x + 1, y + 1, width - 1, height - 3 - 1, backgroundColor)
-        val textColor = if (editable) enabledColor else uneditableColor
+        val textColor = if (!editable) uneditableColor else if (isFocused) enabledColor else outFocusedTextColor
         val textY = (y + (height - 8) / 2)
 
         val precursorCandidate = text.substring(0, cursor + select)
