@@ -27,6 +27,7 @@ import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.LiteralText
@@ -229,6 +230,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
                 setSenderMessage("")
                 WonderTrade.unlock()
                 wonderTick = -1
+                this.world.playSound(null, this.blockPos, getReceivedWonderTradeSound(), SoundCategory.VOICE, 1f, 1f)
             }
         }
     }
@@ -251,6 +253,15 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         currentCustomer!!.sendMessage(LiteralText("Wonder trade succesful! They said: $receivedMessage"), false)
         currentCustomer!!.sendMessage(LiteralText("\"$receivedMessage\""), true)
         receivedMessage = ""
+        this.world.playSound(null, this.blockPos, getTradedSound(), SoundCategory.VOICE, 1f, 1f)
+    }
+
+    private fun getTradedSound(): SoundEvent {
+        return SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP
+    }
+
+    private fun getReceivedWonderTradeSound(): SoundEvent {
+        return SoundEvents.ENTITY_PLAYER_LEVELUP
     }
 
     override fun getHurtSound(source: DamageSource?): SoundEvent? {
@@ -279,6 +290,11 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
 
         flushMessage()
         currentCustomer = null
+        this.world.playSound(null, this.blockPos, getHappySound(), SoundCategory.VOICE, 1f, 1f)
+    }
+
+    private fun getHappySound(): SoundEvent {
+        return SoundEvents.ENTITY_VILLAGER_YES
     }
 
     private val inventory = VindorInventory()

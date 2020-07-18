@@ -64,7 +64,7 @@ class VindorGUI(
         initMessageField()
 
         root.add(msgField, 0, 1, 4, 1)
-        root.add(createCenteredLabel("Your Message"), 0, 2)
+        root.add(createCenteredLabel("Your Message"), 2, 2)
 
         root.setSize(playerSlot.width, 100)
         root.validate(this)
