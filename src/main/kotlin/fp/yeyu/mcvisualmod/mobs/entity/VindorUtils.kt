@@ -1,82 +1,130 @@
 package fp.yeyu.mcvisualmod.mobs.entity
 
-import com.google.common.collect.Maps
+import com.google.gson.JsonParser
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.PositionTracker
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.*
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.stream.IntStream
 import kotlin.math.max
 
 object VindorUtils {
-    private const val wonderItemTag: String = "wonder_item"
-    private const val wonderMsgTag = "wonder_msg"
+    const val wonderItemTag: String = "wonder_item"
+    const val wonderMsgTag = "wonder_msg"
     private const val scheduleFile = "wonder.schedule"
-    private var key = false
+    private const val settingsFile = "wonder.settings.json"
+    private var stackLength = 0
+    private var key = AtomicBoolean(false)
     private val logger: Logger = LogManager.getLogger()
+    private val random = Random(Instant.now().toEpochMilli())
 
-    fun popWonderItem(world: ServerWorld, item: ItemStack, msg: String): WonderProps {
-        val file = world.server.getFile(scheduleFile)
-        createIfNotExists(world)
-        val tag = CompoundTag().reader.read(DataInputStream(FileInputStream(file)), 0, PositionTracker(Long.MAX_VALUE))
 
-        val itemStack = ItemStack.fromTag(tag.getCompound(wonderItemTag))
-        val message = tag.getString(wonderMsgTag)
-        saveWonderProp(WonderProps(item, msg), file)
+    init {
+        createIfNotExists()
+    }
 
-        logger.info("Popped ${itemStack.item}")
+    fun forceInvoke() {}
+
+    private fun getFile(filename: String): File {
+        val parent = File(".", "wonder")
+        if (!parent.exists()) {
+            parent.mkdirs()
+        }
+        return File(parent, filename)
+    }
+
+    fun popWonderItem(item: ItemStack, msg: String): WonderProps {
+        val slot = Random(Instant.now().toEpochMilli()).nextInt(stackLength)
+        logger.info("At $slot:")
+
+        val file = getFile("slot_$slot.dat")
+        val tag = CompoundTag.READER.read(DataInputStream(FileInputStream(file)), 0, PositionTracker(Long.MAX_VALUE))
+        val wonderProps = WonderProps.fromTag(tag)
+        logger.info("Popped ${wonderProps.item.item}")
+
+        writeWonderPropToSlot(WonderProps(item, msg), slot)
         logger.info("Pushed ${item.item}")
-        return WonderProps(itemStack, message)
-    }
-
-    fun saveWonderProp(wonderProps: WonderProps, file: File) {
-        val item = wonderProps.item
-        val msg = wonderProps.msg
-        val itemTag = CompoundTag()
-        val wonderTag = CompoundTag()
-        item.toTag(itemTag)
-        wonderTag.put(wonderItemTag, itemTag)
-        wonderTag.putString(wonderMsgTag, msg)
-        wonderTag.write(DataOutputStream(FileOutputStream(file)))
-
-    }
-
-    fun hasWonderItem(world: ServerWorld): Boolean {
-        return !createIfNotExists(world)
+        return wonderProps
     }
 
     fun lock(): Boolean {
-        if (key) return false
-        key = true
+        if (key.getAndSet(true)) return false
         return true
     }
 
     fun unlock() {
-        key = false
+        key.set(false)
     }
 
-    private fun createIfNotExists(world: ServerWorld): Boolean {
-        val file = world.server.getFile(scheduleFile)
+    private fun createIfNotExists(): Boolean {
+        val file = getFile(scheduleFile)
         if (!file.exists()) {
-            if (file.createNewFile()) {
-                logger.info(String.format("Created wonder file at: %s", file.absolutePath))
-                val random = Random(Instant.now().toEpochMilli())
-                val randomItem = Registry.ITEM.getRandom(random)
-                val maxCount = max(1, random.nextInt(randomItem.maxCount + 1))
-                val item = ItemStack(randomItem, maxCount)
-                val msg = "Congratulation for being the first!"
-                saveWonderProp(WonderProps(item, msg), file)
-                return true
-            }
+            initSettings()
+            initWonderItems()
+            return true
         }
         return false
     }
+
+    private fun initWonderItems() {
+        val wonderSettingFile = getFile(settingsFile)
+        val parse = JsonParser().parse(JsonReader(FileReader(wonderSettingFile))).asJsonObject
+        stackLength = parse["space"].asInt
+
+        IntStream.range(0, stackLength).forEach(::initWonderItem)
+    }
+
+    private fun initWonderItem(slot: Int) {
+        if (getFile("slot_$slot.dat").exists()) return
+        val randomItem = Registry.ITEM.getRandom(random)
+        val maxCount = max(1, random.nextInt(randomItem.maxCount + 1))
+        val item = ItemStack(randomItem, maxCount)
+        val msg = "Congratulation for being the first!"
+        println("Initialised $randomItem at slot $slot")
+        writeWonderPropToSlot(WonderProps(item, msg), slot)
+    }
+
+    private fun writeWonderPropToSlot(wonderProps: WonderProps, slot: Int) {
+        if (slot >= stackLength) throw ArrayIndexOutOfBoundsException(slot)
+        val file = getFile("slot_$slot.dat")
+        wonderProps.toTag().write(DataOutputStream(FileOutputStream(file)))
+    }
+
+    private fun initSettings() {
+        val wonderSettingFile = getFile(settingsFile)
+        if (wonderSettingFile.exists()) return
+        val json = JsonWriter(FileWriter(wonderSettingFile))
+        json.setIndent("  ")
+        json.beginObject()
+            .name("space").value(8)
+            .name("simulateMultiplayer").value(true)
+            .endObject().close()
+    }
 }
 
-class WonderProps(val item: ItemStack, val msg: String)
+class WonderProps(val item: ItemStack, val msg: String) {
+    fun toTag(): CompoundTag {
+        val itemTag = CompoundTag()
+        val tag = CompoundTag()
+        item.toTag(itemTag)
+        tag.put(VindorUtils.wonderItemTag, itemTag)
+        tag.putString(VindorUtils.wonderMsgTag, msg)
+        return tag
+    }
+
+    companion object {
+        fun fromTag(tag: CompoundTag): WonderProps {
+            val item = ItemStack.fromTag(tag.getCompound(VindorUtils.wonderItemTag))
+            val msg = tag.getString(VindorUtils.wonderMsgTag)
+            return WonderProps(item, msg)
+        }
+    }
+}

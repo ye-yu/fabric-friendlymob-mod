@@ -1,7 +1,6 @@
 package fp.yeyu.mcvisualmod.mobs.entity
 
 import fp.yeyu.mcvisualmod.screens.VindorGUI
-import io.github.cottonmc.cotton.gui.PropertyDelegateHolder
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.enchantment.EnchantmentHelper
@@ -221,7 +220,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         }
         if (wonderTick == 0) {
             if (VindorUtils.lock()) {
-                val poppedItem = VindorUtils.popWonderItem(world as ServerWorld, inventory.getStack(0), senderMsg)
+                val poppedItem = VindorUtils.popWonderItem(inventory.getStack(0), senderMsg)
                 inventory.clear()
                 inventory.setStack(1, poppedItem.item)
                 receivedMessage = poppedItem.msg

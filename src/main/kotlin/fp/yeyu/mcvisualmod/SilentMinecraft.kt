@@ -2,6 +2,7 @@ package fp.yeyu.mcvisualmod
 
 import fp.yeyu.mcvisualmod.mobs.egg.VindorEgg
 import fp.yeyu.mcvisualmod.mobs.entity.Vindor
+import fp.yeyu.mcvisualmod.mobs.entity.VindorUtils
 import fp.yeyu.mcvisualmod.packets.PacketHandlers
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricEntityTypeBuilder
@@ -19,7 +20,7 @@ import org.apache.logging.log4j.Logger
 
 class SilentMinecraft : ModInitializer {
     companion object {
-        val NAMESPACE = "friendlymob"
+        const val NAMESPACE = "friendlymob"
         val VINDOR_ENTITY_ID = Identifier(NAMESPACE, Vindor.NAME)
         val LOGGER: Logger = LogManager.getLogger()
 
@@ -62,5 +63,7 @@ class SilentMinecraft : ModInitializer {
                 LOGGER.info("[Server] Registered $it")
             }
         }
+
+        VindorUtils.forceInvoke()
     }
 }
