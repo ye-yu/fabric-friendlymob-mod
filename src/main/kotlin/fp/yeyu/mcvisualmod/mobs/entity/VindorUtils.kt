@@ -3,6 +3,7 @@ package fp.yeyu.mcvisualmod.mobs.entity
 import com.google.gson.JsonParser
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import fp.yeyu.mcvisualmod.SilentMinecraft
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.PositionTracker
@@ -10,6 +11,7 @@ import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.*
+import java.nio.file.Paths
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.atomic.AtomicBoolean
@@ -34,7 +36,7 @@ object VindorUtils {
     fun forceInvoke() {}
 
     private fun getFile(filename: String): File {
-        val parent = File(".", "wonder")
+        val parent = Paths.get(".").resolve("mods").resolve(SilentMinecraft::class.simpleName!!).toFile()
         if (!parent.exists()) {
             parent.mkdirs()
         }
