@@ -12,6 +12,8 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.goal.*
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.damage.DamageSource
+import net.minecraft.entity.data.DataTracker
+import net.minecraft.entity.data.TrackedDataHandlerRegistry
 import net.minecraft.entity.mob.CreeperEntity
 import net.minecraft.entity.mob.MobEntity
 import net.minecraft.entity.mob.Monster
@@ -59,6 +61,13 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         private const val WONDER_TIMEOUT = "wonder_timeout"
         private const val WONDER_SENDER_MSG = "wonder_sender_msg"
         private const val WONDER_RECEIVER_MSG = "wonder_receiver_msg"
+
+        private val WONDER_STATE = DataTracker.registerData(Vindor::class.java, TrackedDataHandlerRegistry.INTEGER)
+    }
+
+    override fun initDataTracker() {
+        super.initDataTracker()
+        this.dataTracker.startTracking(WONDER_STATE, WonderState.NEUTRAL.index)
     }
 
     @Environment(EnvType.CLIENT)
@@ -73,6 +82,31 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     @Environment(EnvType.CLIENT)
     enum class State {
         CROSSED, ATTACKING
+    }
+
+    @Environment(EnvType.CLIENT)
+    enum class WonderState(val index: Int) {
+        NEUTRAL(0), READY(1), RECEIVED(2);
+        companion object {
+            operator fun get(index: Int): WonderState {
+                return when (index) {
+                    0 -> NEUTRAL
+                    1 -> READY
+                    2 -> RECEIVED
+                    else -> throw IndexOutOfBoundsException(index.toString())
+                }
+            }
+        }
+    }
+
+    @Environment(EnvType.CLIENT)
+    fun getWonderState(): WonderState {
+        return WonderState[this.dataTracker.get(WONDER_STATE)]
+    }
+
+    private fun setWonderState(wonderState: WonderState) {
+        LOGGER.info("Wonder state is now ${wonderState.name}")
+        this.dataTracker.set(WONDER_STATE, wonderState.index)
     }
 
     private fun receivedWonderItem(): Boolean {
@@ -231,6 +265,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
                 WonderTrade.unlock()
                 wonderTick = -1
                 this.world.playSound(null, this.blockPos, getReceivedWonderTradeSound(), SoundCategory.VOICE, 1f, 1f)
+                validateWonderState()
             }
         }
     }
@@ -291,6 +326,21 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         flushMessage()
         currentCustomer = null
         this.world.playSound(null, this.blockPos, getHappySound(), SoundCategory.VOICE, 1f, 1f)
+        validateWonderState()
+    }
+
+    private fun validateWonderState() {
+        if (getInventory().getStack(0).isEmpty && !getInventory().getStack(1).isEmpty) {
+            setWonderState(WonderState.RECEIVED)
+        } else if (!getInventory().getStack(0).isEmpty && getInventory().getStack(1).isEmpty) {
+            setWonderState(WonderState.READY)
+        } else if (getInventory().getStack(0).isEmpty && getInventory().getStack(1).isEmpty) {
+            setWonderState(WonderState.NEUTRAL)
+        } else {
+            LOGGER.warn(Throwable("Error in programming. \n"
+                + "Send stack: ${getInventory().getStack(0).item} -> is empty? ${getInventory().getStack(0).isEmpty}\n"
+                + "Receive stack: ${getInventory().getStack(1).item} -> is empty? ${getInventory().getStack(1).isEmpty}"))
+        }
     }
 
     private fun getHappySound(): SoundEvent {

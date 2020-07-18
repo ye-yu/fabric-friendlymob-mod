@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.renderer
 
+import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.mobs.entity.Vindor
 import fp.yeyu.monsterfriend.mobs.renderer.feature.VindorHeldItemFeatureRenderer
 import fp.yeyu.monsterfriend.mobs.renderer.model.VindorEntityModel
@@ -19,10 +20,25 @@ class VindorRenderer(entityRenderDispatcher: EntityRenderDispatcher?) :
         @JvmStatic
         val TEXTURE =
             Identifier("textures/entity/illager/vindicator.png")
+
+        val READY = Identifier(BefriendMinecraft.NAMESPACE, "textures/entity/vindor/vindor-ready.png")
+        val WAITING_1 = Identifier(BefriendMinecraft.NAMESPACE, "textures/entity/vindor/vindor-waiting.png")
+        val WAITING_2 = Identifier(BefriendMinecraft.NAMESPACE, "textures/entity/vindor/vindor-waiting-2.png")
     }
 
     override fun getTexture(entity: Vindor?): Identifier {
-        return TEXTURE
+        return when {
+            entity == null -> TEXTURE
+            entity.getWonderState() == Vindor.WonderState.NEUTRAL -> {
+                WAITING_1
+            }
+            entity.getWonderState() == Vindor.WonderState.READY -> {
+                WAITING_2
+            }
+            else -> {
+                READY
+            }
+        }
     }
 
 }
