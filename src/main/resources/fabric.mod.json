@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "silent-mc",
+  "id": "monster-friend-mc",
   "version": "${version}",
-  "name": "Silent Minecraft",
-  "description": "Give MC a More Silent and Scary Experience",
+  "name": "Befriend!",
+  "description": "More mobs from befriending monsters!",
   "authors": [
     "YeYu"
   ],
@@ -16,10 +16,10 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "fp.yeyu.mcvisualmod.SilentMinecraftClient"
+      "fp.yeyu.monsterfriend.BefriendMinecraftClient"
     ],
     "main": [
-      "fp.yeyu.mcvisualmod.SilentMinecraft"
+      "fp.yeyu.monsterfriend.BefriendMinecraft"
     ]
   },
   "mixins": [
