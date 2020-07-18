@@ -3,6 +3,7 @@ package fp.yeyu.monsterfriend.screens
 import fp.yeyu.monsterfriend.mobs.entity.Vindor
 import fp.yeyu.monsterfriend.packets.PacketHandlers
 import fp.yeyu.monsterfriend.screens.widget.WTextField
+import fp.yeyu.monsterfriend.statics.mutable.OpenedScreen
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription
 import io.github.cottonmc.cotton.gui.widget.WGridPanel
 import io.github.cottonmc.cotton.gui.widget.WItemSlot

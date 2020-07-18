@@ -3,7 +3,8 @@
   "package": "fp.yeyu.monsterfriend.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "DefaultAttributeRegistryMixin"
+    "DefaultAttributeRegistryMixin",
+    "VindicatorEntityMixin"
   ],
   "client": [
   ],

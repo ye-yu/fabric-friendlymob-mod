@@ -2,8 +2,8 @@ package fp.yeyu.monsterfriend
 
 import fp.yeyu.monsterfriend.mobs.egg.VindorEgg
 import fp.yeyu.monsterfriend.mobs.entity.Vindor
-import fp.yeyu.monsterfriend.mobs.entity.VindorUtils
 import fp.yeyu.monsterfriend.packets.PacketHandlers
+import fp.yeyu.monsterfriend.statics.immutable.ConfigFile
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricEntityTypeBuilder
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry
@@ -30,6 +30,8 @@ class BefriendMinecraft : ModInitializer {
             )
 
         }
+
+
     }
 
     enum class Mobs(val entry: EntityType<out LivingEntity>) {
@@ -64,6 +66,6 @@ class BefriendMinecraft : ModInitializer {
             }
         }
 
-        VindorUtils.forceInvoke(this)
+        ConfigFile.visit()
     }
 }

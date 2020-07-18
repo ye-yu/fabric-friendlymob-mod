@@ -1,6 +1,7 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.screens.VindorGUI
+import fp.yeyu.monsterfriend.statics.mutable.WonderTrade
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.enchantment.EnchantmentHelper
@@ -219,17 +220,16 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         if (world !is ServerWorld) return
         if (wonderTick > 0) {
             wonderTick--
-        }
-        if (wonderTick == 0) {
-            if (VindorUtils.lock()) {
-                val poppedItem = VindorUtils.popWonderItem(inventory.getStack(0), senderMsg)
+        } else if (wonderTick == 0) {
+            if (WonderTrade.lock()) {
+                val poppedItem = WonderTrade.popWonderItem(inventory.getStack(0), senderMsg)
                 inventory.clear()
                 inventory.setStack(1, poppedItem.item)
                 receivedMessage = poppedItem.msg
                 setSenderMessage("")
-                VindorUtils.unlock()
+                WonderTrade.unlock()
+                wonderTick = -1
             }
-            wonderTick = -1
         }
     }
 

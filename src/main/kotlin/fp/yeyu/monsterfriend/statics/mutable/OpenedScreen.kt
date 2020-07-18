@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.screens
+package fp.yeyu.monsterfriend.statics.mutable
 
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription
 

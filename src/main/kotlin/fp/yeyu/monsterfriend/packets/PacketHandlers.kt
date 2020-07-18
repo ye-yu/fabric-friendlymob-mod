@@ -1,8 +1,8 @@
 package fp.yeyu.monsterfriend.packets
 
 import fp.yeyu.monsterfriend.BefriendMinecraft
-import fp.yeyu.monsterfriend.screens.OpenedScreen
 import fp.yeyu.monsterfriend.screens.VindorGUI
+import fp.yeyu.monsterfriend.statics.mutable.OpenedScreen
 import io.netty.buffer.Unpooled
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
 import net.fabricmc.fabric.api.network.PacketContext
