@@ -10,11 +10,13 @@ import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.goal.*
+import net.minecraft.entity.attribute.DefaultAttributeContainer
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.data.DataTracker
 import net.minecraft.entity.data.TrackedDataHandlerRegistry
 import net.minecraft.entity.mob.CreeperEntity
+import net.minecraft.entity.mob.HostileEntity
 import net.minecraft.entity.mob.MobEntity
 import net.minecraft.entity.mob.Monster
 import net.minecraft.entity.passive.IronGolemEntity
@@ -54,6 +56,13 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     }
 
     companion object {
+        fun createVindorAttributes(): DefaultAttributeContainer.Builder {
+            return HostileEntity.createHostileAttributes()
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3499999940395355)
+                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 12.0).add(EntityAttributes.GENERIC_MAX_HEALTH, 24.0)
+                .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 5.0)
+        }
+
         val LOGGER: Logger = LogManager.getLogger()
         private const val WONDER_SLOT_ONE = "wonder_one"
         private const val WONDER_SLOT_TWO = "wonder_two"

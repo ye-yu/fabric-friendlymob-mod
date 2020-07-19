@@ -3,6 +3,8 @@ package fp.yeyu.monsterfriend.mobs.entity
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.goal.*
+import net.minecraft.entity.attribute.DefaultAttributeContainer
+import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.data.DataTracker
 import net.minecraft.entity.data.TrackedData
 import net.minecraft.entity.data.TrackedDataHandlerRegistry
@@ -21,6 +23,11 @@ class Evione(
 
     companion object {
         val STATE: TrackedData<Byte> = DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
+        fun createEvioneAttributes(): DefaultAttributeContainer.Builder {
+            return MobEntity.createMobAttributes()
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.5)
+                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0)
+        }
     }
 
     fun setState(state: State) {
@@ -45,7 +52,6 @@ class Evione(
         goalSelector.add(7, LookAtEntityGoal(this, PlayerEntity::class.java, 6.0f))
         goalSelector.add(8, LookAroundGoal(this))
 
-        targetSelector.add(2, RevengeGoal(this, *arrayOfNulls(0)))
         targetSelector.add(
             3, FollowTargetGoal<MobEntity>(this,
                 MobEntity::class.java, 5, false, false,
