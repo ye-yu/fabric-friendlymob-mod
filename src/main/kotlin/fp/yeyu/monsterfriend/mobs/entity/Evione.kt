@@ -6,22 +6,18 @@ import net.minecraft.entity.ai.goal.*
 import net.minecraft.entity.data.DataTracker
 import net.minecraft.entity.data.TrackedData
 import net.minecraft.entity.data.TrackedDataHandlerRegistry
-import net.minecraft.entity.mob.*
+import net.minecraft.entity.mob.CreeperEntity
+import net.minecraft.entity.mob.MobEntity
+import net.minecraft.entity.mob.Monster
+import net.minecraft.entity.mob.PathAwareEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.world.World
-import java.util.*
 import java.util.function.Predicate
 
 class Evione(
     entityType: EntityType<out PathAwareEntity>?,
     world: World?
-) : PathAwareEntity(entityType, world), Angerable {
-
-    private object AngryStruct {
-        var currentAngerTicks = -1
-        var angryAt: UUID? = null
-        const val ANGER_DURATION = 50
-    }
+) : PathAwareEntity(entityType, world) {
 
     companion object {
         val STATE: TrackedData<Byte> = DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
@@ -40,26 +36,6 @@ class Evione(
         this.dataTracker.startTracking(STATE, State[State.CROSSED])
     }
 
-    override fun getAngerTime(): Int {
-        return AngryStruct.currentAngerTicks
-    }
-
-    override fun setAngerTime(ticks: Int) {
-        AngryStruct.currentAngerTicks = ticks
-    }
-
-    override fun chooseRandomAngerTime() {
-        AngryStruct.currentAngerTicks = AngryStruct.ANGER_DURATION
-    }
-
-    override fun getAngryAt(): UUID? {
-        return AngryStruct.angryAt
-    }
-
-    override fun setAngryAt(uuid: UUID?) {
-        AngryStruct.angryAt = uuid
-    }
-
     override fun initGoals() {
         super.initGoals()
 
@@ -71,18 +47,11 @@ class Evione(
 
         targetSelector.add(2, RevengeGoal(this, *arrayOfNulls(0)))
         targetSelector.add(
-            3, FollowTargetGoal<PlayerEntity>(this,
-                PlayerEntity::class.java, 10, true, false,
-                Predicate<LivingEntity> { entity: LivingEntity -> shouldAngerAt(entity) }
-            )
-        )
-        targetSelector.add(
             3, FollowTargetGoal<MobEntity>(this,
                 MobEntity::class.java, 5, false, false,
                 Predicate<LivingEntity> { livingEntity: LivingEntity -> livingEntity is Monster && livingEntity !is CreeperEntity }
             )
         )
-        targetSelector.add(4, UniversalAngerGoal(this, false))
     }
 
     override fun mobTick() {
@@ -91,9 +60,7 @@ class Evione(
     }
 
     private fun validateState() {
-        if (hasAngerTime() && getState() != State.SPELL_CASTING) {
-            setState(State.SPELL_CASTING)
-        } else if (!hasAngerTime() && getState() != State.CROSSED) {
+        if (getState() != State.CROSSED) {
             setState(State.CROSSED)
         }
     }
