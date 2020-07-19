@@ -1,6 +1,6 @@
 package fp.yeyu.monsterfriend.mixins;
 
-import fp.yeyu.monsterfriend.mobs.entity.AttributeRegistry;
+import fp.yeyu.monsterfriend.mobs.AttributeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -15,7 +15,7 @@ public class DefaultAttributeRegistryMixin {
     @Inject(at = @At("RETURN"), method = "get", cancellable = true)
     private static void getMixin(EntityType<? extends LivingEntity> type, CallbackInfoReturnable<DefaultAttributeContainer> cir) {
         if (cir.getReturnValue() == null) {
-            cir.setReturnValue(AttributeRegistry.Companion.getATTRS().get(type));
+            cir.setReturnValue(AttributeRegistry.INSTANCE.getAttributes().get(type));
         }
     }
 }

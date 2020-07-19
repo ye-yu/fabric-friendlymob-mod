@@ -1,6 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.egg
 
-import fp.yeyu.monsterfriend.BefriendMinecraft
+import fp.yeyu.monsterfriend.mobs.MobRegistry
 import net.minecraft.block.Blocks
 import net.minecraft.block.FluidBlock
 import net.minecraft.block.entity.MobSpawnerBlockEntity
@@ -91,8 +91,8 @@ class VindorEgg(type: EntityType<*>?, primaryColor: Int, secondaryColor: Int, se
                     itemStack
                 )
             ) {
-                val entityType = BefriendMinecraft.Mobs.VINDOR.entry
-                if (entityType.spawnFromItemStack(
+                val entityType = MobRegistry.vindor.entityType
+                if (entityType!!.spawnFromItemStack(
                         world,
                         itemStack,
                         user,

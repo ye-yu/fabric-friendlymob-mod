@@ -37,6 +37,16 @@ enum class PacketHandlers(val toServer: Boolean, val handler: (PacketContext, Pa
     }
 
     companion object {
+        fun init(client: Boolean) {
+            values().forEach {
+                if (it.toServer && !client) {
+                    ServerSidePacketRegistry.INSTANCE.register(it.id, it.handler)
+                } else if (!it.toServer && client) {
+                    ClientSidePacketRegistry.INSTANCE.register(it.id, it.handler)
+                }
+            }
+        }
+
         val LOGGER: Logger = LogManager.getLogger()
     }
 }

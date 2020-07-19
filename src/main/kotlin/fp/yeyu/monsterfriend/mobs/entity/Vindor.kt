@@ -87,6 +87,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     @Environment(EnvType.CLIENT)
     enum class WonderState(val index: Int) {
         NEUTRAL(0), READY(1), RECEIVED(2);
+
         companion object {
             operator fun get(index: Int): WonderState {
                 return when (index) {
@@ -337,9 +338,15 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         } else if (getInventory().getStack(0).isEmpty && getInventory().getStack(1).isEmpty) {
             setWonderState(WonderState.NEUTRAL)
         } else {
-            LOGGER.warn(Throwable("Error in programming. \n"
-                + "Send stack: ${getInventory().getStack(0).item} -> is empty? ${getInventory().getStack(0).isEmpty}\n"
-                + "Receive stack: ${getInventory().getStack(1).item} -> is empty? ${getInventory().getStack(1).isEmpty}"))
+            LOGGER.warn(
+                Throwable(
+                    "Error in programming. \n"
+                            + "Send stack: ${getInventory().getStack(0).item} -> is empty? ${getInventory().getStack(0).isEmpty}\n"
+                            + "Receive stack: ${getInventory().getStack(1).item} -> is empty? ${getInventory().getStack(
+                        1
+                    ).isEmpty}"
+                )
+            )
         }
     }
 

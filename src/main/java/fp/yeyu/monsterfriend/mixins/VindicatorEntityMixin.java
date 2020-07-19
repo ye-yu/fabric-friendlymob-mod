@@ -1,12 +1,13 @@
 package fp.yeyu.monsterfriend.mixins;
 
-import fp.yeyu.monsterfriend.BefriendMinecraft;
+import fp.yeyu.monsterfriend.mobs.MobRegistry;
 import fp.yeyu.monsterfriend.mobs.entity.Vindor;
 import fp.yeyu.monsterfriend.statics.immutable.ConfigFile;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.IllagerEntity;
 import net.minecraft.entity.mob.VindicatorEntity;
 import net.minecraft.item.ItemStack;
@@ -16,6 +17,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+
+import java.util.Objects;
+import java.util.function.BiFunction;
 
 @Mixin(VindicatorEntity.class)
 public abstract class VindicatorEntityMixin extends IllagerEntity {
@@ -42,7 +46,7 @@ public abstract class VindicatorEntityMixin extends IllagerEntity {
 
     private void convertToVindor() {
         if (this.removed) return;
-        Vindor vindor = (Vindor) BefriendMinecraft.Mobs.VINDOR.getEntry().create(this.world);
+        Vindor vindor = Objects.requireNonNull(MobRegistry.INSTANCE.getVindor().getEntityType()).create(this.world);
         if (vindor == null) {
             LOGGER.warn("Cannot instantiate a Vindor");
             LOGGER.trace(new Throwable());
@@ -76,5 +80,9 @@ public abstract class VindicatorEntityMixin extends IllagerEntity {
         this.world.spawnEntity(vindor);
         this.remove();
         LOGGER.info("Spawned Vindor");
+    }
+
+    private void factory(BiFunction<EntityType<? extends LivingEntity>, World, ? extends LivingEntity> fcty) {
+
     }
 }
