@@ -2,16 +2,16 @@ package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.screens.EvioneGUI
 import net.minecraft.entity.EntityType
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.ai.goal.*
+import net.minecraft.entity.ai.goal.EscapeDangerGoal
+import net.minecraft.entity.ai.goal.LookAroundGoal
+import net.minecraft.entity.ai.goal.LookAtEntityGoal
+import net.minecraft.entity.ai.goal.WanderAroundGoal
 import net.minecraft.entity.attribute.DefaultAttributeContainer
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.data.DataTracker
 import net.minecraft.entity.data.TrackedData
 import net.minecraft.entity.data.TrackedDataHandlerRegistry
-import net.minecraft.entity.mob.CreeperEntity
 import net.minecraft.entity.mob.MobEntity
-import net.minecraft.entity.mob.Monster
 import net.minecraft.entity.mob.PathAwareEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
@@ -25,7 +25,6 @@ import net.minecraft.text.TranslatableText
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.world.World
-import java.util.function.Predicate
 
 class Evione(
     entityType: EntityType<out PathAwareEntity>?,
@@ -56,6 +55,7 @@ class Evione(
 
     override fun initGoals() {
         super.initGoals()
+        goalSelector.add(0, EscapeDangerGoal(this, 0.8))
         goalSelector.add(1, LookAroundGoal(this))
         goalSelector.add(2, EvioneWanderAroundGoal(this, 0.6, 120, true))
         goalSelector.add(3, LookAtEntityGoal(this, PlayerEntity::class.java, 6.0f))
