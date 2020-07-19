@@ -54,7 +54,6 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     }
 
     companion object {
-        const val NAME = "vindor"
         val LOGGER: Logger = LogManager.getLogger()
         private const val WONDER_SLOT_ONE = "wonder_one"
         private const val WONDER_SLOT_TWO = "wonder_two"
@@ -106,7 +105,6 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     }
 
     private fun setWonderState(wonderState: WonderState) {
-        LOGGER.info("Wonder state is now ${wonderState.name}")
         this.dataTracker.set(WONDER_STATE, wonderState.index)
     }
 
@@ -339,14 +337,13 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
             setWonderState(WonderState.NEUTRAL)
         } else {
             LOGGER.warn(
-                Throwable(
-                    "Error in programming. \n"
-                            + "Send stack: ${getInventory().getStack(0).item} -> is empty? ${getInventory().getStack(0).isEmpty}\n"
-                            + "Receive stack: ${getInventory().getStack(1).item} -> is empty? ${getInventory().getStack(
-                        1
-                    ).isEmpty}"
-                )
+                "Error in programming. \n"
+                        + "Send stack: ${getInventory().getStack(0).item} -> is empty? ${getInventory().getStack(0).isEmpty}\n"
+                        + "Receive stack: ${getInventory().getStack(1).item} -> is empty? ${getInventory().getStack(
+                    1
+                ).isEmpty}"
             )
+            LOGGER.trace(Throwable())
         }
     }
 

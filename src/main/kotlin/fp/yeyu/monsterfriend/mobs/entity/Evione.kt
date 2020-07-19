@@ -24,7 +24,6 @@ class Evione(
     }
 
     companion object {
-        const val NAME: String = "evione"
         val STATE: TrackedData<Byte> = DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
     }
 
