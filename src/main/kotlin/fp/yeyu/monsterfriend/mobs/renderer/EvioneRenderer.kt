@@ -8,8 +8,7 @@ import net.minecraft.util.Identifier
 
 class EvioneRenderer(
     entityRenderDispatcher: EntityRenderDispatcher?
-) : MobEntityRenderer<Evione, EvioneEntityModel>(entityRenderDispatcher, EvioneEntityModel(0.0f, 0.0f, 64, 64), 0.5f),
-    CustomRenderer {
+) : MobEntityRenderer<Evione, EvioneEntityModel>(entityRenderDispatcher, EvioneEntityModel(0.0f, 0.0f, 64, 64), 0.5f) {
 
     companion object {
         val TEXTURE = Identifier("textures/entity/illager/evoker.png")

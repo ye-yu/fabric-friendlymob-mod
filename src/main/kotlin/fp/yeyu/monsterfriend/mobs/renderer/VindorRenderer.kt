@@ -10,8 +10,7 @@ import net.minecraft.client.render.entity.feature.HeadFeatureRenderer
 import net.minecraft.util.Identifier
 
 class VindorRenderer(entityRenderDispatcher: EntityRenderDispatcher?) :
-    MobEntityRenderer<Vindor, VindorEntityModel>(entityRenderDispatcher, VindorEntityModel(0.0f, 0.0f, 64, 64), 0.5f),
-    CustomRenderer {
+    MobEntityRenderer<Vindor, VindorEntityModel>(entityRenderDispatcher, VindorEntityModel(0.0f, 0.0f, 64, 64), 0.5f) {
     init {
         addFeature(HeadFeatureRenderer<Vindor, VindorEntityModel>(this))
         addFeature(VindorHeldItemFeatureRenderer(this))
