@@ -56,19 +56,9 @@ class Evione(
 
     override fun initGoals() {
         super.initGoals()
-
-        goalSelector.add(4, WanderAroundGoal(this, 0.6))
-        goalSelector.add(2, WanderNearTargetGoal(this, 0.9, 32.0f))
-        goalSelector.add(2, WanderAroundPointOfInterestGoal(this, 0.6, false))
-        goalSelector.add(7, LookAtEntityGoal(this, PlayerEntity::class.java, 6.0f))
-        goalSelector.add(8, LookAroundGoal(this))
-
-        targetSelector.add(
-            3, FollowTargetGoal<MobEntity>(this,
-                MobEntity::class.java, 5, false, false,
-                Predicate<LivingEntity> { livingEntity: LivingEntity -> livingEntity is Monster && livingEntity !is CreeperEntity }
-            )
-        )
+        goalSelector.add(1, LookAroundGoal(this))
+        goalSelector.add(2, EvioneWanderAroundGoal(this, 0.6, 120, true))
+        goalSelector.add(3, LookAtEntityGoal(this, PlayerEntity::class.java, 6.0f))
     }
 
     override fun mobTick() {
@@ -139,5 +129,14 @@ class Evione(
             return TranslatableText("container.friendlymob.evione")
         }
 
+    }
+
+    class EvioneWanderAroundGoal(pathAwareEntity: Evione, d: Double, i: Int, bl: Boolean) :
+        WanderAroundGoal(pathAwareEntity, d, i, bl) {
+
+        override fun canStart(): Boolean {
+            if ((mob as Evione).currentInteraction != null) return false
+            return super.canStart()
+        }
     }
 }
