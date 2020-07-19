@@ -14,7 +14,6 @@ import io.netty.buffer.Unpooled
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.screen.slot.SlotActionType
@@ -64,7 +63,7 @@ class VindorGUI(
         initMessageField()
 
         root.add(msgField, 0, 1, 4, 1)
-        root.add(createCenteredLabel("Your Message", vertically = true, horizontally = false), 2, 2)
+        root.add(createCenteredLabel("Your Message", vertically = true, horizontally = false), 0, 2)
 
         root.setSize(playerSlot.width, 100)
         root.validate(this)
@@ -130,16 +129,7 @@ class VindorGUI(
     }
 
     override fun onSlotClick(slotNumber: Int, button: Int, action: SlotActionType?, player: PlayerEntity?): ItemStack {
-        if (slotNumber == 1) {
-            if (action == SlotActionType.PICKUP || action == SlotActionType.PICKUP_ALL) {
-                val outputStack = blockInventory.getStack(1)
-                if (outputStack == null || outputStack.isEmpty || outputStack.item == Items.AIR) {
-                    return ItemStack.EMPTY
-                }
-            } else {
-                return ItemStack.EMPTY
-            }
-        }
+        if (slotNumber == 1 && !playerInventory.cursorStack.isEmpty) return ItemStack.EMPTY
         return super.onSlotClick(slotNumber, button, action, player)
     }
 
