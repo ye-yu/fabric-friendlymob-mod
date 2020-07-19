@@ -22,10 +22,10 @@ import net.minecraft.util.math.Direction
 import net.minecraft.world.RayTraceContext
 import net.minecraft.world.World
 
-class VindorEgg(type: EntityType<*>?, primaryColor: Int, secondaryColor: Int, settings: Settings?) :
+class EvioneEgg(type: EntityType<*>?, primaryColor: Int, secondaryColor: Int, settings: Settings?) :
     SpawnEggItem(type, primaryColor, secondaryColor, settings) {
     companion object {
-        const val NAME = "vindor_egg"
+        const val NAME = "evione_egg"
     }
 
     override fun useOnBlock(context: ItemUsageContext): ActionResult? {
@@ -41,7 +41,7 @@ class VindorEgg(type: EntityType<*>?, primaryColor: Int, secondaryColor: Int, se
                 val blockEntity = world.getBlockEntity(blockPos)
                 if (blockEntity is MobSpawnerBlockEntity) {
                     val mobSpawnerLogic = blockEntity.logic
-                    val entityType = EntityType.VINDICATOR // always back to vindicator
+                    val entityType = EntityType.EVOKER // always back to evoker
                     mobSpawnerLogic.setEntityId(entityType)
                     blockEntity.markDirty()
                     world.updateListeners(blockPos, blockState, blockState, 3)
@@ -55,7 +55,7 @@ class VindorEgg(type: EntityType<*>?, primaryColor: Int, secondaryColor: Int, se
             } else {
                 blockPos.offset(direction)
             }
-            val entityType2 = MobRegistry.vindor.entityType
+            val entityType2 = MobRegistry.evione.entityType
             if (entityType2!!.spawnFromItemStack(
                     world,
                     itemStack,
@@ -91,7 +91,7 @@ class VindorEgg(type: EntityType<*>?, primaryColor: Int, secondaryColor: Int, se
                     itemStack
                 )
             ) {
-                val entityType = MobRegistry.vindor.entityType
+                val entityType = MobRegistry.evione.entityType
                 if (entityType!!.spawnFromItemStack(
                         world,
                         itemStack,

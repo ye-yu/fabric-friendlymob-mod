@@ -40,7 +40,7 @@ class EvioneGUI(
             setBlockInventoryIfNotEmpty(2, producedStack)
         }
 
-        IntStream.range(0, SIZE).forEach{
+        IntStream.range(0, SIZE).forEach {
             val slot = WItemSlot.of(blockInventory, it)
             val label = createCenteredLabel(WIDGET_LABEL[it])
             root.add(slot, 1 + 3 * it, 1)

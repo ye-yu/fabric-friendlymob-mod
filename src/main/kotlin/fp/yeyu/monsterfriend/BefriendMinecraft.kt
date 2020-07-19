@@ -1,6 +1,7 @@
 package fp.yeyu.monsterfriend
 
 import fp.yeyu.monsterfriend.mobs.MobRegistry
+import fp.yeyu.monsterfriend.mobs.egg.EvioneEgg
 import fp.yeyu.monsterfriend.mobs.egg.VindorEgg
 import fp.yeyu.monsterfriend.packets.PacketHandlers
 import fp.yeyu.monsterfriend.statics.immutable.ConfigFile
@@ -33,6 +34,15 @@ class BefriendMinecraft : ModInitializer {
                 MobRegistry.vindor.entityType,
                 3407872,
                 12369084,
+                Item.Settings().maxDamage(1).group(ItemGroup.MISC)
+            )
+        )
+        registerItem(
+            EvioneEgg.NAME,
+            EvioneEgg(
+                MobRegistry.evione.entityType,
+                0xFFF5500,
+                0xF006634,
                 Item.Settings().maxDamage(1).group(ItemGroup.MISC)
             )
         )

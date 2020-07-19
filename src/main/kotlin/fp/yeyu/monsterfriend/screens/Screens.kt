@@ -37,7 +37,7 @@ object Screens {
         register(evioneScreen, ::EvioneClientScreen)
     }
 
-    private fun <T: SyncedGuiDescription, V: CottonInventoryScreen<T>> register(
+    private fun <T : SyncedGuiDescription, V : CottonInventoryScreen<T>> register(
         screen: ScreenHandlerType<T>,
         factory: KFunction3<@ParameterName(name = "description") T, @ParameterName(
             name = "player"
