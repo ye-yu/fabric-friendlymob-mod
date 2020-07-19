@@ -28,7 +28,7 @@ class VindorGUI(
     val vindor: Vindor?
 ) :
     SyncedGuiDescription(
-        Screens.VINDOR_SCREEN,
+        Screens.vindorScreen,
         syncId,
         playerInventory,
         getBlockInventory(context, SIZE),
@@ -49,12 +49,12 @@ class VindorGUI(
             setBlockInventoryIfNotEmpty(1, receiveStack)
         }
 
-        root.add(createCenteredLabel("Send"), 5, 2)
+        root.add(createCenteredLabel("Send", vertically = true, horizontally = true), 5, 2)
         val toSendSlot = WItemSlot.of(blockInventory, 0)
         root.add(toSendSlot, 5, 1)
 
 
-        root.add(createCenteredLabel("Receive"), 7, 2)
+        root.add(createCenteredLabel("Receive", vertically = true, horizontally = true), 7, 2)
         val toReceiveSlot = WItemSlot.of(blockInventory, 1)
         root.add(toReceiveSlot, 7, 1)
 
@@ -64,7 +64,7 @@ class VindorGUI(
         initMessageField()
 
         root.add(msgField, 0, 1, 4, 1)
-        root.add(createCenteredLabel("Your Message"), 2, 2)
+        root.add(createCenteredLabel("Your Message", vertically = true, horizontally = false), 2, 2)
 
         root.setSize(playerSlot.width, 100)
         root.validate(this)
@@ -93,10 +93,16 @@ class VindorGUI(
         }
     }
 
-    private fun createCenteredLabel(label: String): WLabel {
-        return WLabel(label)
-            .setVerticalAlignment(VerticalAlignment.CENTER)
-            .setHorizontalAlignment(HorizontalAlignment.CENTER)
+    private fun createCenteredLabel(label: String, vertically: Boolean, horizontally: Boolean): WLabel {
+        var wLabel = WLabel(label)
+        if (vertically) {
+            wLabel = wLabel.setVerticalAlignment(VerticalAlignment.CENTER)
+        }
+        if (horizontally) {
+            wLabel = wLabel.setHorizontalAlignment(HorizontalAlignment.CENTER)
+
+        }
+        return wLabel
     }
 
     private fun setBlockInventoryIfNotEmpty(slotNumber: Int, itemStack: ItemStack) {

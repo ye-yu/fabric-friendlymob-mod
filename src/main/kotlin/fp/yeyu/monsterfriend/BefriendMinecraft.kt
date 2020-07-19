@@ -37,8 +37,8 @@ class BefriendMinecraft : ModInitializer {
             )
         )
 
-        PacketHandlers.init(false)
-        MobRegistry.init(false)
+        PacketHandlers.registerPackets(false)
+        MobRegistry.registerMobs(false)
         ConfigFile.visit()
     }
 }

@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
+import fp.yeyu.monsterfriend.screens.EvioneGUI
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.goal.*
@@ -13,6 +14,16 @@ import net.minecraft.entity.mob.MobEntity
 import net.minecraft.entity.mob.Monster
 import net.minecraft.entity.mob.PathAwareEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.Inventory
+import net.minecraft.inventory.SimpleInventory
+import net.minecraft.screen.NamedScreenHandlerFactory
+import net.minecraft.screen.ScreenHandler
+import net.minecraft.screen.ScreenHandlerContext
+import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
+import net.minecraft.util.ActionResult
+import net.minecraft.util.Hand
 import net.minecraft.world.World
 import java.util.function.Predicate
 
@@ -71,6 +82,14 @@ class Evione(
         }
     }
 
+    fun getInventory(): Inventory {
+        return inventory
+    }
+
+    private var currentInteraction: PlayerEntity? = null
+    private val inventory = SimpleInventory(2)
+    private val guiHandler = EvioneGuiHandler(this)
+
     enum class State {
         CROSSED, SPELL_CASTING;
 
@@ -90,5 +109,35 @@ class Evione(
                 }
             }
         }
+    }
+
+    override fun interactMob(player: PlayerEntity?, hand: Hand?): ActionResult {
+        val interactMob = super.interactMob(player, hand)
+        if (interactMob == ActionResult.PASS || interactMob.isAccepted) {
+            speakWith(player!!)
+            return ActionResult.success(this.world.isClient)
+        }
+        return interactMob
+    }
+
+    private fun speakWith(player: PlayerEntity) {
+        if (currentInteraction != null) return
+        currentInteraction = player
+        player.openHandledScreen(guiHandler)
+    }
+
+    fun endInteraction() {
+        currentInteraction = null
+    }
+
+    class EvioneGuiHandler(private val evione: Evione) : NamedScreenHandlerFactory {
+        override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
+            return EvioneGUI(syncId, inv, ScreenHandlerContext.create(player.world, player.blockPos), evione)
+        }
+
+        override fun getDisplayName(): Text {
+            return TranslatableText("container.friendlymob.evione")
+        }
+
     }
 }

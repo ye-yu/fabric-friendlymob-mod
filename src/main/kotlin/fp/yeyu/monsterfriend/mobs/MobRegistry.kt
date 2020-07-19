@@ -21,7 +21,7 @@ import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction2
 
 object MobRegistry {
-    fun init(client: Boolean) {
+    fun registerMobs(client: Boolean) {
         if (client) {
             registry.forEach {
                 EntityRendererRegistry.INSTANCE.register(
