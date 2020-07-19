@@ -1,11 +1,10 @@
 package fp.yeyu.monsterfriend.screens
 
 import fp.yeyu.monsterfriend.mobs.entity.Evione
+import fp.yeyu.monsterfriend.screens.widget.WColoredBar
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription
-import io.github.cottonmc.cotton.gui.widget.WButton
-import io.github.cottonmc.cotton.gui.widget.WGridPanel
-import io.github.cottonmc.cotton.gui.widget.WItemSlot
-import io.github.cottonmc.cotton.gui.widget.WLabel
+import io.github.cottonmc.cotton.gui.widget.*
+import io.github.cottonmc.cotton.gui.widget.data.Axis
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment
 import net.minecraft.entity.player.PlayerEntity
@@ -43,15 +42,29 @@ class EvioneGUI(
         IntStream.range(0, SIZE).forEach {
             val slot = WItemSlot.of(blockInventory, it)
             val label = createCenteredLabel(WIDGET_LABEL[it])
-            root.add(slot, 1 + 3 * it, 1)
-            root.add(label, 1 + 3 * it, 2)
+            if (it != 2) {
+                root.add(slot, 1 + 2 * it, 1)
+                root.add(label, 1 + 2 * it, 2)
+            } else {
+                root.add(slot, 1 + 2 * (it + 1), 1)
+                root.add(label, 1 + 2 * (it + 1), 2)
+            }
         }
 
         val wButton = WButton(LiteralText("->"))
         root.add(wButton, 5, 1)
-        wButton.setOnClick(Runnable(::consume)).setLocation(wButton.x + wButton.width / 2, wButton.y - 2)
+        wButton.setOnClick(Runnable(::consume))
         val playerSlot = createPlayerInventoryPanel()
         root.add(playerSlot, 0, 3)
+
+        val wProgressBar = WColoredBar
+            .Builder(50, 4, 17)
+            .setDirection(WBar.Direction.UP)
+            .gridOffset(3, 0)
+            .build()
+
+        wProgressBar.setDebug(true)
+        root.add(wProgressBar, 8, 1)
         root.setSize(playerSlot.width, 100)
         root.validate(this)
     }
@@ -68,7 +81,7 @@ class EvioneGUI(
     companion object {
         const val SIZE = 3
         val WIDGET_LABEL = arrayOf(
-            "Target", "Speed Up", "Output"
+            "Target", "Fuel", "Output"
         )
         val LOGGER: Logger = LogManager.getLogger()
     }
