@@ -47,6 +47,11 @@ class WColoredBar private constructor(
     private var debug = false
     private var debugTick = -1
     private var random = Random(Instant.now().toEpochMilli())
+    private var finalCallback: (WColoredBar) -> Unit = {}
+
+    fun setFinalCallback(f: (WColoredBar) -> Unit) {
+        finalCallback = f
+    }
 
     fun setDebug(d: Boolean) {
         debug = d
@@ -111,6 +116,8 @@ class WColoredBar private constructor(
                 setProgress(random.nextDouble())
             }
         }
+
+        finalCallback(this)
     }
 
     class Builder(private val maxValue: Int, private val barWidth: Int, private val barHeight: Int) {

@@ -12,7 +12,7 @@ import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 import java.nio.file.Paths
-import java.util.*
+import java.util.Scanner
 import kotlin.collections.HashMap
 
 object ConfigFile {
