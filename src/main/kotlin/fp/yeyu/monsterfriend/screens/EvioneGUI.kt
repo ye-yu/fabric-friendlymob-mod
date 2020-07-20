@@ -15,7 +15,6 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.screen.ScreenHandlerContext
-import net.minecraft.screen.slot.SlotActionType
 import net.minecraft.text.LiteralText
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -65,7 +64,7 @@ class EvioneGUI(
 
         val wButton = WButton(LiteralText("->"))
         root.add(wButton, 5, 1)
-        wButton.setOnClick(Runnable(::consume))
+        wButton.onClick = Runnable(::consume)
         val playerSlot = createPlayerInventoryPanel()
         root.add(playerSlot, 0, 3)
 
@@ -79,6 +78,9 @@ class EvioneGUI(
                 it.setProgress(getProgress().toInt())
             }
         }
+
+        setSlotPredicate(1) { Evione.isEssence(it.item) }
+        setSlotPredicate(2) { it.isEmpty }
     }
 
     private fun initDataTracker() {
@@ -101,61 +103,8 @@ class EvioneGUI(
             "Target", "Fuel", "Output"
         )
         val LOGGER: Logger = LogManager.getLogger()
-        val PROGRESS: TrackedData<Byte> = DataTracker.registerData(PlayerEntity::class.java, TrackedDataHandlerRegistry.BYTE)
-    }
-
-    override fun onSlotClick(slotNumber: Int, button: Int, action: SlotActionType, player: PlayerEntity): ItemStack {
-        // can only pickup in slot 2
-        if (slotNumber == 2 && !playerInventory.cursorStack.isEmpty) return ItemStack.EMPTY
-        else if (slotNumber == 0) {
-            return manageSlotZero(slotNumber, button, action, player)
-        } else if (slotNumber == 1) {
-            return manageSlotOne(slotNumber, button, action, player)
-        } else if (slotNumber > 2 && action == SlotActionType.QUICK_MOVE) {
-            if (blockInventory.getStack(0).isEmpty) {
-                LOGGER.info("Must initialise progress")
-                val selectedStack = slots[slotNumber].stack
-                if (Evione.isEssence(selectedStack.item)) {
-                    slots[1].stack = selectedStack
-                    slots[slotNumber].stack = ItemStack.EMPTY
-                    return ItemStack.EMPTY
-                } else if (!selectedStack.isEmpty) {
-                    val toTransfer = selectedStack.copy()
-                    toTransfer.count = 1
-                    selectedStack.decrement(1)
-                    slots[0].stack = toTransfer
-                    return selectedStack
-                }
-            } else if (blockInventory.getStack(1).isEmpty) {
-                val selectedStack = slots[slotNumber].stack
-                if (!Evione.isEssence(selectedStack.item)) {
-                    return ItemStack.EMPTY
-                }
-            } else {
-                val selectedStack = slots[slotNumber].stack
-                if (blockInventory.getStack(0).item == selectedStack.item)
-                // deny transfer any slot 1
-                    return ItemStack.EMPTY
-            }
-            if (!blockInventory.getStack(0).isEmpty && !blockInventory.getStack(1).isEmpty && blockInventory.getStack(2).isEmpty) {
-                // deny moving item to slot three
-                return ItemStack.EMPTY
-            } else {
-                val selectedStack = slots[slotNumber].stack
-                if (blockInventory.getStack(2).item == selectedStack.item) {
-                    // deny combining item to slot three
-                    return ItemStack.EMPTY
-                }
-            }
-        }
-        return super.onSlotClick(slotNumber, button, action, player)
-    }
-
-    private fun manageSlotOne(slotNumber: Int, button: Int, action: SlotActionType, player: PlayerEntity): ItemStack {
-        if (!Evione.isEssence(playerInventory.cursorStack.item) && !playerInventory.cursorStack.isEmpty) {
-            return ItemStack.EMPTY
-        }
-        return super.onSlotClick(slotNumber, button, action, player)
+        val PROGRESS: TrackedData<Byte> =
+            DataTracker.registerData(PlayerEntity::class.java, TrackedDataHandlerRegistry.BYTE)
     }
 
     fun setProgress(p: Byte) {
@@ -165,36 +114,6 @@ class EvioneGUI(
 
     private fun getProgress(): Byte {
         return this.dataTracker.get(PROGRESS)
-    }
-
-    private fun manageSlotZero(
-        slotNumber: Int,
-        button: Int,
-        action: SlotActionType,
-        player: PlayerEntity
-    ): ItemStack {
-        val outputStack = blockInventory.getStack(0)
-        if (!playerInventory.cursorStack.isEmpty) {
-            if (outputStack.isEmpty) {
-                LOGGER.info("Must only put one item to slot")
-                val cursorStack = playerInventory.cursorStack
-                if (cursorStack.count > 1) {
-                    val toTransfer = cursorStack.copy()
-                    toTransfer.count = 1
-                    cursorStack.decrement(1)
-                    slots[0].stack = toTransfer
-                    return cursorStack
-                }
-                evione?.setSynthesisItem(cursorStack)
-                return super.onSlotClick(slotNumber, button, action, player)
-            } else {
-                LOGGER.info("Is swapping! Denying")
-                return ItemStack.EMPTY
-            }
-        } else {
-            LOGGER.info("Must clear progress")
-            return super.onSlotClick(slotNumber, button, action, player)
-        }
     }
 
     private fun createCenteredLabel(label: String): WLabel {

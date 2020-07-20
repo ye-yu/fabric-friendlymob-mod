@@ -67,6 +67,8 @@ class VindorGUI(
 
         root.setSize(playerSlot.width, 100)
         root.validate(this)
+
+        setSlotPredicate(1) { it.isEmpty }
     }
 
     private fun initMessageField() {
@@ -126,11 +128,6 @@ class VindorGUI(
         val sendStack = blockInventory.getStack(0)
         val receiveStack = blockInventory.getStack(1)
         vindor.finishTrading(sendStack, receiveStack)
-    }
-
-    override fun onSlotClick(slotNumber: Int, button: Int, action: SlotActionType?, player: PlayerEntity?): ItemStack {
-        if (slotNumber == 1 && !playerInventory.cursorStack.isEmpty) return ItemStack.EMPTY
-        return super.onSlotClick(slotNumber, button, action, player)
     }
 
     fun initText(msg: String) {
