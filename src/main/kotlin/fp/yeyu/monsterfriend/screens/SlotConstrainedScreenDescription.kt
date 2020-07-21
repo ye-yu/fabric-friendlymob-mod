@@ -25,10 +25,8 @@ open class SlotConstrainedScreenDescription(
 
     companion object {
         private val ALWAYS_TRUE: (ItemStack) -> Boolean = { true }
-        private val EMPTY_FN: () -> Unit = {}
     }
 
-    private val slotListener = HashMap<Int, () -> Unit>()
     private val slotPredicates = HashMap<Int, (ItemStack) -> Boolean>()
     private val slotCapacity = HashMap<Int, Int>()
 
@@ -110,10 +108,14 @@ open class SlotConstrainedScreenDescription(
                         if (!this.insertItem(toTransfer, playerInventory, true, player)) {
                             return ItemStack.EMPTY
                         }
-                    } else {
-                        if (!this.insertItem(toTransfer, blockInventory, false, player)) { //Try to transfer the item from the player to the block
-                            return ItemStack.EMPTY
-                        }
+                    } else if (!this.insertItem(
+                            toTransfer,
+                            blockInventory,
+                            false,
+                            player
+                        )
+                    ) { //Try to transfer the item from the player to the block
+                        return ItemStack.EMPTY
                     }
                 } else {
                     //There's no block, just swap between the player's storage and their hotbar
@@ -170,10 +172,6 @@ open class SlotConstrainedScreenDescription(
         }
     }
 
-    private fun onSlotChange(slotNumber: Int) {
-        slotListener.getOrDefault(slotNumber, EMPTY_FN)()
-    }
-
     private fun insertItem(
         toInsert: ItemStack,
         inventory: Inventory,
@@ -193,19 +191,13 @@ open class SlotConstrainedScreenDescription(
         if (walkBackwards) {
             for (i in inventorySlots.indices.reversed()) {
                 val curSlot = inventorySlots[i]
-                if (insertIntoExisting(toInsert, curSlot, player)) {
-                    inserted = true
-                    onSlotChange(i)
-                }
+                if (insertIntoExisting(toInsert, curSlot, player)) inserted = true
                 if (toInsert.isEmpty) break
             }
         } else {
             for (i in inventorySlots.indices) {
                 val curSlot = inventorySlots[i]
-                if (insertIntoExisting(toInsert, curSlot, player)) {
-                    inserted = true
-                    onSlotChange(i)
-                }
+                if (insertIntoExisting(toInsert, curSlot, player)) inserted = true
                 if (toInsert.isEmpty) break
             }
         }
@@ -215,19 +207,13 @@ open class SlotConstrainedScreenDescription(
             if (walkBackwards) {
                 for (i in inventorySlots.indices.reversed()) {
                     val curSlot = inventorySlots[i]
-                    if (insertIntoEmpty(toInsert, curSlot)) {
-                        inserted = true
-                        onSlotChange(i)
-                    }
+                    if (insertIntoEmpty(toInsert, curSlot)) inserted = true
                     if (toInsert.isEmpty) break
                 }
             } else {
                 for (i in inventorySlots.indices) {
                     val curSlot = inventorySlots[i]
-                    if (insertIntoEmpty(toInsert, curSlot)) {
-                        inserted = true
-                        onSlotChange(i)
-                    }
+                    if (insertIntoEmpty(toInsert, curSlot)) inserted = true
                     if (toInsert.isEmpty) break
                 }
             }
@@ -264,19 +250,13 @@ open class SlotConstrainedScreenDescription(
             //swap from hotbar to storage
             for (i in storageSlots.indices) {
                 val curSlot = storageSlots[i]
-                if (insertIntoExisting(toInsert, curSlot, player)) {
-                    inserted = true
-                    onSlotChange(i)
-                }
+                if (insertIntoExisting(toInsert, curSlot, player)) inserted = true
                 if (toInsert.isEmpty) break
             }
             if (!toInsert.isEmpty) {
                 for (i in storageSlots.indices) {
                     val curSlot = storageSlots[i]
-                    if (insertIntoEmpty(toInsert, curSlot)) {
-                        inserted = true
-                        onSlotChange(i)
-                    }
+                    if (insertIntoEmpty(toInsert, curSlot)) inserted = true
                     if (toInsert.isEmpty) break
                 }
             }
@@ -284,19 +264,13 @@ open class SlotConstrainedScreenDescription(
             //swap from storage to hotbar
             for (i in hotbarSlots.indices) {
                 val curSlot = hotbarSlots[i]
-                if (insertIntoExisting(toInsert, curSlot, player)) {
-                    inserted = true
-                    onSlotChange(i)
-                }
+                if (insertIntoExisting(toInsert, curSlot, player)) inserted = true
                 if (toInsert.isEmpty) break
             }
             if (!toInsert.isEmpty) {
                 for (i in hotbarSlots.indices) {
                     val curSlot = hotbarSlots[i]
-                    if (insertIntoEmpty(toInsert, curSlot)) {
-                        inserted = true
-                        onSlotChange(i)
-                    }
+                    if (insertIntoEmpty(toInsert, curSlot)) inserted = true
                     if (toInsert.isEmpty) break
                 }
             }
