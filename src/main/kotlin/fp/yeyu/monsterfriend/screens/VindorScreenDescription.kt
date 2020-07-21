@@ -2,15 +2,13 @@ package fp.yeyu.monsterfriend.screens
 
 import fp.yeyu.monsterfriend.mobs.entity.Vindor
 import fp.yeyu.monsterfriend.packets.PacketHandlers
+import fp.yeyu.monsterfriend.packets.ScreenDescriptionPacketListener
 import fp.yeyu.monsterfriend.screens.widget.WTextField
-import fp.yeyu.monsterfriend.statics.mutable.OpenedScreen
-import io.github.cottonmc.cotton.gui.SyncedGuiDescription
 import io.github.cottonmc.cotton.gui.widget.WGridPanel
 import io.github.cottonmc.cotton.gui.widget.WItemSlot
 import io.github.cottonmc.cotton.gui.widget.WLabel
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment
-import io.netty.buffer.Unpooled
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
@@ -31,9 +29,12 @@ class VindorScreenDescription(
         playerInventory,
         getBlockInventory(context, SIZE),
         getBlockPropertyDelegate(context, 0)
-    ) {
+    ), ScreenDescriptionPacketListener {
 
     private val msgField = WTextField()
+
+    private val s2cListener = HashMap<String, (PacketByteBuf) -> Unit>()
+    private val c2sListener = HashMap<String, (PacketByteBuf) -> Unit>()
 
     init {
         val root = WGridPanel()
@@ -68,6 +69,33 @@ class VindorScreenDescription(
         root.validate(this)
 
         setSlotPredicate(1) { it.isEmpty }
+        initPacketListeners()
+
+        if (world.isClient) {
+            PacketHandlers.SCREEN_C2S.send(world, createWrappedPacketBuffer(getSyncId(), PacketIdentifiers.INIT), null)
+        }
+    }
+
+    private fun initPacketListeners() {
+        c2sListener[PacketIdentifiers.INIT] = {
+            vindor?.getSenderMessage()?.apply {
+                val buf = createWrappedPacketBuffer(getSyncId(), PacketIdentifiers.SERVER_VINDOR_TEXT)
+                buf.writeString(this)
+                PacketHandlers.SCREEN_S2C.send(world, buf,  playerInventory!!.player)
+                LOGGER.info("Sending init text: $this")
+            }
+        }
+
+        c2sListener[PacketIdentifiers.CLIENT_FIELD_TEXT] = {
+            val text = it.readString()
+            vindor?.setSenderMessage(text)
+        }
+
+        s2cListener[PacketIdentifiers.SERVER_VINDOR_TEXT] = {
+            val text = it.readString()
+            initText(text)
+            LOGGER.info("Got the text: $text")
+        }
     }
 
     private fun initMessageField() {
@@ -85,12 +113,16 @@ class VindorScreenDescription(
 
         if (this.world.isClient) {
             msgField.onChangeListener = {
-                val buf = PacketByteBuf(Unpooled.buffer())
+                val buf = createWrappedPacketBuffer(getSyncId(), PacketIdentifiers.CLIENT_FIELD_TEXT)
                 buf.writeString(it)
-                PacketHandlers.VINDOR_SEND_TEXT.send(this.world, buf, null)
+                PacketHandlers.SCREEN_C2S.send(world, buf, null)
             }
-            requestVindorText()
         }
+    }
+    object PacketIdentifiers {
+        const val INIT = "init"
+        const val CLIENT_FIELD_TEXT = "client-field-text"
+        const val SERVER_VINDOR_TEXT = "server-vindor-text"
     }
 
     private fun createCenteredLabel(label: String, vertically: Boolean, horizontally: Boolean): WLabel {
@@ -109,16 +141,11 @@ class VindorScreenDescription(
         if (itemStack.isEmpty) return
         blockInventory.setStack(slotNumber, itemStack)
     }
-
-    private fun requestVindorText() {
-        OpenedScreen.set(this)
-        PacketHandlers.VINDOR_REQUEST_TEXT.send(this.world, PacketByteBuf(Unpooled.buffer()), null)
-    }
-
     companion object {
         const val SIZE = 2
         const val MAX_TEXT_LENGTH = 50
         val LOGGER: Logger = LogManager.getLogger()
+
     }
 
     override fun close(player: PlayerEntity?) {
@@ -132,6 +159,17 @@ class VindorScreenDescription(
     fun initText(msg: String) {
         msgField.text = msg
         msgField.isEditable = true
-        vindor?.setSenderMessage(msg)
+    }
+
+    override fun getSyncId(): Int {
+        return syncId
+    }
+
+    override fun getS2CListeners(): HashMap<String, (PacketByteBuf) -> Unit> {
+        return s2cListener
+    }
+
+    override fun getC2SListeners(): HashMap<String, (PacketByteBuf) -> Unit> {
+        return c2sListener
     }
 }
