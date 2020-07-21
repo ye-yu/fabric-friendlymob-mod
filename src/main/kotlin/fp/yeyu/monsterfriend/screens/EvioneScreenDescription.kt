@@ -76,10 +76,17 @@ class EvioneScreenDescription(
 
         initSlotConstraints()
         initPacketListeners()
-        evione?.getSynthesisProgress()?.toInt()?.apply(::sendProgressToClient)
+
+        if (world.isClient) {
+            PacketHandlers.SCREEN_C2S.send(world, createWrappedPacketBuffer(getSyncId(), PacketIdentifiers.INIT), null)
+        }
     }
 
     private fun initPacketListeners() {
+        c2sListeners[PacketIdentifiers.INIT] = {
+            evione?.getSynthesisProgress()?.toInt()?.apply(::sendProgressToClient)
+        }
+
         c2sListeners[PacketIdentifiers.CONSUME_ITEM] = {
             val itemStack = it.readItemStack()
             LOGGER.info("Received ${itemStack.item}: ${if (Evione.isEssence(itemStack.item)) "is an essence" else "is not an essence"}")
@@ -128,6 +135,7 @@ class EvioneScreenDescription(
     object PacketIdentifiers {
         const val CONSUME_ITEM = "consume-item"
         const val SET_PROGRESS = "set-progress"
+        const val INIT = "init"
     }
 
     fun setProgress(p: Int) {
