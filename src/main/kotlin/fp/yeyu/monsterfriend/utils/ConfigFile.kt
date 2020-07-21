@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.statics.immutable
+package fp.yeyu.monsterfriend.utils
 
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
@@ -12,7 +12,7 @@ import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 import java.nio.file.Paths
-import java.util.Scanner
+import java.util.*
 import kotlin.collections.HashMap
 
 object ConfigFile {
@@ -34,7 +34,8 @@ object ConfigFile {
             logger.info("[${BefriendMinecraft::class.java.simpleName}] Plugin configuration - ${it.variableName}: ${map[it.variableName].toString()}")
         }
 
-        val randomMessageFileName = getString(Defaults.RANDOM_MESSAGE_LIST)
+        val randomMessageFileName =
+            getString(Defaults.RANDOM_MESSAGE_LIST)
         with(Scanner(getFile(randomMessageFileName))) {
             while (this.hasNextLine()) {
                 val line = this.nextLine()
@@ -119,21 +120,22 @@ object ConfigFile {
 
         val variableName = name.toLowerCase()
     }
-}
 
-private fun JsonWriter.value(def: Any) {
-    when (def) {
-        is Float -> {
-            this.value(def)
-        }
-        is Int -> {
-            this.value(def)
-        }
-        is Boolean -> {
-            this.value(def)
-        }
-        else -> {
-            this.value(def.toString())
+    private fun JsonWriter.value(def: Any) {
+        when (def) {
+            is Float -> {
+                this.value(def)
+            }
+            is Int -> {
+                this.value(def)
+            }
+            is Boolean -> {
+                this.value(def)
+            }
+            else -> {
+                this.value(def.toString())
+            }
         }
     }
+
 }

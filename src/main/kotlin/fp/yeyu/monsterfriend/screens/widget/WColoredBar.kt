@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend.screens.widget
 
+import fp.yeyu.monsterfriend.utils.ColorUtils
 import io.github.cottonmc.cotton.gui.client.ScreenDrawing
 import io.github.cottonmc.cotton.gui.widget.WBar
 import io.github.cottonmc.cotton.gui.widget.WWidget

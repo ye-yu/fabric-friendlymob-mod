@@ -1,6 +1,5 @@
 package fp.yeyu.monsterfriend.packets
 
-import io.netty.buffer.Unpooled
 import net.fabricmc.fabric.api.network.PacketContext
 import net.minecraft.network.PacketByteBuf
 
@@ -31,14 +30,5 @@ interface ScreenDescriptionPacketListener {
 
     fun createWrappedPacketBuffer(syncId: Int, actionIdentifier: String): PacketByteBuf {
         return ScreenPacketContext(syncId, actionIdentifier).createPacketBuffer()
-    }
-}
-
-class ScreenPacketContext(var syncId: Int, var actionIdentifier: String) {
-    fun createPacketBuffer(): PacketByteBuf {
-        val packetByteBuf = PacketByteBuf(Unpooled.buffer())
-        packetByteBuf.writeInt(syncId)
-        packetByteBuf.writeString(actionIdentifier)
-        return packetByteBuf
     }
 }

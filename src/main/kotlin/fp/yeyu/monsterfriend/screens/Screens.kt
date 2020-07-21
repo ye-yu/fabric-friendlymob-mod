@@ -23,14 +23,15 @@ object Screens {
             )
         }
 
-    val EVIONE_SCREEN: ScreenHandlerType<EvioneScreenDescription> = register("evione_screen") { syncId: Int, player: PlayerInventory ->
-        EvioneScreenDescription(
-            syncId,
-            player,
-            net.minecraft.screen.ScreenHandlerContext.EMPTY,
-            null
-        )
-    }
+    val EVIONE_SCREEN: ScreenHandlerType<EvioneScreenDescription> =
+        register("evione_screen") { syncId: Int, player: PlayerInventory ->
+            EvioneScreenDescription(
+                syncId,
+                player,
+                net.minecraft.screen.ScreenHandlerContext.EMPTY,
+                null
+            )
+        }
 
     fun registerScreens() {
         register(VINDOR_SCREEN, ::VindorClientScreen)

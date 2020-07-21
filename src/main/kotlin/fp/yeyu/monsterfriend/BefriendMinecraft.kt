@@ -4,7 +4,7 @@ import fp.yeyu.monsterfriend.mobs.MobRegistry
 import fp.yeyu.monsterfriend.mobs.egg.EvioneEgg
 import fp.yeyu.monsterfriend.mobs.egg.VindorEgg
 import fp.yeyu.monsterfriend.packets.PacketHandlers
-import fp.yeyu.monsterfriend.statics.immutable.ConfigFile
+import fp.yeyu.monsterfriend.utils.ConfigFile
 import net.fabricmc.api.ModInitializer
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup

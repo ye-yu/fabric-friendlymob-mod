@@ -1,7 +1,7 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.screens.VindorScreenDescription
-import fp.yeyu.monsterfriend.statics.mutable.WonderTrade
+import fp.yeyu.monsterfriend.utils.wondertrade.WonderTrade
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.enchantment.EnchantmentHelper
@@ -368,7 +368,12 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     class VindorGuiHandler(private val who: Vindor?) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory?, player: PlayerEntity?): ScreenHandler? {
             if (who != null) who.wonderTick = -1
-            return VindorScreenDescription(syncId, inv, ScreenHandlerContext.create(player?.world, player?.blockPos), who)
+            return VindorScreenDescription(
+                syncId,
+                inv,
+                ScreenHandlerContext.create(player?.world, player?.blockPos),
+                who
+            )
         }
 
         override fun getDisplayName(): Text {

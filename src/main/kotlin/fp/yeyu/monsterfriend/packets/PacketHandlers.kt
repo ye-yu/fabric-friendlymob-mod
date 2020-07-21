@@ -14,8 +14,8 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
 enum class PacketHandlers(val toServer: Boolean, val handler: (PacketContext, PacketByteBuf) -> Unit) {
-    SCREEN_S2C(false, ::server2ClientHandler),
-    SCREEN_C2S(true, ::client2ServerHandler);
+    SCREEN_S2C(false, Handlers::server2ClientHandler),
+    SCREEN_C2S(true, Handlers::client2ServerHandler);
 
     val id: Identifier = Identifier(BefriendMinecraft.NAMESPACE, this.name.toLowerCase())
 
@@ -38,27 +38,32 @@ enum class PacketHandlers(val toServer: Boolean, val handler: (PacketContext, Pa
         fun registerPackets(client: Boolean) {
             values().forEach {
                 if (it.toServer && !client) {
+                    LOGGER.info("[Server] Registered packet ${it.id}")
                     ServerSidePacketRegistry.INSTANCE.register(it.id, it.handler)
                 } else if (!it.toServer && client) {
+                    LOGGER.info("[Client] Registered packet ${it.id}")
                     ClientSidePacketRegistry.INSTANCE.register(it.id, it.handler)
                 }
             }
         }
 
-        val LOGGER: Logger = LogManager.getLogger()
+        private val LOGGER: Logger = LogManager.getLogger()
     }
-}
 
-fun server2ClientHandler(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
-    val currentScreen = MinecraftClient.getInstance().currentScreen ?: return
-    check(currentScreen is CottonInventoryScreen<*>) { "Current screen is not an instance of CottonInventoryScreen!" }
-    val screenHandler = currentScreen.screenHandler
-    check(screenHandler is ScreenDescriptionPacketListener) { "Current screen description is not an instance implementing ScreenPacketListener!" }
-    screenHandler.onServer2Client(packetContext, packetByteBuf)
-}
+    object Handlers {
+        fun server2ClientHandler(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
+            val currentScreen = MinecraftClient.getInstance().currentScreen ?: return
+            check(currentScreen is CottonInventoryScreen<*>) { "Current screen is not an instance of CottonInventoryScreen!" }
+            val screenHandler = currentScreen.screenHandler
+            check(screenHandler is ScreenDescriptionPacketListener) { "Current screen description is not an instance implementing ScreenPacketListener!" }
+            screenHandler.onServer2Client(packetContext, packetByteBuf)
+        }
 
-fun client2ServerHandler(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
-    val screenHandler = packetContext.player.currentScreenHandler
-    check(screenHandler is ScreenDescriptionPacketListener) { "Current screen description is not an instance implementing ScreenPacketListener!" }
-    screenHandler.onClient2Server(packetContext, packetByteBuf)
+        fun client2ServerHandler(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
+            val screenHandler = packetContext.player.currentScreenHandler
+            check(screenHandler is ScreenDescriptionPacketListener) { "Current screen description is not an instance implementing ScreenPacketListener!" }
+            screenHandler.onClient2Server(packetContext, packetByteBuf)
+        }
+    }
+
 }

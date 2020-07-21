@@ -40,26 +40,26 @@ object MobRegistry {
     val evione = MobStruct(::Evione, ::EvioneRenderer)
     private val registry = arrayListOf(vindor, evione)
 
-}
+    class MobStruct<T : MobEntity, V : CompositeEntityModel<T>>(
+        private val entityFactory: KFunction2<
+                @ParameterName(name = "entityType") EntityType<T>,
+                @ParameterName(name = "world") World,
+                T>,
+        val rendererFactory: KFunction1<
+                @ParameterName(name = "entityRenderDispatcher") EntityRenderDispatcher?,
+                MobEntityRenderer<T, V>>
+    ) {
+        var entityType: EntityType<T>? = null
 
-class MobStruct<T : MobEntity, V : CompositeEntityModel<T>>(
-    private val entityFactory: KFunction2<
-            @ParameterName(name = "entityType") EntityType<T>,
-            @ParameterName(name = "world") World,
-            T>,
-    val rendererFactory: KFunction1<
-            @ParameterName(name = "entityRenderDispatcher") EntityRenderDispatcher?,
-            MobEntityRenderer<T, V>>
-) {
-    var entityType: EntityType<T>? = null
-
-    fun create(id: Identifier, width: Float, height: Float, trackingDistance: Int) {
-        if (entityType != null) return
-        val fabricEntity = FabricEntityTypeBuilder.create<T>(SpawnGroup.CREATURE, entityFactory)
-        entityType = Registry.register(
-            Registry.ENTITY_TYPE,
-            id,
-            fabricEntity.dimensions(EntityDimensions(width, height, true)).trackable(trackingDistance, 3).build()
-        )
+        fun create(id: Identifier, width: Float, height: Float, trackingDistance: Int) {
+            if (entityType != null) return
+            val fabricEntity = FabricEntityTypeBuilder.create<T>(SpawnGroup.CREATURE, entityFactory)
+            entityType = Registry.register(
+                Registry.ENTITY_TYPE,
+                id,
+                fabricEntity.dimensions(EntityDimensions(width, height, true)).trackable(trackingDistance, 3).build()
+            )
+        }
     }
+
 }

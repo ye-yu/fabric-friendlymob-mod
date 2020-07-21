@@ -81,7 +81,7 @@ class VindorScreenDescription(
             vindor?.getSenderMessage()?.apply {
                 val buf = createWrappedPacketBuffer(getSyncId(), PacketIdentifiers.SERVER_VINDOR_TEXT)
                 buf.writeString(this)
-                PacketHandlers.SCREEN_S2C.send(world, buf,  playerInventory!!.player)
+                PacketHandlers.SCREEN_S2C.send(world, buf, playerInventory!!.player)
                 LOGGER.info("Sending init text: $this")
             }
         }
@@ -119,6 +119,7 @@ class VindorScreenDescription(
             }
         }
     }
+
     object PacketIdentifiers {
         const val INIT = "init"
         const val CLIENT_FIELD_TEXT = "client-field-text"
@@ -141,6 +142,7 @@ class VindorScreenDescription(
         if (itemStack.isEmpty) return
         blockInventory.setStack(slotNumber, itemStack)
     }
+
     companion object {
         const val SIZE = 2
         const val MAX_TEXT_LENGTH = 50

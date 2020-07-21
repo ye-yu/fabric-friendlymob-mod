@@ -1,7 +1,7 @@
-package fp.yeyu.monsterfriend.statics.mutable
+package fp.yeyu.monsterfriend.utils.wondertrade
 
 import fp.yeyu.monsterfriend.BefriendMinecraft
-import fp.yeyu.monsterfriend.statics.immutable.ConfigFile
+import fp.yeyu.monsterfriend.utils.ConfigFile
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.PositionTracker
@@ -19,8 +19,8 @@ import kotlin.math.max
 object WonderTrade {
     const val wonderItemTag: String = "wonder_item"
     const val wonderMsgTag = "wonder_msg"
-    private const val settingsFile = "wonder.settings.json"
-    private var stackLength: Int = ConfigFile.getInt(ConfigFile.Defaults.WONDER_SPACE)
+    private var stackLength: Int =
+        ConfigFile.getInt(ConfigFile.Defaults.WONDER_SPACE)
     private var key = AtomicBoolean(false)
     private val logger: Logger = LogManager.getLogger()
     private val random = Random(Instant.now().toEpochMilli())
@@ -115,24 +115,5 @@ object WonderTrade {
         if (slot >= stackLength) throw ArrayIndexOutOfBoundsException(slot)
         val file = getFile("slot_$slot.dat")
         wonderProps.toTag().write(DataOutputStream(FileOutputStream(file)))
-    }
-}
-
-class WonderProps(val item: ItemStack, val msg: String) {
-    fun toTag(): CompoundTag {
-        val itemTag = CompoundTag()
-        val tag = CompoundTag()
-        item.toTag(itemTag)
-        tag.put(WonderTrade.wonderItemTag, itemTag)
-        tag.putString(WonderTrade.wonderMsgTag, msg)
-        return tag
-    }
-
-    companion object {
-        fun fromTag(tag: CompoundTag): WonderProps {
-            val item = ItemStack.fromTag(tag.getCompound(WonderTrade.wonderItemTag))
-            val msg = tag.getString(WonderTrade.wonderMsgTag)
-            return WonderProps(item, msg)
-        }
     }
 }

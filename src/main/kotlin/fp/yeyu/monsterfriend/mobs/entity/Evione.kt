@@ -1,7 +1,7 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.screens.EvioneScreenDescription
-import fp.yeyu.monsterfriend.statics.immutable.ConfigFile
+import fp.yeyu.monsterfriend.utils.ConfigFile
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.ai.goal.EscapeDangerGoal
@@ -52,6 +52,7 @@ class Evione(
         setSynthesisItem(ItemStack.EMPTY)
         getInventory().setStack(0, ItemStack.EMPTY)
     }
+
     companion object {
         val POSE_STATE: TrackedData<Byte> =
             DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
@@ -66,13 +67,17 @@ class Evione(
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.5)
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0)
         }
+
         fun isEssence(item: Item): Boolean {
             return item == Items.EXPERIENCE_BOTTLE
         }
+
         private var MAX_SPELL_TICK: Int = ConfigFile.getInt(ConfigFile.Defaults.EVIONE_MAX_SPELL_TICK)
         private var SYNTHESIS_CHANCE = ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CHANCE)
-        private var SYNTHESIS_CAN_SPEED_UP_CHANCE = ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CAN_SPEED_UP_CHANCE)
-        private var SYNTHESIS_SPEED_UP_CHANCE = ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_CHANCE)
+        private var SYNTHESIS_CAN_SPEED_UP_CHANCE =
+            ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CAN_SPEED_UP_CHANCE)
+        private var SYNTHESIS_SPEED_UP_CHANCE =
+            ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_CHANCE)
 
     }
 
@@ -89,6 +94,7 @@ class Evione(
         itemStack.count = 1
         equipStack(EquipmentSlot.MAINHAND, itemStack)
     }
+
     fun setProgress(p: Byte) {
         val clamped = max(0, min(MAX_PROGRESS, p.toInt()))
         LOGGER.info("Set new progress to $clamped")
@@ -97,6 +103,7 @@ class Evione(
         val screenHandler = currentInteraction?.currentScreenHandler ?: return
         (screenHandler as EvioneScreenDescription).sendProgressToClient(clamped)
     }
+
     private fun getSynthesisSound(): SoundEvent = SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP
     override fun getAmbientSound(): SoundEvent = SoundEvents.ENTITY_EVOKER_AMBIENT
     override fun getFallSound(distance: Int): SoundEvent = SoundEvents.ENTITY_EVOKER_HURT

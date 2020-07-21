@@ -5,5 +5,4 @@ import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.text.Text
 
 class EvioneClientScreen(screenDescription: EvioneScreenDescription, playerInventory: PlayerInventory, title: Text) :
-    CottonInventoryScreen<EvioneScreenDescription>(screenDescription, playerInventory.player, title) {
-}
+    CottonInventoryScreen<EvioneScreenDescription>(screenDescription, playerInventory.player, title)

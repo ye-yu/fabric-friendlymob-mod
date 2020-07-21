@@ -2,7 +2,7 @@ package fp.yeyu.monsterfriend.mixins;
 
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
 import fp.yeyu.monsterfriend.mobs.entity.Vindor;
-import fp.yeyu.monsterfriend.statics.immutable.ConfigFile;
+import fp.yeyu.monsterfriend.utils.ConfigFile;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
