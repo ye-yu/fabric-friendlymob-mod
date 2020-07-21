@@ -111,7 +111,11 @@ object ConfigFile {
         WONDER_SPACE(5),
         SIMULATE_MULTIPLAYER(true),
         RANDOM_MESSAGE_LIST("randomMessage.txt"),
-        VINDOR_TRANSFORM_CHANCE(0.3f);
+        VINDOR_TRANSFORM_CHANCE(0.3f),
+        EVIONE_MAX_SPELL_TICK(50),
+        EVIONE_SYNTHESIS_CHANCE(0.05f),
+        EVIONE_SYNTHESIS_CAN_SPEED_UP_CHANCE(0.03f),
+        EVIONE_SYNTHESIS_SPEED_UP_CHANCE(0.03f);
 
         val variableName = name.toLowerCase()
     }

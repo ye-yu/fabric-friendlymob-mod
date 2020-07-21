@@ -1,6 +1,7 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.screens.EvioneScreenDescription
+import fp.yeyu.monsterfriend.statics.immutable.ConfigFile
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.ai.goal.EscapeDangerGoal
@@ -57,9 +58,7 @@ class Evione(
         val SYNTHESIS_PROGRESS: TrackedData<Byte> =
             DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
         const val MAX_PROGRESS = 100
-
         const val POSE_STATE_NAME = "pose_state"
-
         const val SYNTHESIS_PROGRESS_NAME = "synthesis_progress"
 
         fun createEvioneAttributes(): DefaultAttributeContainer.Builder {
@@ -70,11 +69,10 @@ class Evione(
         fun isEssence(item: Item): Boolean {
             return item == Items.EXPERIENCE_BOTTLE
         }
-        private const val MAX_SPELL_TICK: Int = 50
-        private const val SYNTHESIS_CHANCE = 0.05f
-        private const val SYNTHESIS_CAN_SPEED_UP_CHANCE = 0.03f
-
-        private const val SYNTHESIS_SPEED_UP_CHANCE = 0.03f
+        private var MAX_SPELL_TICK: Int = ConfigFile.getInt(ConfigFile.Defaults.EVIONE_MAX_SPELL_TICK)
+        private var SYNTHESIS_CHANCE = ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CHANCE)
+        private var SYNTHESIS_CAN_SPEED_UP_CHANCE = ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CAN_SPEED_UP_CHANCE)
+        private var SYNTHESIS_SPEED_UP_CHANCE = ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_CHANCE)
 
     }
 
