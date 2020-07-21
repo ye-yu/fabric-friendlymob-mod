@@ -4,6 +4,7 @@ import fp.yeyu.monsterfriend.mobs.entity.Evione
 import fp.yeyu.monsterfriend.packets.PacketHandlers
 import fp.yeyu.monsterfriend.packets.ScreenDescriptionPacketListener
 import fp.yeyu.monsterfriend.screens.widget.WColoredBar
+import fp.yeyu.monsterfriend.screens.widget.WListeningItemSlot
 import io.github.cottonmc.cotton.gui.widget.*
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment
@@ -14,6 +15,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.text.LiteralText
 import net.minecraft.util.registry.Registry
@@ -53,13 +55,13 @@ class EvioneScreenDescription(
         }
 
         IntStream.range(0, SIZE).forEach {
-            val slot = WItemSlot.of(blockInventory, it)
+            val wListeningItemSlot = WListeningItemSlot(blockInventory, it)
             val label = createCenteredLabel(WIDGET_LABEL[it])
             if (it != 2) {
-                root.add(slot, 1 + 2 * it, 1)
+                root.add(wListeningItemSlot, 1 + 2 * it, 1)
                 root.add(label, 1 + 2 * it, 2)
             } else {
-                root.add(slot, 1 + 2 * (it + 1), 1)
+                root.add(wListeningItemSlot, 1 + 2 * (it + 1), 1)
                 root.add(label, 1 + 2 * (it + 1), 2)
             }
         }
@@ -107,6 +109,17 @@ class EvioneScreenDescription(
         setSlotPredicate(0) { !Evione.isEssence(it.item) } // don't put essence at first slot
         setSlotPredicate(1) { Evione.isEssence(it.item) } // only put essence at second slot
         setSlotPredicate(2) { it.isEmpty } // only pickup this slot
+        setSlotListener(0) { originalStack: ItemStack, incomingStack: ItemStack ->
+            LOGGER.info("Running slot listener at ${if (world.isClient) "client" else "server"} side")
+            if (evione != null) {
+                if (incomingStack == ItemStack.EMPTY) {
+                    evione.clearSynthesisItem()
+                }
+                if (!ScreenHandler.canStacksCombine(originalStack, incomingStack)) {
+                    evione.synthesisNewItem(incomingStack)
+                }
+            }
+        }
     }
 
     private fun setBlockInventoryIfNotEmpty(slot: Int, itemStack: ItemStack?) {
@@ -181,5 +194,10 @@ class EvioneScreenDescription(
     override fun onServer2Client(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
         super.onServer2Client(packetContext, packetByteBuf)
         LOGGER.info("Received a packet from server")
+    }
+
+    fun setOutputStack(synthesisStack: ItemStack) {
+        LOGGER.info("Setting display output stack to ${synthesisStack.item}x${synthesisStack.count}")
+        blockInventory.setStack(1, synthesisStack)
     }
 }

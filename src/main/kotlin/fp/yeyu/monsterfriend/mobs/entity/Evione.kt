@@ -82,6 +82,7 @@ class Evione(
     }
 
     fun synthesisNewItem(itemStack: ItemStack) {
+        LOGGER.info("Synthesizing ${itemStack.item}")
         setProgress(0)
         setSynthesisItem(itemStack)
     }
@@ -158,37 +159,54 @@ class Evione(
         super.mobTick()
         validatePose()
         synthesisItem()
+        validateSynthesis()
+    }
+
+    private fun validateSynthesis() {
+        if (world.isClient) return
+        if (getSynthesisProgress().compareTo(MAX_PROGRESS) != 0) return
+        setProgress(0)
+        var synthesisStack = getInventory().getStack(0)
+        if (synthesisStack == ItemStack.EMPTY) { // if this is the first synthesis output
+            synthesisStack = getSynthesisItem().copy()
+            synthesisStack.count = 1
+        } else {
+            if (synthesisStack.count < synthesisStack.maxCount) { // if this is not the first and the slot is not overflown
+                synthesisStack.increment(1)
+            } else { // if the slot is overflown
+                val dropStack = synthesisStack.copy()
+                dropStack.count = 1
+                dropStack(dropStack)
+            }
+        }
+        getInventory().setStack(0, synthesisStack)
+        playSound(getSynthesisSound(), 1f, 0.8f + world.random.nextFloat() / 10 * 4) // 1.0f +- 0.2f
+        val screenHandler = currentInteraction?.currentScreenHandler ?: return
+        check(screenHandler is EvioneScreenDescription)
+        screenHandler.setOutputStack(synthesisStack)
     }
 
     private fun synthesisItem() {
         if (world.isClient) return
-        if (getSynthesisItem().isEmpty) return
+        if (getSynthesisItem().isEmpty) {
+            spellCastingPoseTick = 0
+            return
+        }
+
+        if (spellCastingPoseTick > 0) {
+            spellCastingPoseTick--
+        }
+
         if (world.random.nextFloat() < SYNTHESIS_CHANCE) incrementProgress()
-        if (world.random.nextFloat() < SYNTHESIS_CAN_SPEED_UP_CHANCE) castSpell()
+        if (!isSpellCasting() && world.random.nextFloat() < SYNTHESIS_CAN_SPEED_UP_CHANCE) castSpell()
         if (!isSpellCasting()) return
         world.random.doubles(3).forEach {
             if (it < SYNTHESIS_SPEED_UP_CHANCE) incrementProgress()
         }
-
-        if (getSynthesisProgress().compareTo(MAX_PROGRESS) == 0) {
-            var synthesisStack = getInventory().getStack(0)
-            if (synthesisStack == ItemStack.EMPTY) {
-                synthesisStack = getSynthesisItem().copy()
-            } else {
-                if (synthesisStack.count >= synthesisStack.maxCount) {
-                    val dropStack = synthesisStack.copy()
-                    dropStack.count = 1
-                    dropStack(dropStack)
-                } else {
-                    synthesisStack.increment(1)
-                }
-            }
-            getInventory().setStack(0, synthesisStack)
-            playSound(getSynthesisSound(), 1f, 0.8f + world.random.nextFloat() / 10 * 4) // 1.0f +- 0.2f
-        }
     }
 
     private fun castSpell() {
+        LOGGER.info("is casting spell")
         spellCastingPoseTick = MAX_SPELL_TICK
     }
 

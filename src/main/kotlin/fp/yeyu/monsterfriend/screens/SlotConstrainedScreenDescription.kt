@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend.screens
 
+import fp.yeyu.monsterfriend.screens.widget.ListeningSlot
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription
 import io.github.cottonmc.cotton.gui.ValidatedSlot
 import net.minecraft.entity.player.PlayerEntity
@@ -34,6 +35,11 @@ open class SlotConstrainedScreenDescription(
         slotPredicates[index] = predicate
     }
 
+    fun setSlotListener(index: Int, f: (ItemStack, ItemStack) -> Unit) {
+        check(slots[index] is ListeningSlot)
+        (slots[index] as ListeningSlot).setListener(f)
+    }
+
 
     fun setSlotCapacity(index: Int, capacity: Int) {
         require(!(capacity > 64 || capacity < 1)) {
@@ -53,18 +59,20 @@ open class SlotConstrainedScreenDescription(
         val curSlotStack = slot.stack
         if (!slotPredicates.getOrDefault(slot.id, ALWAYS_TRUE)(toInsert)) return false
         val slotCapacity = slotCapacity.getOrDefault(slot.id, toInsert.maxCount)
-        val maxCount = Math.min(toInsert.maxCount, slotCapacity)
+        val maxCount = toInsert.maxCount.coerceAtMost(slotCapacity)
         if (!curSlotStack.isEmpty && ScreenHandler.canStacksCombine(toInsert, curSlotStack) && slot.canTakeItems(
                 player
             )
         ) {
             val combinedAmount = curSlotStack.count + toInsert.count
             if (combinedAmount <= maxCount) {
+                if (slot is ListeningSlot) slot.onStackChanged(curSlotStack.copy(), toInsert.copy())
                 toInsert.count = 0
                 curSlotStack.count = combinedAmount
                 slot.markDirty()
                 return true
             } else if (curSlotStack.count < maxCount) {
+                if (slot is ListeningSlot) slot.onStackChanged(curSlotStack.copy(), toInsert.copy())
                 toInsert.decrement(maxCount - curSlotStack.count)
                 curSlotStack.count = maxCount
                 slot.markDirty()
@@ -79,11 +87,14 @@ open class SlotConstrainedScreenDescription(
         if (!slotPredicates.getOrDefault(slot.id, ALWAYS_TRUE)(toInsert)) return false
         val slotCapacity = slotCapacity.getOrDefault(slot.id, toInsert.maxCount)
         if (curSlotStack.isEmpty && slot.canInsert(toInsert)) {
+            if (slot is ListeningSlot) slot.onStackChanged(ItemStack.EMPTY, toInsert.copy())
+
             if (toInsert.count > slotCapacity) {
                 slot.stack = toInsert.split(slotCapacity)
             } else {
                 slot.stack = toInsert.split(toInsert.count)
             }
+
             slot.markDirty()
             return true
         }
