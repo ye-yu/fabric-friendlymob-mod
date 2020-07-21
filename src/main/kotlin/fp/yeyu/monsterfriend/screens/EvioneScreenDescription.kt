@@ -1,20 +1,23 @@
 package fp.yeyu.monsterfriend.screens
 
 import fp.yeyu.monsterfriend.mobs.entity.Evione
+import fp.yeyu.monsterfriend.packets.PacketHandlers
+import fp.yeyu.monsterfriend.packets.ScreenDescriptionPacketListener
 import fp.yeyu.monsterfriend.screens.widget.WColoredBar
 import io.github.cottonmc.cotton.gui.widget.*
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
+import net.fabricmc.fabric.api.network.PacketContext
 import net.minecraft.entity.data.DataTracker
-import net.minecraft.entity.data.TrackedData
-import net.minecraft.entity.data.TrackedDataHandlerRegistry
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.text.LiteralText
+import net.minecraft.util.registry.Registry
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.stream.IntStream
@@ -28,18 +31,19 @@ class EvioneScreenDescription(
     Screens.EVIONE_SCREEN, syncId, player,
     getBlockInventory(handlerContext, SIZE),
     getBlockPropertyDelegate(handlerContext, 0)
-) {
+), ScreenDescriptionPacketListener {
+    private val s2cListeners = HashMap<String, (PacketByteBuf) -> Unit>()
+    private val c2sListeners = HashMap<String, (PacketByteBuf) -> Unit>()
     private val wProgressBar = WColoredBar
         .Builder(Evione.MAX_PROGRESS, 4, 17)
         .setDirection(WBar.Direction.UP)
         .gridOffset(3, 0)
         .build()
 
-    private val dataTracker = DataTracker(player.player)
-
     init {
         val root = WGridPanel()
         setRootPanel(root)
+        getRootPanel()
 
         if (evione != null) {
             val inv = evione.getInventory()
@@ -71,19 +75,32 @@ class EvioneScreenDescription(
         root.setSize(playerSlot.width, 100)
         root.validate(this)
 
-        initDataTracker()
-        if (world.isClient) {
-            wProgressBar.setFinalCallback {
-                it.setProgress(getProgress().toInt())
-            }
-        }
-
-        setSlotPredicate(1) { Evione.isEssence(it.item) }
-        setSlotPredicate(2) { it.isEmpty }
+        initSlotConstraints()
+        initPacketListeners()
+        evione?.getSynthesisProgress()?.toInt()?.apply(::sendProgressToClient)
     }
 
-    private fun initDataTracker() {
-        dataTracker.startTracking(PROGRESS, 0)
+    private fun initPacketListeners() {
+        c2sListeners[PacketIdentifiers.CONSUME_ITEM] = {
+            val itemStack = it.readItemStack()
+            LOGGER.info("Received ${itemStack.item}: ${if (Evione.isEssence(itemStack.item)) "is an essence" else "is not an essence"}")
+
+            val newProgress = world.random.nextInt(Evione.MAX_PROGRESS).apply(::sendProgressToClient)
+            evione?.setProgress(newProgress.toByte())
+        }
+
+        s2cListeners[PacketIdentifiers.SET_PROGRESS] = {
+            val progress = it.readInt()
+            LOGGER.info("Received new progress of $progress")
+            setProgress(progress)
+        }
+    }
+
+    private fun initSlotConstraints() {
+        setSlotCapacity(0, 1)
+        setSlotPredicate(0) { !Evione.isEssence(it.item) } // don't put essence at first slot
+        setSlotPredicate(1) { Evione.isEssence(it.item) } // only put essence at second slot
+        setSlotPredicate(2) { it.isEmpty } // only pickup this slot
     }
 
     private fun setBlockInventoryIfNotEmpty(slot: Int, itemStack: ItemStack?) {
@@ -93,7 +110,12 @@ class EvioneScreenDescription(
 
     @Environment(EnvType.CLIENT)
     private fun consume() {
-        LOGGER.info("Calling from ${if (world.isClient) "client" else "server"} side. Current progress count: ${getProgress()}")
+        check(world.isClient)
+        val buffer = createWrappedPacketBuffer(getSyncId(), PacketIdentifiers.CONSUME_ITEM)
+        val randomItem = Registry.ITEM.getRandom(world.random)
+        buffer.writeItemStack(ItemStack(randomItem))
+        PacketHandlers.SCREEN_C2S.send(world, buffer, null)
+        LOGGER.info("Sending request to consume $randomItem")
     }
 
     companion object {
@@ -102,17 +124,21 @@ class EvioneScreenDescription(
             "Target", "Fuel", "Output"
         )
         val LOGGER: Logger = LogManager.getLogger()
-        val PROGRESS: TrackedData<Byte> =
-            DataTracker.registerData(PlayerEntity::class.java, TrackedDataHandlerRegistry.BYTE)
     }
 
-    fun setProgress(p: Byte) {
-        LOGGER.info("Calling from ${if (world.isClient) "client" else "server"} side. Setting progress to $p")
-        this.dataTracker.set(PROGRESS, p)
+    object PacketIdentifiers {
+        const val CONSUME_ITEM = "consume-item"
+        const val SET_PROGRESS = "set-progress"
     }
 
-    private fun getProgress(): Byte {
-        return this.dataTracker.get(PROGRESS)
+    fun setProgress(p: Int) {
+        wProgressBar.setProgress(p)
+    }
+
+    fun sendProgressToClient(p: Int) {
+        val buf = createWrappedPacketBuffer(getSyncId(), PacketIdentifiers.SET_PROGRESS)
+        buf.writeInt(p)
+        PacketHandlers.SCREEN_S2C.send(world, buf, playerInventory.player)
     }
 
     private fun createCenteredLabel(label: String): WLabel {
@@ -126,5 +152,27 @@ class EvioneScreenDescription(
         super.close(player)
         if (evione == null) return
         evione.endInteraction()
+    }
+
+    override fun getSyncId(): Int {
+        return syncId
+    }
+
+    override fun getS2CListeners(): HashMap<String, (PacketByteBuf) -> Unit> {
+        return s2cListeners
+    }
+
+    override fun getC2SListeners(): HashMap<String, (PacketByteBuf) -> Unit> {
+        return c2sListeners
+    }
+
+    override fun onClient2Server(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
+        super.onClient2Server(packetContext, packetByteBuf)
+        LOGGER.info("Received a packet from client")
+    }
+
+    override fun onServer2Client(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
+        super.onServer2Client(packetContext, packetByteBuf)
+        LOGGER.info("Received a packet from server")
     }
 }

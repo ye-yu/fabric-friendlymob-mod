@@ -25,7 +25,6 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerContext
-import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
@@ -72,29 +71,15 @@ class Evione(
     }
 
     fun setProgress(p: Byte) {
+        LOGGER.info("Set new progress to $p")
         this.dataTracker.set(SYNTHESIS_PROGRESS, max(0, min(100, p.toInt())).toByte())
-        if (world !is ServerWorld) {
-            LOGGER.warn("Expected method call from server-side!")
-            return
-        }
-        if (currentInteraction == null) {
-            LOGGER.warn("Expected evione to be still interacting with a player!")
-            return
-        }
-        val screen = (currentInteraction as ServerPlayerEntity).currentScreenHandler
-        if (screen !is EvioneScreenDescription) {
-            LOGGER.warn("Expected player's current screen to be a EvioneGUI instance!")
-            return
-        }
-        screen.setProgress(p)
+        if (world !is ServerWorld) return
+        val screenHandler = currentInteraction?.currentScreenHandler ?: return
+        (screenHandler as EvioneScreenDescription).sendProgressToClient(p.toInt())
     }
 
     fun setState(state: State) {
         this.dataTracker.set(POSE_STATE, State[state])
-    }
-
-    fun speedUpSynthesis() {
-        spellCastingPoseTick = 50
     }
 
     fun getState(): State {
@@ -136,21 +121,19 @@ class Evione(
     }
 
     private var spellCastingPoseTick: Int = -1
-    private var debugTick = 0
 
     override fun mobTick() {
         super.mobTick()
         validateState()
         validatePose()
-
-        debugTick = ++debugTick % 60
-        if (debugTick == 0) {
-            if (world.isClient) {
-                LOGGER.info("Current progress in client side is ${getSynthesisProgress()}")
-                return
+        if (!world.isClient) {
+            if (world.random.nextFloat() < 0.05f) incrementProgress()
+            if (isSpellCasting()) {
+                world.random.doubles(3).forEach {
+                    if (it < 0.03f) incrementProgress()
+                }
             }
-            setProgress(random.nextInt(MAX_PROGRESS).toByte())
-            LOGGER.info("Set progress to ${getSynthesisProgress()}")
+
         }
     }
 
@@ -160,7 +143,18 @@ class Evione(
             setState(State.SPELL_CASTING)
         } else {
             setState(State.CROSSED)
+            if (random.nextFloat() < 0.01) {
+                spellCastingPoseTick = 40
+            }
         }
+    }
+
+    private fun isSpellCasting(): Boolean {
+        return spellCastingPoseTick > 0
+    }
+
+    private fun incrementProgress() {
+        setProgress((getSynthesisProgress() + 1).toByte())
     }
 
     private fun validateState() {
@@ -219,7 +213,12 @@ class Evione(
 
     class EvioneGuiHandler(private val evione: Evione) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
-            return EvioneScreenDescription(syncId, inv, ScreenHandlerContext.create(player.world, player.blockPos), evione)
+            return EvioneScreenDescription(
+                syncId,
+                inv,
+                ScreenHandlerContext.create(player.world, player.blockPos),
+                evione
+            )
         }
 
         override fun getDisplayName(): Text {

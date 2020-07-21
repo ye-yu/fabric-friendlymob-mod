@@ -3,10 +3,14 @@ package fp.yeyu.monsterfriend.packets
 import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.screens.VindorScreenDescription
 import fp.yeyu.monsterfriend.statics.mutable.OpenedScreen
+import io.github.cottonmc.cotton.gui.client.CottonInventoryScreen
 import io.netty.buffer.Unpooled
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
 import net.fabricmc.fabric.api.network.PacketContext
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry
+import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.Identifier
@@ -17,7 +21,9 @@ import org.apache.logging.log4j.Logger
 enum class PacketHandlers(val toServer: Boolean, val handler: (PacketContext, PacketByteBuf) -> Unit) {
     VINDOR_SEND_TEXT(true, ::parseVindorText),
     VINDOR_REQUEST_TEXT(true, ::requestVindorText),
-    VINDOR_INIT_CLIENT_TEXT(false, ::initVindorText);
+    VINDOR_INIT_CLIENT_TEXT(false, ::initVindorText),
+    SCREEN_S2C(false, ::server2ClientHandler),
+    SCREEN_C2S(true, ::client2ServerHandler);
 
     val id: Identifier = Identifier(BefriendMinecraft.NAMESPACE, this.name.toLowerCase())
 
@@ -49,6 +55,20 @@ enum class PacketHandlers(val toServer: Boolean, val handler: (PacketContext, Pa
 
         val LOGGER: Logger = LogManager.getLogger()
     }
+}
+
+fun server2ClientHandler(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
+    val currentScreen = MinecraftClient.getInstance().currentScreen ?: return
+    check(currentScreen is CottonInventoryScreen<*>) { "Current screen is not an instance of CottonInventoryScreen!" }
+    val screenHandler = currentScreen.screenHandler
+    check(screenHandler is ScreenDescriptionPacketListener) { "Current screen description is not an instance implementing ScreenPacketListener!" }
+    screenHandler.onServer2Client(packetContext, packetByteBuf)
+}
+
+fun client2ServerHandler(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
+    val screenHandler = packetContext.player.currentScreenHandler
+    check(screenHandler is ScreenDescriptionPacketListener) { "Current screen description is not an instance implementing ScreenPacketListener!" }
+    screenHandler.onClient2Server(packetContext, packetByteBuf)
 }
 
 fun initVindorText(@Suppress("UNUSED_PARAMETER") ignored: PacketContext, packetByteBuf: PacketByteBuf) {
