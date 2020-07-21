@@ -9,6 +9,7 @@ import net.minecraft.entity.ai.goal.LookAtEntityGoal
 import net.minecraft.entity.ai.goal.WanderAroundGoal
 import net.minecraft.entity.attribute.DefaultAttributeContainer
 import net.minecraft.entity.attribute.EntityAttributes
+import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.data.DataTracker
 import net.minecraft.entity.data.TrackedData
 import net.minecraft.entity.data.TrackedDataHandlerRegistry
@@ -26,6 +27,8 @@ import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.server.world.ServerWorld
+import net.minecraft.sound.SoundEvent
+import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.ActionResult
@@ -39,13 +42,24 @@ class Evione(
     world: World?
 ) : PathAwareEntity(entityType, world) {
 
+    private var spellCastingPoseTick: Int = -1
+    private var currentInteraction: PlayerEntity? = null
+    private val inventory = SimpleInventory(1)
+    private val guiHandler = EvioneGuiHandler(this)
+
+    init {
+        setSynthesisItem(ItemStack.EMPTY)
+        getInventory().setStack(0, ItemStack.EMPTY)
+    }
     companion object {
         val POSE_STATE: TrackedData<Byte> =
             DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
         val SYNTHESIS_PROGRESS: TrackedData<Byte> =
             DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
         const val MAX_PROGRESS = 100
+
         const val POSE_STATE_NAME = "pose_state"
+
         const val SYNTHESIS_PROGRESS_NAME = "synthesis_progress"
 
         fun createEvioneAttributes(): DefaultAttributeContainer.Builder {
@@ -53,10 +67,14 @@ class Evione(
                 .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.5)
                 .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0)
         }
-
         fun isEssence(item: Item): Boolean {
             return item == Items.EXPERIENCE_BOTTLE
         }
+        private const val MAX_SPELL_TICK: Int = 50
+        private const val SYNTHESIS_CHANCE = 0.05f
+        private const val SYNTHESIS_CAN_SPEED_UP_CHANCE = 0.03f
+
+        private const val SYNTHESIS_SPEED_UP_CHANCE = 0.03f
 
     }
 
@@ -65,11 +83,14 @@ class Evione(
         setSynthesisItem(itemStack)
     }
 
+    fun clearSynthesisItem() {
+        synthesisNewItem(ItemStack.EMPTY)
+    }
+
     fun setSynthesisItem(itemStack: ItemStack) {
         itemStack.count = 1
         equipStack(EquipmentSlot.MAINHAND, itemStack)
     }
-
     fun setProgress(p: Byte) {
         val clamped = max(0, min(MAX_PROGRESS, p.toInt()))
         LOGGER.info("Set new progress to $clamped")
@@ -78,6 +99,13 @@ class Evione(
         val screenHandler = currentInteraction?.currentScreenHandler ?: return
         (screenHandler as EvioneScreenDescription).sendProgressToClient(clamped)
     }
+    private fun getSynthesisSound(): SoundEvent = SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP
+    override fun getAmbientSound(): SoundEvent = SoundEvents.ENTITY_EVOKER_AMBIENT
+    override fun getFallSound(distance: Int): SoundEvent = SoundEvents.ENTITY_EVOKER_HURT
+
+    override fun getHurtSound(source: DamageSource?): SoundEvent = SoundEvents.ENTITY_EVOKER_HURT
+
+    override fun getDeathSound(): SoundEvent = SoundEvents.ENTITY_EVOKER_DEATH
 
     fun setState(state: State) {
         this.dataTracker.set(POSE_STATE, State[state])
@@ -121,32 +149,49 @@ class Evione(
         goalSelector.add(3, LookAtEntityGoal(this, PlayerEntity::class.java, 6.0f))
     }
 
-    private var spellCastingPoseTick: Int = -1
-
     override fun mobTick() {
         super.mobTick()
-        validateState()
         validatePose()
-        if (!world.isClient) {
-            if (world.random.nextFloat() < 0.05f) incrementProgress()
-            if (isSpellCasting()) {
-                world.random.doubles(3).forEach {
-                    if (it < 0.03f) incrementProgress()
+        synthesisItem()
+    }
+
+    private fun synthesisItem() {
+        if (world.isClient) return
+        if (getSynthesisItem().isEmpty) return
+        if (world.random.nextFloat() < SYNTHESIS_CHANCE) incrementProgress()
+        if (world.random.nextFloat() < SYNTHESIS_CAN_SPEED_UP_CHANCE) castSpell()
+        if (!isSpellCasting()) return
+        world.random.doubles(3).forEach {
+            if (it < SYNTHESIS_SPEED_UP_CHANCE) incrementProgress()
+        }
+
+        if (getSynthesisProgress().compareTo(MAX_PROGRESS) == 0) {
+            var synthesisStack = getInventory().getStack(0)
+            if (synthesisStack == ItemStack.EMPTY) {
+                synthesisStack = getSynthesisItem().copy()
+            } else {
+                if (synthesisStack.count >= synthesisStack.maxCount) {
+                    val dropStack = synthesisStack.copy()
+                    dropStack.count = 1
+                    dropStack(dropStack)
+                } else {
+                    synthesisStack.increment(1)
                 }
             }
-
+            getInventory().setStack(0, synthesisStack)
+            playSound(getSynthesisSound(), 1f, 0.8f + world.random.nextFloat() / 10 * 4) // 1.0f +- 0.2f
         }
+    }
+
+    private fun castSpell() {
+        spellCastingPoseTick = MAX_SPELL_TICK
     }
 
     private fun validatePose() {
         if (spellCastingPoseTick > 0) {
-            spellCastingPoseTick--
             setState(State.SPELL_CASTING)
         } else {
             setState(State.CROSSED)
-            if (random.nextFloat() < 0.01) {
-                spellCastingPoseTick = 40
-            }
         }
     }
 
@@ -158,19 +203,9 @@ class Evione(
         setProgress((getSynthesisProgress() + 1).toByte())
     }
 
-    private fun validateState() {
-        if (getState() != State.CROSSED) {
-            setState(State.CROSSED)
-        }
-    }
-
     fun getInventory(): Inventory {
         return inventory
     }
-
-    private var currentInteraction: PlayerEntity? = null
-    private val inventory = SimpleInventory(1)
-    private val guiHandler = EvioneGuiHandler(this)
 
     enum class State {
         CROSSED, SPELL_CASTING;
