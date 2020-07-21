@@ -71,11 +71,12 @@ class Evione(
     }
 
     fun setProgress(p: Byte) {
-        LOGGER.info("Set new progress to $p")
-        this.dataTracker.set(SYNTHESIS_PROGRESS, max(0, min(100, p.toInt())).toByte())
+        val clamped = max(0, min(MAX_PROGRESS, p.toInt()))
+        LOGGER.info("Set new progress to $clamped")
+        this.dataTracker.set(SYNTHESIS_PROGRESS, clamped.toByte())
         if (world !is ServerWorld) return
         val screenHandler = currentInteraction?.currentScreenHandler ?: return
-        (screenHandler as EvioneScreenDescription).sendProgressToClient(p.toInt())
+        (screenHandler as EvioneScreenDescription).sendProgressToClient(clamped)
     }
 
     fun setState(state: State) {
