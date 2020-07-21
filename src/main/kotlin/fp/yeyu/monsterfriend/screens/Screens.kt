@@ -13,9 +13,9 @@ import net.minecraft.util.Identifier
 import kotlin.reflect.KFunction3
 
 object Screens {
-    val vindorScreen: ScreenHandlerType<VindorGUI> =
+    val VINDOR_SCREEN: ScreenHandlerType<VindorScreenDescription> =
         register("vindor_screen") { syncId: Int, player: PlayerInventory ->
-            VindorGUI(
+            VindorScreenDescription(
                 syncId,
                 player,
                 net.minecraft.screen.ScreenHandlerContext.EMPTY,
@@ -23,8 +23,8 @@ object Screens {
             )
         }
 
-    val evioneScreen: ScreenHandlerType<EvioneGUI> = register("evione_screen") { syncId: Int, player: PlayerInventory ->
-        EvioneGUI(
+    val EVIONE_SCREEN: ScreenHandlerType<EvioneScreenDescription> = register("evione_screen") { syncId: Int, player: PlayerInventory ->
+        EvioneScreenDescription(
             syncId,
             player,
             net.minecraft.screen.ScreenHandlerContext.EMPTY,
@@ -33,8 +33,8 @@ object Screens {
     }
 
     fun registerScreens() {
-        register(vindorScreen, ::VindorClientScreen)
-        register(evioneScreen, ::EvioneClientScreen)
+        register(VINDOR_SCREEN, ::VindorClientScreen)
+        register(EVIONE_SCREEN, ::EvioneClientScreen)
     }
 
     private fun <T : SyncedGuiDescription, V : CottonInventoryScreen<T>> register(

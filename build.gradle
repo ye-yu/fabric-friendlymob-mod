@@ -18,10 +18,10 @@ minecraft {
 
 repositories {
     maven { url = "http://maven.fabricmc.net/" }
-//    maven {
-//        name = "CottonMC"
-//        url = "https://server.bbkr.space/artifactory/libs-release"
-//    }
+    maven {
+        name = "CottonMC"
+        url = "https://server.bbkr.space/artifactory/libs-release"
+    }
 }
 
 dependencies {
@@ -34,7 +34,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
 
-    compile project("LibGui")
+    modImplementation "io.github.cottonmc:LibGui:2.1.1+1.16.1"
 }
 
 processResources {

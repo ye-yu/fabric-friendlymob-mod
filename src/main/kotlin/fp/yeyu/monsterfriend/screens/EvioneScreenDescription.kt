@@ -2,7 +2,6 @@ package fp.yeyu.monsterfriend.screens
 
 import fp.yeyu.monsterfriend.mobs.entity.Evione
 import fp.yeyu.monsterfriend.screens.widget.WColoredBar
-import io.github.cottonmc.cotton.gui.SyncedGuiDescription
 import io.github.cottonmc.cotton.gui.widget.*
 import io.github.cottonmc.cotton.gui.widget.data.HorizontalAlignment
 import io.github.cottonmc.cotton.gui.widget.data.VerticalAlignment
@@ -20,13 +19,13 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.stream.IntStream
 
-class EvioneGUI(
+class EvioneScreenDescription(
     syncId: Int,
     player: PlayerInventory,
     handlerContext: ScreenHandlerContext,
     private val evione: Evione?
-) : SyncedGuiDescription(
-    Screens.evioneScreen, syncId, player,
+) : SlotConstrainedScreenDescription(
+    Screens.EVIONE_SCREEN, syncId, player,
     getBlockInventory(handlerContext, SIZE),
     getBlockPropertyDelegate(handlerContext, 0)
 ) {
@@ -64,7 +63,7 @@ class EvioneGUI(
 
         val wButton = WButton(LiteralText("->"))
         root.add(wButton, 5, 1)
-        wButton.onClick = Runnable(::consume)
+        wButton.setOnClick(Runnable(::consume))
         val playerSlot = createPlayerInventoryPanel()
         root.add(playerSlot, 0, 3)
 

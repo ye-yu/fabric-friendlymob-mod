@@ -16,18 +16,17 @@ import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandlerContext
-import net.minecraft.screen.slot.SlotActionType
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 
-class VindorGUI(
+class VindorScreenDescription(
     syncId: Int,
     playerInventory: PlayerInventory?,
     context: ScreenHandlerContext,
     val vindor: Vindor?
 ) :
-    SyncedGuiDescription(
-        Screens.vindorScreen,
+    SlotConstrainedScreenDescription(
+        Screens.VINDOR_SCREEN,
         syncId,
         playerInventory,
         getBlockInventory(context, SIZE),

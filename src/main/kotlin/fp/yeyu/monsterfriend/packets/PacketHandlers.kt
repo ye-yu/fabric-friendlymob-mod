@@ -1,7 +1,7 @@
 package fp.yeyu.monsterfriend.packets
 
 import fp.yeyu.monsterfriend.BefriendMinecraft
-import fp.yeyu.monsterfriend.screens.VindorGUI
+import fp.yeyu.monsterfriend.screens.VindorScreenDescription
 import fp.yeyu.monsterfriend.statics.mutable.OpenedScreen
 import io.netty.buffer.Unpooled
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
@@ -53,12 +53,12 @@ enum class PacketHandlers(val toServer: Boolean, val handler: (PacketContext, Pa
 
 fun initVindorText(@Suppress("UNUSED_PARAMETER") ignored: PacketContext, packetByteBuf: PacketByteBuf) {
     val screen = OpenedScreen.unset()
-    (screen as VindorGUI).initText(packetByteBuf.readString())
+    (screen as VindorScreenDescription).initText(packetByteBuf.readString())
 }
 
 fun requestVindorText(packetContext: PacketContext, @Suppress("UNUSED_PARAMETER") packetByteBuf: PacketByteBuf) {
     val currentScreenHandler = packetContext.player.currentScreenHandler
-    if (currentScreenHandler !is VindorGUI) {
+    if (currentScreenHandler !is VindorScreenDescription) {
         PacketHandlers.LOGGER.warn("Player screen is currently not a VindorGUI instance!")
         PacketHandlers.LOGGER.trace(Throwable())
         return
@@ -72,7 +72,7 @@ fun requestVindorText(packetContext: PacketContext, @Suppress("UNUSED_PARAMETER"
 fun parseVindorText(context: PacketContext, buf: PacketByteBuf) {
     val text = buf.readString()
     val sh = context.player.currentScreenHandler
-    if (sh !is VindorGUI) {
+    if (sh !is VindorScreenDescription) {
         PacketHandlers.LOGGER.warn("[Server] Expected current screen handler as VindorGUI but got ${sh::class.simpleName} instead!")
         PacketHandlers.LOGGER.trace(Throwable())
         return

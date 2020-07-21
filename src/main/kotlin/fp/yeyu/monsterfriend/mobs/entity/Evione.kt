@@ -1,6 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
-import fp.yeyu.monsterfriend.screens.EvioneGUI
+import fp.yeyu.monsterfriend.screens.EvioneScreenDescription
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.ai.goal.EscapeDangerGoal
@@ -82,7 +82,7 @@ class Evione(
             return
         }
         val screen = (currentInteraction as ServerPlayerEntity).currentScreenHandler
-        if (screen !is EvioneGUI) {
+        if (screen !is EvioneScreenDescription) {
             LOGGER.warn("Expected player's current screen to be a EvioneGUI instance!")
             return
         }
@@ -219,7 +219,7 @@ class Evione(
 
     class EvioneGuiHandler(private val evione: Evione) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
-            return EvioneGUI(syncId, inv, ScreenHandlerContext.create(player.world, player.blockPos), evione)
+            return EvioneScreenDescription(syncId, inv, ScreenHandlerContext.create(player.world, player.blockPos), evione)
         }
 
         override fun getDisplayName(): Text {
