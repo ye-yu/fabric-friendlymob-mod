@@ -74,6 +74,7 @@ class WColoredBar private constructor(
 
     private fun paintWithOffset(x: Int, y: Int) {
         ScreenDrawing.coloredRect(x, y, barWidth, barHeight, backgroundColor)
+        if (value <= 0) return
 
         val interpolation = value / maxValue.toDouble()
         val progressColor = colorInterpolator.interpolate(interpolation)
