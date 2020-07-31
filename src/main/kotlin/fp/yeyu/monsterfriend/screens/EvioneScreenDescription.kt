@@ -55,13 +55,13 @@ class EvioneScreenDescription(
         }
 
         IntStream.range(0, SIZE).forEach {
-            val wListeningItemSlot = WListeningItemSlot(blockInventory, it)
+            val wItemSlot = WItemSlot.of(blockInventory, it)
             val label = createCenteredLabel(WIDGET_LABEL[it])
             if (it != 2) {
-                root.add(wListeningItemSlot, 1 + 2 * it, 1)
+                root.add(wItemSlot, 1 + 2 * it, 1)
                 root.add(label, 1 + 2 * it, 2)
             } else {
-                root.add(wListeningItemSlot, 1 + 2 * (it + 1), 1)
+                root.add(wItemSlot, 1 + 2 * (it + 1), 1)
                 root.add(label, 1 + 2 * (it + 1), 2)
             }
         }
@@ -109,15 +109,28 @@ class EvioneScreenDescription(
         setSlotPredicate(0) { !Evione.isEssence(it.item) } // don't put essence at first slot
         setSlotPredicate(1) { Evione.isEssence(it.item) } // only put essence at second slot
         setSlotPredicate(2) { it.isEmpty } // only pickup this slot
-        setSlotListener(0) { originalStack: ItemStack, incomingStack: ItemStack ->
-            LOGGER.info("Running slot listener at ${if (world.isClient) "client" else "server"} side")
+
+        setSlotListener(0) { finalStack: ItemStack ->
             if (evione != null) {
-                if (incomingStack == ItemStack.EMPTY) {
+                val originalStack = evione.getInventory().getStack(0)
+                if (finalStack == ItemStack.EMPTY) { // picked up
+                    LOGGER.info("Picked up slot 0")
                     evione.clearSynthesisItem()
                 }
-                if (!ScreenHandler.canStacksCombine(originalStack, incomingStack)) {
-                    evione.synthesisNewItem(incomingStack)
+                if (!ScreenHandler.canStacksCombine(originalStack, finalStack)) {
+                    LOGGER.info("Swap / Placed slot 0")
+                    evione.synthesisNewItem(finalStack)
                 }
+
+            }
+        }
+
+        setSlotListener(2) { originalStack: ItemStack, _: ItemStack ->
+            if (evione != null) {
+                val count = originalStack.count
+                val outputStack = evione.getInventory().getStack(0)
+                outputStack.decrement(count)
+                evione.getInventory().setStack(0, outputStack)
             }
         }
     }
@@ -188,16 +201,14 @@ class EvioneScreenDescription(
 
     override fun onClient2Server(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
         super.onClient2Server(packetContext, packetByteBuf)
-        LOGGER.info("Received a packet from client")
     }
 
     override fun onServer2Client(packetContext: PacketContext, packetByteBuf: PacketByteBuf) {
         super.onServer2Client(packetContext, packetByteBuf)
-        LOGGER.info("Received a packet from server")
     }
 
     fun setOutputStack(synthesisStack: ItemStack) {
         LOGGER.info("Setting display output stack to ${synthesisStack.item}x${synthesisStack.count}")
-        blockInventory.setStack(1, synthesisStack)
+        blockInventory.setStack(2, synthesisStack)
     }
 }

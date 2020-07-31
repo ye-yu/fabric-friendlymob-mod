@@ -4,6 +4,7 @@ import fp.yeyu.monsterfriend.mobs.MobRegistry
 import fp.yeyu.monsterfriend.mobs.egg.EvioneEgg
 import fp.yeyu.monsterfriend.mobs.egg.VindorEgg
 import fp.yeyu.monsterfriend.packets.PacketHandlers
+import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.utils.ConfigFile
 import net.fabricmc.api.ModInitializer
 import net.minecraft.item.Item
@@ -28,6 +29,7 @@ class BefriendMinecraft : ModInitializer {
 
     override fun onInitialize() {
         LOGGER.info("Mod is loaded. [Main]")
+        Screens.registerServer()
         registerItem(
             VindorEgg.NAME,
             VindorEgg(

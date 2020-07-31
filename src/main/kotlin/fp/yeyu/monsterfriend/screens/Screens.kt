@@ -3,6 +3,7 @@ package fp.yeyu.monsterfriend.screens
 import fp.yeyu.monsterfriend.BefriendMinecraft
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription
 import io.github.cottonmc.cotton.gui.client.CottonInventoryScreen
+import io.github.yeyu.gui.handler.ScreenRendererHandler
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry
 import net.minecraft.entity.player.PlayerInventory
@@ -13,17 +14,9 @@ import net.minecraft.util.Identifier
 import kotlin.reflect.KFunction3
 
 object Screens {
-    val VINDOR_SCREEN: ScreenHandlerType<VindorScreenDescription> =
-        register("vindor_screen") { syncId: Int, player: PlayerInventory ->
-            VindorScreenDescription(
-                syncId,
-                player,
-                net.minecraft.screen.ScreenHandlerContext.EMPTY,
-                null
-            )
-        }
+    var VINDOR_SCREEN: ScreenHandlerType<ScreenRendererHandler>? = null
 
-    val EVIONE_SCREEN: ScreenHandlerType<EvioneScreenDescription> =
+    var EVIONE_SCREEN: ScreenHandlerType<EvioneScreenDescription> =
         register("evione_screen") { syncId: Int, player: PlayerInventory ->
             EvioneScreenDescription(
                 syncId,
@@ -33,8 +26,21 @@ object Screens {
             )
         }
 
+    fun registerServer() {
+        VINDOR_SCREEN =
+            register("vindor_screen") { syncId: Int, player: PlayerInventory ->
+                ClientVindorScreenHandler(
+                    VINDOR_SCREEN!!,
+                    syncId,
+                    player
+                )
+            }
+    }
+
     fun registerScreens() {
-        register(VINDOR_SCREEN, ::VindorClientScreen)
+        ScreenRegistry.register(VINDOR_SCREEN!!) {
+            screenRendererHandler, playerInventory, text -> VindorClientScreen(screenRendererHandler, playerInventory, text)
+        }
         register(EVIONE_SCREEN, ::EvioneClientScreen)
     }
 

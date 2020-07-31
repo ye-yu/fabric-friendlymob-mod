@@ -9,9 +9,11 @@ import net.minecraft.inventory.Inventory
 import net.minecraft.item.ItemStack
 import net.minecraft.screen.PropertyDelegate
 import net.minecraft.screen.ScreenHandler
+import net.minecraft.screen.ScreenHandlerListener
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.screen.slot.Slot
 import net.minecraft.screen.slot.SlotActionType
+import net.minecraft.util.collection.DefaultedList
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.set
@@ -22,7 +24,7 @@ open class SlotConstrainedScreenDescription(
     playerInventory: PlayerInventory?,
     blockInventory: Inventory?,
     propertyDelegate: PropertyDelegate?
-) : SyncedGuiDescription(type, syncId, playerInventory, blockInventory, propertyDelegate) {
+) : SyncedGuiDescription(type, syncId, playerInventory, blockInventory, propertyDelegate), ScreenHandlerListener {
 
     companion object {
         private val ALWAYS_TRUE: (ItemStack) -> Boolean = { true }
@@ -30,14 +32,20 @@ open class SlotConstrainedScreenDescription(
 
     private val slotPredicates = HashMap<Int, (ItemStack) -> Boolean>()
     private val slotCapacity = HashMap<Int, Int>()
+    private val slotListeners = HashMap<Int, (ItemStack) -> Unit>()
 
     fun setSlotPredicate(index: Int, predicate: (ItemStack) -> Boolean) {
         slotPredicates[index] = predicate
     }
 
+    @Deprecated("Needs to be removed")
     fun setSlotListener(index: Int, f: (ItemStack, ItemStack) -> Unit) {
         check(slots[index] is ListeningSlot)
         (slots[index] as ListeningSlot).setListener(f)
+    }
+
+    fun setSlotListener(index: Int, f: (ItemStack) -> Unit) {
+        slotListeners[index] = f
     }
 
 
@@ -66,13 +74,13 @@ open class SlotConstrainedScreenDescription(
         ) {
             val combinedAmount = curSlotStack.count + toInsert.count
             if (combinedAmount <= maxCount) {
-                if (slot is ListeningSlot) slot.onStackChanged(curSlotStack.copy(), toInsert.copy())
+//                if (slot is ListeningSlot) slot.onStackChanged(curSlotStack.copy(), toInsert.copy())
                 toInsert.count = 0
                 curSlotStack.count = combinedAmount
                 slot.markDirty()
                 return true
             } else if (curSlotStack.count < maxCount) {
-                if (slot is ListeningSlot) slot.onStackChanged(curSlotStack.copy(), toInsert.copy())
+//                if (slot is ListeningSlot) slot.onStackChanged(curSlotStack.copy(), toInsert.copy())
                 toInsert.decrement(maxCount - curSlotStack.count)
                 curSlotStack.count = maxCount
                 slot.markDirty()
@@ -87,8 +95,7 @@ open class SlotConstrainedScreenDescription(
         if (!slotPredicates.getOrDefault(slot.id, ALWAYS_TRUE)(toInsert)) return false
         val slotCapacity = slotCapacity.getOrDefault(slot.id, toInsert.maxCount)
         if (curSlotStack.isEmpty && slot.canInsert(toInsert)) {
-            if (slot is ListeningSlot) slot.onStackChanged(ItemStack.EMPTY, toInsert.copy())
-
+//            if (slot is ListeningSlot) slot.onStackChanged(ItemStack.EMPTY, toInsert.copy())
             if (toInsert.count > slotCapacity) {
                 slot.stack = toInsert.split(slotCapacity)
             } else {
@@ -288,4 +295,11 @@ open class SlotConstrainedScreenDescription(
         }
         return inserted
     }
-}
+
+    override fun onSlotUpdate(handler: ScreenHandler, slotId: Int, stack: ItemStack) {
+        slotListeners.getOrDefault(slotId) {} (stack)
+    }
+
+    override fun onPropertyUpdate(handler: ScreenHandler?, property: Int, value: Int) {}
+
+    override fun onHandlerRegistered(handler: ScreenHandler?, stacks: DefaultedList<ItemStack>?) {}}

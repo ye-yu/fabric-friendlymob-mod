@@ -22,6 +22,8 @@ repositories {
         name = "CottonMC"
         url = "https://server.bbkr.space/artifactory/libs-release"
     }
+
+    mavenLocal()
 }
 
 dependencies {
@@ -35,6 +37,7 @@ dependencies {
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
 
     modImplementation "io.github.cottonmc:LibGui:2.1.1+1.16.1"
+    modImplementation "io.github.ye-yu:jamcgui:0.0.1-alpha-3"
 }
 
 processResources {

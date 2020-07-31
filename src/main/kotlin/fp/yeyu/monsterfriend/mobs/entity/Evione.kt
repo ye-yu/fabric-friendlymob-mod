@@ -81,28 +81,38 @@ class Evione(
 
     }
 
+    /**
+     * Use if switching item to synthesis
+     * */
     fun synthesisNewItem(itemStack: ItemStack) {
-        LOGGER.info("Synthesizing ${itemStack.item}")
         setProgress(0)
+        val outputStack = getInventory().getStack(0)
+        if (!outputStack.isEmpty) {
+            this.dropStack(outputStack)
+            getInventory().setStack(0, ItemStack.EMPTY)
+            onOutputStackChanged(ItemStack.EMPTY)
+        }
         setSynthesisItem(itemStack)
     }
 
+    /**
+     * Use to clear synthesis
+     * */
     fun clearSynthesisItem() {
+        LOGGER.info("Cleared synthesis item")
         synthesisNewItem(ItemStack.EMPTY)
     }
 
     fun setSynthesisItem(itemStack: ItemStack) {
+        LOGGER.info("Synthesising ${itemStack.item}")
         itemStack.count = 1
         equipStack(EquipmentSlot.MAINHAND, itemStack)
     }
 
     fun setProgress(p: Byte) {
         val clamped = max(0, min(MAX_PROGRESS, p.toInt()))
-        LOGGER.info("Set new progress to $clamped")
         this.dataTracker.set(SYNTHESIS_PROGRESS, clamped.toByte())
-        if (world !is ServerWorld) return
-        val screenHandler = currentInteraction?.currentScreenHandler ?: return
-        (screenHandler as EvioneScreenDescription).sendProgressToClient(clamped)
+        onProgressChanged()
     }
 
     private fun getSynthesisSound(): SoundEvent = SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP
@@ -179,11 +189,25 @@ class Evione(
                 dropStack(dropStack)
             }
         }
-        getInventory().setStack(0, synthesisStack)
         playSound(getSynthesisSound(), 1f, 0.8f + world.random.nextFloat() / 10 * 4) // 1.0f +- 0.2f
+
+        getInventory().setStack(0, synthesisStack)
+        onOutputStackChanged(synthesisStack)
+    }
+
+    /**
+     * Use to notify gui that output stack has changed
+     * */
+    private fun onOutputStackChanged(synthesisStack: ItemStack) {
         val screenHandler = currentInteraction?.currentScreenHandler ?: return
         check(screenHandler is EvioneScreenDescription)
         screenHandler.setOutputStack(synthesisStack)
+    }
+
+    private fun onProgressChanged() {
+        if (world !is ServerWorld) return
+        val screenHandler = currentInteraction?.currentScreenHandler ?: return
+        (screenHandler as EvioneScreenDescription).sendProgressToClient(getSynthesisProgress().toInt())
     }
 
     private fun synthesisItem() {
