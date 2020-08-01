@@ -386,7 +386,8 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         private val slots = arrayOf(ItemStack.EMPTY, ItemStack.EMPTY)
 
         override fun markDirty() {
-            throw IllegalAccessError("Access is not relevant.")
+//            throw IllegalAccessError("Access is not relevant.")
+            io.github.yeyu.util.Logger.info("Mark dirty but does nothing")
         }
 
         override fun clear() {

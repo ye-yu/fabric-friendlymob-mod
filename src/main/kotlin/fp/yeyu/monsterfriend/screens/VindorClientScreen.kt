@@ -38,7 +38,7 @@ class VindorClientScreen<T: ScreenRendererHandler>(handler: T, player: PlayerInv
         super.init()
 
         val vindorInventory = InventoryPanel(
-            relativeY = 2,
+            relativeY = -20,
             height = 20,
             width = backgroundWidth - 14,
             inventoryIndex = playerInventory.size(),
@@ -50,8 +50,8 @@ class VindorClientScreen<T: ScreenRendererHandler>(handler: T, player: PlayerInv
         )
 
         val playerInventoryPanel = InventoryPanel(
-            relativeY = 24,
-            height = 20,
+            relativeY = 20,
+            height = 20 * 3,
             width = backgroundWidth - 14,
             inventoryIndex = 9,
             numberOfSlots = 9 * 3,
@@ -98,8 +98,11 @@ class VindorClientScreen<T: ScreenRendererHandler>(handler: T, player: PlayerInv
         this.addParent(playerInventoryPanel)
         this.addParent(vindorInventory)
         this.addParent(otherPanel)
+
         this.addListener(hotbarPanel)
         this.addListener(textField)
+        this.addListener(playerInventoryPanel)
+        this.addListener(vindorInventory)
 
     }
     override fun drawBackground(matrices: MatrixStack?, delta: Float, mouseX: Int, mouseY: Int) {

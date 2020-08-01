@@ -4,6 +4,7 @@ import fp.yeyu.monsterfriend.mobs.entity.Vindor
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.handler.inventory.ServerInventoryHandler
 import io.github.yeyu.packet.ScreenPacket
+import io.github.yeyu.util.Logger
 import net.fabricmc.fabric.api.network.PacketContext
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
@@ -35,6 +36,7 @@ class ServerVindorScreenDescription<T : ScreenRendererHandler>(
         super.onClient2Server(action, context, buf)
         if (action.equals(VindorPackets.VINDOR_TEXT_UPDATE, true)) {
             vindor.senderMsg = buf.readString()
+            Logger.info("Got new message of ${vindor.senderMsg}")
         }
     }
 
