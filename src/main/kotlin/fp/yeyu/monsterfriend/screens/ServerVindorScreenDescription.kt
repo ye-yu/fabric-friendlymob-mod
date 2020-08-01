@@ -23,6 +23,11 @@ class ServerVindorScreenDescription<T : ScreenRendererHandler>(
         super.blockInventory = vindor.getInventory()
     }
 
+    override fun initBlockInventory() {
+        super.initBlockInventory()
+        constrainedSlots[playerInventory.size() + 1].insertPredicate = { false }
+    }
+
     override fun clientHasInit() {
         super.clientHasInit()
         ScreenPacket.sendPacket(syncId, VindorPackets.VINDOR_TEXT_UPDATE, false,
@@ -36,7 +41,6 @@ class ServerVindorScreenDescription<T : ScreenRendererHandler>(
         super.onClient2Server(action, context, buf)
         if (action.equals(VindorPackets.VINDOR_TEXT_UPDATE, true)) {
             vindor.senderMsg = buf.readString()
-            Logger.info("Got new message of ${vindor.senderMsg}")
         }
     }
 
