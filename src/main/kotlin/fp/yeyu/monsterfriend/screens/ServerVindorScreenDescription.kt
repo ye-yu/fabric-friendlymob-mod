@@ -4,7 +4,6 @@ import fp.yeyu.monsterfriend.mobs.entity.Vindor
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.handler.inventory.ServerInventoryHandler
 import io.github.yeyu.packet.ScreenPacket
-import io.github.yeyu.util.Logger
 import net.fabricmc.fabric.api.network.PacketContext
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
@@ -13,10 +12,10 @@ import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 
 class ServerVindorScreenDescription<T : ScreenRendererHandler>(
-    type: ScreenHandlerType<T>,
-    syncId: Int,
-    playerInventory: PlayerInventory,
-    val vindor: Vindor
+        type: ScreenHandlerType<T>,
+        syncId: Int,
+        playerInventory: PlayerInventory,
+        val vindor: Vindor
 ) : ServerInventoryHandler<T>(type, syncId, playerInventory) {
 
     init {
@@ -31,7 +30,7 @@ class ServerVindorScreenDescription<T : ScreenRendererHandler>(
     override fun clientHasInit() {
         super.clientHasInit()
         ScreenPacket.sendPacket(syncId, VindorPackets.VINDOR_TEXT_UPDATE, false,
-            playerInventory.player as ServerPlayerEntity
+                playerInventory.player as ServerPlayerEntity
         ) {
             it.writeString(vindor.senderMsg)
         }
