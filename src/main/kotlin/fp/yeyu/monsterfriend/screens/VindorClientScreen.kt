@@ -5,12 +5,15 @@ import fp.yeyu.monsterfriend.BefriendMinecraft
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.renderer.ScreenRenderer
 import io.github.yeyu.gui.renderer.widget.ParentWidget.AnchorType
+import io.github.yeyu.gui.renderer.widget.children.LabelWidget
 import io.github.yeyu.gui.renderer.widget.children.TexturedTextFieldWidget
 import io.github.yeyu.gui.renderer.widget.parents.InventoryPanel
 import io.github.yeyu.gui.renderer.widget.parents.Panel
+import io.github.yeyu.util.DrawerUtil
 import io.github.yeyu.util.TextureDrawerHelper
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 
@@ -109,6 +112,35 @@ class VindorClientScreen<T : ScreenRendererHandler>(handler: T, player: PlayerIn
         )
 
         otherPanel.add(textField)
+        otherPanel.add(LabelWidget(
+                relativeX = backgroundWidth / 2,
+                relativeY = 7,
+                horizontalAnchor = AnchorType.MIDDLE,
+                label = title,
+                shadow = true,
+                name = "title"
+        ))
+
+        otherPanel.add(LabelWidget(
+                relativeX = 38,
+                relativeY = 30,
+                horizontalAnchor = AnchorType.END,
+                label = LiteralText("Send:"),
+                shadow = false,
+                name = "sender-label",
+                color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
+        ))
+
+        otherPanel.add(LabelWidget(
+                relativeX = 120 + 18,
+                relativeY = 23,
+                horizontalAnchor = AnchorType.MIDDLE,
+                label = LiteralText("Receive:"),
+                shadow = false,
+                name = "receive-label",
+                color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
+        ))
+
 
         this.addParent(hotbarPanel)
         this.addParent(playerInventoryPanel)
