@@ -117,8 +117,9 @@ class VindorClientScreen<T : ScreenRendererHandler>(handler: T, player: PlayerIn
                 relativeY = 7,
                 horizontalAnchor = AnchorType.MIDDLE,
                 label = title,
-                shadow = true,
-                name = "title"
+                shadow = false,
+                name = "title",
+                color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
         ))
 
         otherPanel.add(LabelWidget(
