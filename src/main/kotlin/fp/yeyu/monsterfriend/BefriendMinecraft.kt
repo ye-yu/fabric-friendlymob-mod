@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend
 
+import fp.yeyu.monsterfriend.item.ItemRegistry
 import fp.yeyu.monsterfriend.mobs.MobRegistry
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.utils.ConfigFile
@@ -16,6 +17,7 @@ class BefriendMinecraft : ModInitializer {
         Screens.registerServer()
         MobRegistry.registerMobs(false)
         MobRegistry.registerEggs()
+        ItemRegistry.registerItem()
         ConfigFile.visit()
     }
 }

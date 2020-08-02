@@ -51,7 +51,7 @@ object MobRegistry {
                 vindor.entityType,
                 3407872,
                 12369084,
-                Item.Settings().maxDamage(1).maxCount(64).group(ItemGroup.MISC)
+                Item.Settings().maxCount(64).group(ItemGroup.MISC)
             )
         )
         registerItem(
@@ -60,7 +60,7 @@ object MobRegistry {
                 evione.entityType,
                 0xFFF5500,
                 0xF006634,
-                Item.Settings().maxDamage(1).maxCount(64).group(ItemGroup.MISC)
+                Item.Settings().maxCount(64).group(ItemGroup.MISC)
             )
         )
     }
