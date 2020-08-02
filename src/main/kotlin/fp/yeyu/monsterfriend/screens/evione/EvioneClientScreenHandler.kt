@@ -3,20 +3,19 @@ package fp.yeyu.monsterfriend.screens.evione
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.handler.inventory.ClientInventoryHandler
 import io.github.yeyu.gui.handler.provider.DoubleProvider
-import io.github.yeyu.util.Logger
 import net.fabricmc.fabric.api.network.PacketContext
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandlerType
 
 class EvioneClientScreenHandler<T : ScreenRendererHandler>(
-        type: ScreenHandlerType<T>,
-        syncId: Int,
-        playerInventory: PlayerInventory
+    type: ScreenHandlerType<T>,
+    syncId: Int,
+    playerInventory: PlayerInventory
 ) : ClientInventoryHandler<T>(
-        type,
-        syncId,
-        playerInventory
+    type,
+    syncId,
+    playerInventory
 ), DoubleProvider {
 
     var progress = 0
@@ -31,7 +30,6 @@ class EvioneClientScreenHandler<T : ScreenRendererHandler>(
         super.onServer2Client(action, context, buf)
         if (action.equals(EvionePacket.SET_PROGRESS, true)) {
             progress = buf.readInt()
-            Logger.info("Got progress of $progress")
         }
     }
 }

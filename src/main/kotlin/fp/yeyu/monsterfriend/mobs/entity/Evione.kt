@@ -39,8 +39,8 @@ import kotlin.math.max
 import kotlin.math.min
 
 class Evione(
-        entityType: EntityType<out PathAwareEntity>?,
-        world: World?
+    entityType: EntityType<out PathAwareEntity>?,
+    world: World?
 ) : PathAwareEntity(entityType, world) {
 
     private var spellCastingPoseTick: Int = -1
@@ -50,9 +50,9 @@ class Evione(
 
     companion object {
         val POSE_STATE: TrackedData<Byte> =
-                DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
+            DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
         val SYNTHESIS_PROGRESS: TrackedData<Byte> =
-                DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
+            DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
 
         val INVENTORY: MutableList<TrackedData<ItemStack>> = MutableList(3) {
             DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.ITEM_STACK)
@@ -64,8 +64,8 @@ class Evione(
 
         fun createEvioneAttributes(): DefaultAttributeContainer.Builder {
             return MobEntity.createMobAttributes()
-                    .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.5)
-                    .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0)
+                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.5)
+                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0)
         }
 
         fun isEssence(item: Item): Boolean {
@@ -75,9 +75,9 @@ class Evione(
         private var MAX_SPELL_TICK: Int = ConfigFile.getInt(ConfigFile.Defaults.EVIONE_MAX_SPELL_TICK)
         private var SYNTHESIS_CHANCE = ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CHANCE)
         private var SYNTHESIS_CAN_SPEED_UP_CHANCE =
-                ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CAN_SPEED_UP_CHANCE)
+            ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CAN_SPEED_UP_CHANCE)
         private var SYNTHESIS_SPEED_UP_CHANCE =
-                ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_CHANCE)
+            ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_CHANCE)
 
     }
 
@@ -194,7 +194,7 @@ class Evione(
 
         if (!isSpellCasting() && !getInventory().getStack(1).isEmpty) {
             castSpell()
-            LOGGER.info("Consuming one essence")
+
             getInventory().getStack(1).decrement(1)
             getInventory().markDirty()
         }
@@ -209,7 +209,6 @@ class Evione(
     }
 
     private fun castSpell() {
-        LOGGER.info("is casting spell")
         spellCastingPoseTick = MAX_SPELL_TICK
     }
 
@@ -276,10 +275,10 @@ class Evione(
     class EvioneGuiHandler(private val evione: Evione) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
             return EvioneServerScreenHandler(
-                    Screens.EVIONE_SCREEN,
-                    syncId,
-                    inv,
-                    evione
+                Screens.EVIONE_SCREEN,
+                syncId,
+                inv,
+                evione
             )
         }
 
@@ -291,7 +290,7 @@ class Evione(
 
 
     class EvioneWanderAroundGoal(pathAwareEntity: Evione, speed: Double, chance: Int, bl: Boolean) :
-            WanderAroundGoal(pathAwareEntity, speed, chance, bl) {
+        WanderAroundGoal(pathAwareEntity, speed, chance, bl) {
 
         override fun canStart(): Boolean {
             if ((mob as Evione).currentInteraction != null) return false
