@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.screens
+package fp.yeyu.monsterfriend.screens.vindor
 
 import fp.yeyu.monsterfriend.mobs.entity.Vindor
 import io.github.yeyu.gui.handler.ScreenRendererHandler
@@ -11,7 +11,7 @@ import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 
-class ServerVindorScreenDescription<T : ScreenRendererHandler>(
+class ServerVindorScreenHandler<T : ScreenRendererHandler>(
         type: ScreenHandlerType<T>,
         syncId: Int,
         playerInventory: PlayerInventory,

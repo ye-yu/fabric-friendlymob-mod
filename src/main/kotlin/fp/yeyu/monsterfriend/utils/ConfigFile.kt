@@ -89,6 +89,8 @@ object ConfigFile {
         val jsonObject = JsonParser().parse(JsonReader(FileReader(getConfigFile()))).asJsonObject
         Defaults.values().forEach {
             assertNonNull(jsonObject[it.variableName])
+            check(jsonObject[it.variableName].isJsonPrimitive)
+            check(it.validator(jsonObject[it.variableName].asJsonPrimitive))
         }
     }
 
@@ -108,17 +110,23 @@ object ConfigFile {
         return File(parent, filename)
     }
 
-    enum class Defaults(val def: Any) {
-        WONDER_SPACE(5),
-        SIMULATE_MULTIPLAYER(true),
-        RANDOM_MESSAGE_LIST("randomMessage.txt"),
-        VINDOR_TRANSFORM_CHANCE(0.3f),
-        EVIONE_MAX_SPELL_TICK(50),
-        EVIONE_SYNTHESIS_CHANCE(0.05f),
-        EVIONE_SYNTHESIS_CAN_SPEED_UP_CHANCE(0.03f),
-        EVIONE_SYNTHESIS_SPEED_UP_CHANCE(0.03f);
+    object Validator {
+        val isNumber = { i: JsonPrimitive -> i.isNumber }
+        val isBoolean = { i: JsonPrimitive -> i.isBoolean }
+        val isString = { i: JsonPrimitive -> i.isString }
+    }
+    enum class Defaults(val def: Any, val validator: (JsonPrimitive) -> Boolean) {
+        WONDER_SPACE(5, Validator.isNumber),
+        SIMULATE_MULTIPLAYER(true, Validator.isBoolean),
+        RANDOM_MESSAGE_LIST("randomMessage.txt", Validator.isString),
+        VINDOR_TRANSFORM_CHANCE(0.3f, Validator.isNumber),
+        EVIONE_MAX_SPELL_TICK(50, Validator.isNumber),
+        EVIONE_SYNTHESIS_CHANCE(0.05f, Validator.isNumber),
+        EVIONE_SYNTHESIS_CAN_SPEED_UP_CHANCE(0.03f, Validator.isNumber),
+        EVIONE_SYNTHESIS_SPEED_UP_CHANCE(0.03f, Validator.isNumber);
 
         val variableName = name.toLowerCase()
+
     }
 
     private fun JsonWriter.value(def: Any) {

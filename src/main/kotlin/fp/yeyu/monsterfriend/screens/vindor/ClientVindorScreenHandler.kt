@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.screens
+package fp.yeyu.monsterfriend.screens.vindor
 
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.handler.inventory.ClientInventoryHandler

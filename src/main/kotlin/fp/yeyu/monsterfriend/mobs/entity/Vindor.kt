@@ -1,7 +1,7 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.screens.Screens
-import fp.yeyu.monsterfriend.screens.ServerVindorScreenDescription
+import fp.yeyu.monsterfriend.screens.vindor.ServerVindorScreenHandler
 import fp.yeyu.monsterfriend.utils.wondertrade.WonderTrade
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -30,7 +30,6 @@ import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
-import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvent
@@ -369,11 +368,11 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
     class VindorGuiHandler(private val who: Vindor) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity?): ScreenHandler? {
             who.wonderTick = -1
-            return ServerVindorScreenDescription(
-                Screens.VINDOR_SCREEN!!,
-                syncId,
-                inv,
-                who
+            return ServerVindorScreenHandler(
+                    Screens.VINDOR_SCREEN,
+                    syncId,
+                    inv,
+                    who
             )
         }
 

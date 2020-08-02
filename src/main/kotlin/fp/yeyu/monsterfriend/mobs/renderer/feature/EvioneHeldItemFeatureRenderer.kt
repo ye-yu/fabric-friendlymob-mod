@@ -29,7 +29,7 @@ class EvioneHeldItemFeatureRenderer(featureRendererContext: FeatureRendererConte
         matrixStack.push()
         matrixStack.translate(0.0, 0.4000000059604645, -0.4000000059604645)
         matrixStack.multiply(Vector3f.POSITIVE_X.getDegreesQuaternion(180.0f))
-        val itemStack = evione.getEquippedStack(EquipmentSlot.MAINHAND)
+        val itemStack = evione.getInventory().getStack(0)
         MinecraftClient.getInstance().heldItemRenderer.renderItem(
             evione,
             itemStack,

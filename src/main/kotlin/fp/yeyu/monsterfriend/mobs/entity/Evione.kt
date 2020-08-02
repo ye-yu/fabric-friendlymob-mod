@@ -1,9 +1,9 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
-import fp.yeyu.monsterfriend.screens.EvioneScreenDescription
+import fp.yeyu.monsterfriend.screens.Screens
+import fp.yeyu.monsterfriend.screens.evione.EvioneServerScreenHandler
 import fp.yeyu.monsterfriend.utils.ConfigFile
 import net.minecraft.entity.EntityType
-import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.ai.goal.EscapeDangerGoal
 import net.minecraft.entity.ai.goal.LookAroundGoal
 import net.minecraft.entity.ai.goal.LookAtEntityGoal
@@ -18,54 +18,54 @@ import net.minecraft.entity.mob.MobEntity
 import net.minecraft.entity.mob.PathAwareEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.Inventories
 import net.minecraft.inventory.Inventory
-import net.minecraft.inventory.SimpleInventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
-import net.minecraft.screen.ScreenHandlerContext
-import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
+import net.minecraft.util.collection.DefaultedList
 import net.minecraft.world.World
+import java.util.stream.IntStream
 import kotlin.math.max
 import kotlin.math.min
 
 class Evione(
-    entityType: EntityType<out PathAwareEntity>?,
-    world: World?
+        entityType: EntityType<out PathAwareEntity>?,
+        world: World?
 ) : PathAwareEntity(entityType, world) {
 
     private var spellCastingPoseTick: Int = -1
     private var currentInteraction: PlayerEntity? = null
-    private val inventory = SimpleInventory(1)
+    private val inventory = EvioneInventory(this)
     private val guiHandler = EvioneGuiHandler(this)
-
-    init {
-        setSynthesisItem(ItemStack.EMPTY)
-        getInventory().setStack(0, ItemStack.EMPTY)
-    }
 
     companion object {
         val POSE_STATE: TrackedData<Byte> =
-            DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
+                DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
         val SYNTHESIS_PROGRESS: TrackedData<Byte> =
-            DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
+                DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
+
+        val INVENTORY: MutableList<TrackedData<ItemStack>> = MutableList(3) {
+            DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.ITEM_STACK)
+        }
+
         const val MAX_PROGRESS = 100
         const val POSE_STATE_NAME = "pose_state"
         const val SYNTHESIS_PROGRESS_NAME = "synthesis_progress"
 
         fun createEvioneAttributes(): DefaultAttributeContainer.Builder {
             return MobEntity.createMobAttributes()
-                .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.5)
-                .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0)
+                    .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.5)
+                    .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 48.0)
         }
 
         fun isEssence(item: Item): Boolean {
@@ -75,55 +75,31 @@ class Evione(
         private var MAX_SPELL_TICK: Int = ConfigFile.getInt(ConfigFile.Defaults.EVIONE_MAX_SPELL_TICK)
         private var SYNTHESIS_CHANCE = ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CHANCE)
         private var SYNTHESIS_CAN_SPEED_UP_CHANCE =
-            ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CAN_SPEED_UP_CHANCE)
+                ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_CAN_SPEED_UP_CHANCE)
         private var SYNTHESIS_SPEED_UP_CHANCE =
-            ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_CHANCE)
+                ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_CHANCE)
 
     }
 
-    /**
-     * Use if switching item to synthesis
-     * */
-    fun synthesisNewItem(itemStack: ItemStack) {
+    private fun resetSynthesis() {
         setProgress(0)
-        val outputStack = getInventory().getStack(0)
-        if (!outputStack.isEmpty) {
-            this.dropStack(outputStack)
-            getInventory().setStack(0, ItemStack.EMPTY)
-            onOutputStackChanged(ItemStack.EMPTY)
-        }
-        setSynthesisItem(itemStack)
+        val drop = getInventory().removeStack(2)
+        if (drop.isEmpty) return
+        dropStack(drop)
     }
 
-    /**
-     * Use to clear synthesis
-     * */
-    fun clearSynthesisItem() {
-        LOGGER.info("Cleared synthesis item")
-        synthesisNewItem(ItemStack.EMPTY)
-    }
-
-    fun setSynthesisItem(itemStack: ItemStack) {
-        LOGGER.info("Synthesising ${itemStack.item}")
-        itemStack.count = 1
-        equipStack(EquipmentSlot.MAINHAND, itemStack)
-    }
-
-    fun setProgress(p: Byte) {
+    private fun setProgress(p: Byte) {
         val clamped = max(0, min(MAX_PROGRESS, p.toInt()))
         this.dataTracker.set(SYNTHESIS_PROGRESS, clamped.toByte())
-        onProgressChanged()
     }
 
     private fun getSynthesisSound(): SoundEvent = SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP
     override fun getAmbientSound(): SoundEvent = SoundEvents.ENTITY_EVOKER_AMBIENT
     override fun getFallSound(distance: Int): SoundEvent = SoundEvents.ENTITY_EVOKER_HURT
-
     override fun getHurtSound(source: DamageSource?): SoundEvent = SoundEvents.ENTITY_EVOKER_HURT
-
     override fun getDeathSound(): SoundEvent = SoundEvents.ENTITY_EVOKER_DEATH
 
-    fun setState(state: State) {
+    private fun setState(state: State) {
         this.dataTracker.set(POSE_STATE, State[state])
     }
 
@@ -135,26 +111,33 @@ class Evione(
         super.initDataTracker()
         this.dataTracker.startTracking(POSE_STATE, State[State.CROSSED])
         this.dataTracker.startTracking(SYNTHESIS_PROGRESS, 0)
+        INVENTORY.forEach {
+            this.dataTracker.startTracking(it, ItemStack.EMPTY)
+        }
     }
 
     override fun writeCustomDataToTag(tag: CompoundTag) {
         super.writeCustomDataToTag(tag)
         tag.putByte(POSE_STATE_NAME, State[getState()])
         tag.putByte(SYNTHESIS_PROGRESS_NAME, getSynthesisProgress())
+        Inventories.toTag(tag, (getInventory() as EvioneInventory).toList())
     }
 
     override fun readCustomDataFromTag(tag: CompoundTag) {
         super.readCustomDataFromTag(tag)
         if (tag.contains(POSE_STATE_NAME)) setState(State[tag.getByte(POSE_STATE_NAME)])
         if (tag.contains(SYNTHESIS_PROGRESS_NAME)) setProgress(tag.getByte(SYNTHESIS_PROGRESS_NAME))
+        val list = DefaultedList.ofSize(3, ItemStack.EMPTY)
+        Inventories.fromTag(tag, list)
+        (getInventory() as EvioneInventory).load(list)
     }
 
     fun getSynthesisProgress(): Byte {
         return this.dataTracker[SYNTHESIS_PROGRESS]
     }
 
-    fun getSynthesisItem(): ItemStack {
-        return getEquippedStack(EquipmentSlot.MAINHAND)
+    private fun getSynthesisItem(): ItemStack {
+        return getInventory().getStack(0)
     }
 
     override fun initGoals() {
@@ -176,8 +159,8 @@ class Evione(
         if (world.isClient) return
         if (getSynthesisProgress().compareTo(MAX_PROGRESS) != 0) return
         setProgress(0)
-        var synthesisStack = getInventory().getStack(0)
-        if (synthesisStack == ItemStack.EMPTY) { // if this is the first synthesis output
+        var synthesisStack = getInventory().getStack(2)
+        if (synthesisStack.isEmpty) { // if this is the first synthesis output
             synthesisStack = getSynthesisItem().copy()
             synthesisStack.count = 1
         } else {
@@ -191,24 +174,9 @@ class Evione(
         }
         playSound(getSynthesisSound(), 1f, 0.8f + world.random.nextFloat() / 10 * 4) // 1.0f +- 0.2f
 
-        getInventory().setStack(0, synthesisStack)
-        onOutputStackChanged(synthesisStack)
+        getInventory().setStack(2, synthesisStack)
     }
 
-    /**
-     * Use to notify gui that output stack has changed
-     * */
-    private fun onOutputStackChanged(synthesisStack: ItemStack) {
-        val screenHandler = currentInteraction?.currentScreenHandler ?: return
-        check(screenHandler is EvioneScreenDescription)
-        screenHandler.setOutputStack(synthesisStack)
-    }
-
-    private fun onProgressChanged() {
-        if (world !is ServerWorld) return
-        val screenHandler = currentInteraction?.currentScreenHandler ?: return
-        (screenHandler as EvioneScreenDescription).sendProgressToClient(getSynthesisProgress().toInt())
-    }
 
     private fun synthesisItem() {
         if (world.isClient) return
@@ -222,8 +190,18 @@ class Evione(
         }
 
         if (world.random.nextFloat() < SYNTHESIS_CHANCE) incrementProgress()
+
+        if (!isSpellCasting() && !getInventory().getStack(1).isEmpty) {
+            castSpell()
+            LOGGER.info("Consuming one essence")
+            getInventory().getStack(1).decrement(1)
+            getInventory().markDirty()
+        }
+
         if (!isSpellCasting() && world.random.nextFloat() < SYNTHESIS_CAN_SPEED_UP_CHANCE) castSpell()
+
         if (!isSpellCasting()) return
+
         world.random.doubles(3).forEach {
             if (it < SYNTHESIS_SPEED_UP_CHANCE) incrementProgress()
         }
@@ -275,10 +253,10 @@ class Evione(
         }
     }
 
-    override fun interactMob(player: PlayerEntity?, hand: Hand?): ActionResult {
+    override fun interactMob(player: PlayerEntity, hand: Hand): ActionResult {
         val interactMob = super.interactMob(player, hand)
         if (interactMob == ActionResult.PASS || interactMob.isAccepted) {
-            speakWith(player!!)
+            speakWith(player)
             return ActionResult.success(this.world.isClient)
         }
         return interactMob
@@ -296,11 +274,11 @@ class Evione(
 
     class EvioneGuiHandler(private val evione: Evione) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
-            return EvioneScreenDescription(
-                syncId,
-                inv,
-                ScreenHandlerContext.create(player.world, player.blockPos),
-                evione
+            return EvioneServerScreenHandler(
+                    Screens.EVIONE_SCREEN,
+                    syncId,
+                    inv,
+                    evione
             )
         }
 
@@ -310,12 +288,76 @@ class Evione(
 
     }
 
+
     class EvioneWanderAroundGoal(pathAwareEntity: Evione, speed: Double, chance: Int, bl: Boolean) :
-        WanderAroundGoal(pathAwareEntity, speed, chance, bl) {
+            WanderAroundGoal(pathAwareEntity, speed, chance, bl) {
 
         override fun canStart(): Boolean {
             if ((mob as Evione).currentInteraction != null) return false
             return super.canStart()
+        }
+    }
+
+    class EvioneInventory(private val who: Evione) : Inventory {
+
+        override fun markDirty() {
+            for (i in 0 until 3) {
+                who.dataTracker[INVENTORY[i]] = getStack(i)
+            }
+        }
+
+        override fun clear() {
+            for (i in 0 until 3) {
+                who.dataTracker[INVENTORY[i]] = ItemStack.EMPTY
+            }
+            who.resetSynthesis()
+        }
+
+        override fun setStack(slot: Int, stack: ItemStack) {
+            who.dataTracker[INVENTORY[slot]] = stack
+            if (slot == 0) who.resetSynthesis()
+            markDirty()
+        }
+
+        override fun isEmpty(): Boolean {
+            return IntStream.range(0, 3).allMatch {
+                who.dataTracker[INVENTORY[it]].isEmpty
+            }
+        }
+
+        override fun removeStack(slot: Int, amount: Int): ItemStack {
+            val item = who.dataTracker[INVENTORY[slot]]
+            val split = item.split(amount)
+            who.dataTracker[INVENTORY[slot]] = item
+            return split
+        }
+
+        override fun removeStack(slot: Int): ItemStack {
+            val ret = who.dataTracker[INVENTORY[slot]]
+            who.dataTracker[INVENTORY[slot]] = ItemStack.EMPTY
+            return ret
+        }
+
+        override fun getStack(slot: Int): ItemStack {
+            return who.dataTracker[INVENTORY[slot]]
+        }
+
+        override fun canPlayerUse(player: PlayerEntity): Boolean = true
+
+        override fun size(): Int = 3
+
+        fun toList(): DefaultedList<ItemStack> {
+            val list = DefaultedList.ofSize(3, ItemStack.EMPTY)
+            for (i in 0 until 3) {
+                list[i] = getStack(i)
+            }
+            return list
+        }
+
+        fun load(list: DefaultedList<ItemStack>) {
+            list.indices.forEach {
+                setStack(it, list[it])
+            }
         }
     }
 }

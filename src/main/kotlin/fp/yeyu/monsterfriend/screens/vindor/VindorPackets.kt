@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.screens
+package fp.yeyu.monsterfriend.screens.vindor
 
 object VindorPackets {
     const val VINDOR_TEXT_UPDATE = "vindor-text-update"

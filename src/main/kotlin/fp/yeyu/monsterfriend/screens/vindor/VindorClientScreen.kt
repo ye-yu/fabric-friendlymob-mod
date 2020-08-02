@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.screens
+package fp.yeyu.monsterfriend.screens.vindor
 
 import com.mojang.blaze3d.systems.RenderSystem
 import fp.yeyu.monsterfriend.BefriendMinecraft
