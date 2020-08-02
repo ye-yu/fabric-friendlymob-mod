@@ -124,20 +124,30 @@ class EvioneClientScreen<T : ScreenRendererHandler>(
         ))
 
         labellingPanel.add(LabelWidget(
-                relativeX = 38,
+                relativeX = 36,
                 relativeY = 30,
-                horizontalAnchor = ParentWidget.AnchorType.END,
-                label = LiteralText("Send:"),
+                horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
+                label = LiteralText("Fuel"),
                 shadow = false,
-                name = "sender-label",
+                name = "fuel-label",
                 color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
         ))
 
         labellingPanel.add(LabelWidget(
-                relativeX = 120 + 18,
+                relativeX = 65,
+                relativeY = 30,
+                horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
+                label = LiteralText("Target"),
+                shadow = false,
+                name = "target-label",
+                color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
+        ))
+
+        labellingPanel.add(LabelWidget(
+                relativeX = 129,
                 relativeY = 23,
                 horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
-                label = LiteralText("Receive:"),
+                label = LiteralText("Output"),
                 shadow = false,
                 name = "receive-label",
                 color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)

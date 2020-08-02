@@ -175,6 +175,7 @@ class Evione(
         playSound(getSynthesisSound(), 1f, 0.8f + world.random.nextFloat() / 10 * 4) // 1.0f +- 0.2f
 
         getInventory().setStack(2, synthesisStack)
+        getInventory().markDirty()
     }
 
 

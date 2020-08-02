@@ -1,7 +1,6 @@
 package fp.yeyu.monsterfriend
 
 import fp.yeyu.monsterfriend.mobs.MobRegistry
-import fp.yeyu.monsterfriend.packets.PacketHandlers
 import fp.yeyu.monsterfriend.screens.Screens
 import net.fabricmc.api.ClientModInitializer
 import org.apache.logging.log4j.LogManager
@@ -15,7 +14,6 @@ class BefriendMinecraftClient : ClientModInitializer {
 
     override fun onInitializeClient() {
         LOGGER.info("[Client-side] Mod is loaded.")
-        PacketHandlers.registerPackets(true)
         MobRegistry.registerMobs(true)
         Screens.registerScreens()
     }

@@ -37,29 +37,26 @@ class JamcguiProgressBarWidget(
         if (handler !is DoubleProvider) return
         val progress = handler.getDouble(name)
 
+        DrawerUtil.coloredRect(drawX, drawY, width, height, backgroundColor)
         when (growDirection) {
             Direction.UP -> {
-                val progressHeight = ceil(progress * height).toInt()
+                val progressHeight = ceil(progress * height).toInt().coerceAtMost(height)
                 DrawerUtil.coloredRect(drawX, drawY + height - progressHeight, width, progressHeight, color)
-                DrawerUtil.coloredRect(drawX, drawY, width, height - progressHeight, color)
             }
 
             Direction.DOWN -> {
-                val progressHeight = ceil(progress * height).toInt()
-                DrawerUtil.coloredRect(drawX, drawY, width, progressHeight, color)
+                val progressHeight = ceil(progress * height).toInt().coerceAtMost(height)
                 DrawerUtil.coloredRect(drawX, drawY + progressHeight, width, height - progressHeight, backgroundColor)
             }
 
             Direction.LEFT -> {
-                val progressWidth = ceil(progress * width).toInt()
+                val progressWidth = ceil(progress * width).toInt().coerceAtMost(width)
                 DrawerUtil.coloredRect(drawX, drawY, progressWidth, height, color)
-                DrawerUtil.coloredRect(drawX + progressWidth, drawY, width - progressWidth, height, backgroundColor)
             }
 
             Direction.RIGHT -> {
-                val progressWidth = ceil(progress * width).toInt()
+                val progressWidth = ceil(progress * width).toInt().coerceAtMost(width)
                 DrawerUtil.coloredRect(drawX + width - progressWidth, drawY, progressWidth, height, color)
-                DrawerUtil.coloredRect(drawX, drawY, width - progressWidth, height, backgroundColor)
             }
         }
     }

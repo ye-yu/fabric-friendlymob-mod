@@ -3,7 +3,6 @@ package fp.yeyu.monsterfriend
 import fp.yeyu.monsterfriend.mobs.MobRegistry
 import fp.yeyu.monsterfriend.mobs.egg.EvioneEgg
 import fp.yeyu.monsterfriend.mobs.egg.VindorEgg
-import fp.yeyu.monsterfriend.packets.PacketHandlers
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.utils.ConfigFile
 import net.fabricmc.api.ModInitializer
@@ -49,7 +48,6 @@ class BefriendMinecraft : ModInitializer {
             )
         )
 
-        PacketHandlers.registerPackets(false)
         MobRegistry.registerMobs(false)
         ConfigFile.visit()
     }
