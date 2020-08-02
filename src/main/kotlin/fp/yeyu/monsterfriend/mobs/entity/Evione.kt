@@ -79,6 +79,8 @@ class Evione(
         private var SYNTHESIS_SPEED_UP_CHANCE =
             ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_CHANCE)
 
+        private var SYNTHESIS_SPEED_UP_COUNT = ConfigFile.getInt(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_COUNT).toLong()
+
     }
 
     private fun resetSynthesis() {
@@ -203,7 +205,7 @@ class Evione(
 
         if (!isSpellCasting()) return
 
-        world.random.doubles(3).forEach {
+        world.random.doubles(SYNTHESIS_SPEED_UP_COUNT).forEach {
             if (it < SYNTHESIS_SPEED_UP_CHANCE) incrementProgress()
         }
     }

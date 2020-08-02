@@ -1,28 +1,25 @@
 package fp.yeyu.monsterfriend.mixins;
 
+import fp.yeyu.monsterfriend.mixinutil.Transformer;
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
-import fp.yeyu.monsterfriend.mobs.entity.Vindor;
 import fp.yeyu.monsterfriend.utils.ConfigFile;
+import io.github.yeyu.util.Logger;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.IllagerEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.VindicatorEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 
-import java.util.Objects;
-import java.util.function.BiFunction;
-
 @Mixin(VindicatorEntity.class)
-public abstract class VindicatorEntityMixin extends IllagerEntity {
+public abstract class VindicatorEntityMixin extends IllagerEntity implements Transformer {
     protected VindicatorEntityMixin(EntityType<? extends IllagerEntity> entityType, World world) {
         super(entityType, world);
     }
@@ -38,51 +35,19 @@ public abstract class VindicatorEntityMixin extends IllagerEntity {
             final BlockState block = serverWorld.getBlockState(new BlockPos(pos));
             if (block.getBlock() == Blocks.EMERALD_BLOCK) {
                 if (this.random.nextFloat() < ConfigFile.INSTANCE.getFloat(ConfigFile.Defaults.VINDOR_TRANSFORM_CHANCE)) {
-                    convertToVindor();
+                    if (this.transformTo(MobRegistry.INSTANCE.getVindor().getEntityType())) {
+                        Logger.INSTANCE.info("Spawned a vindor");
+                    } else {
+                        Logger.INSTANCE.error("Cannot spawn a vindor!", new Throwable());
+                    }
                 }
             }
         }
     }
 
-    private void convertToVindor() {
-        if (this.removed) return;
-        Vindor vindor = Objects.requireNonNull(MobRegistry.INSTANCE.getVindor().getEntityType()).create(this.world);
-        if (vindor == null) {
-            LOGGER.warn("Cannot instantiate a Vindor");
-            LOGGER.trace(new Throwable());
-            return;
-        }
-
-        vindor.copyPositionAndRotation(this);
-        vindor.setCanPickUpLoot(this.canPickUpLoot());
-        vindor.setAiDisabled(this.isAiDisabled());
-        EquipmentSlot[] var3 = EquipmentSlot.values();
-
-        for (EquipmentSlot equipmentSlot : var3) {
-            ItemStack itemStack = this.getEquippedStack(equipmentSlot);
-            if (!itemStack.isEmpty()) {
-                vindor.equipStack(equipmentSlot, itemStack.copy());
-                vindor.setEquipmentDropChance(equipmentSlot, this.getDropChance(equipmentSlot));
-                itemStack.setCount(0);
-            }
-        }
-
-        if (this.hasCustomName()) {
-            vindor.setCustomName(this.getCustomName());
-            vindor.setCustomNameVisible(this.isCustomNameVisible());
-        }
-
-        if (this.isPersistent()) {
-            vindor.setPersistent();
-        }
-
-        vindor.setInvulnerable(this.isInvulnerable());
-        this.world.spawnEntity(vindor);
-        this.remove();
-        LOGGER.info("Spawned Vindor");
-    }
-
-    private void factory(BiFunction<EntityType<? extends LivingEntity>, World, ? extends LivingEntity> fcty) {
-
+    @NotNull
+    @Override
+    public MobEntity getEntity() {
+        return this;
     }
 }
