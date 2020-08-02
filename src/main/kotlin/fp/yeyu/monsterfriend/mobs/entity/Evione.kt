@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
+import fp.yeyu.monsterfriend.item.ItemRegistry
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.screens.evione.EvioneServerScreenHandler
 import fp.yeyu.monsterfriend.utils.ConfigFile
@@ -69,7 +70,7 @@ class Evione(
         }
 
         fun isEssence(item: Item): Boolean {
-            return item == Items.EXPERIENCE_BOTTLE
+            return item == ItemRegistry.vexEssence
         }
 
         private var MAX_SPELL_TICK: Int = ConfigFile.getInt(ConfigFile.Defaults.EVIONE_MAX_SPELL_TICK)
@@ -128,10 +129,12 @@ class Evione(
     override fun readCustomDataFromTag(tag: CompoundTag) {
         super.readCustomDataFromTag(tag)
         if (tag.contains(POSE_STATE_NAME)) setState(State[tag.getByte(POSE_STATE_NAME)])
-        if (tag.contains(SYNTHESIS_PROGRESS_NAME)) setProgress(tag.getByte(SYNTHESIS_PROGRESS_NAME))
         val list = DefaultedList.ofSize(3, ItemStack.EMPTY)
         Inventories.fromTag(tag, list)
         (getInventory() as EvioneInventory).load(list)
+
+        // load last because setting inventory item resets progress
+        if (tag.contains(SYNTHESIS_PROGRESS_NAME)) setProgress(tag.getByte(SYNTHESIS_PROGRESS_NAME))
     }
 
     fun getSynthesisProgress(): Byte {
