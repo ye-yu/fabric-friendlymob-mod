@@ -1,8 +1,10 @@
 package fp.yeyu.monsterfriend.mixins;
 
+import fp.yeyu.monsterfriend.Packet;
 import fp.yeyu.monsterfriend.mixinutil.Transformer;
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
 import fp.yeyu.monsterfriend.utils.ConfigFile;
+import io.github.yeyu.util.DrawerUtil;
 import io.github.yeyu.util.Logger;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -11,6 +13,7 @@ import net.minecraft.entity.mob.IllagerEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.mob.VindicatorEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -37,6 +40,9 @@ public abstract class VindicatorEntityMixin extends IllagerEntity implements Tra
                 if (this.random.nextFloat() < ConfigFile.INSTANCE.getFloat(ConfigFile.Defaults.VINDOR_TRANSFORM_CHANCE)) {
                     if (this.transformTo(MobRegistry.INSTANCE.getVindor().getEntityType()) != null) {
                         Logger.INSTANCE.info("Spawned a vindor");
+                        final BlockPos entityPos = this.getBlockPos();
+                        Packet.INSTANCE.spawnParticle(this.world, entityPos, DrawerUtil.INSTANCE.constructColor(0x70, 0x50, 0x70, 0xFF));
+                        playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1f, 0.8f + world.random.nextFloat() / 10 * 4); // 1.0f +- 0.2f
                     } else {
                         Logger.INSTANCE.error("Cannot spawn a vindor!", new Throwable());
                     }

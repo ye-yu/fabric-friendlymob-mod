@@ -1,9 +1,11 @@
 package fp.yeyu.monsterfriend.mixins;
 
+import fp.yeyu.monsterfriend.Packet;
 import fp.yeyu.monsterfriend.item.ItemRegistry;
 import fp.yeyu.monsterfriend.mixinutil.Transformer;
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
 import fp.yeyu.monsterfriend.utils.ConfigFile;
+import io.github.yeyu.util.DrawerUtil;
 import io.github.yeyu.util.Logger;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ExperienceOrbEntity;
@@ -56,7 +58,9 @@ public abstract class FishingBobberMixin {
         final MobEntity evione = evoker.transformTo(MobRegistry.INSTANCE.getEvione().getEntityType());
         if (evione != null) {
             Logger.INSTANCE.info("Spawned an evione.");
-            playerEntity.playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1f, 0.8f + playerEntity.world.random.nextFloat() / 10 * 4); // 1.0f +- 0.2f
+            evione.playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1f, 0.8f + playerEntity.world.random.nextFloat() / 10 * 4); // 1.0f +- 0.2f
+            Packet.INSTANCE.spawnParticle(evione.world, evione.getBlockPos(), DrawerUtil.INSTANCE.constructColor(0xED, 0xDC, 0x47, 0xFF));
+
         } else {
             Logger.INSTANCE.error("Cannot spawn an evione!", new Throwable());
         }

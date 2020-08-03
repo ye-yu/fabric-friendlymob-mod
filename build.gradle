@@ -31,7 +31,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.0'
 
-    modImplementation "io.github.ye-yu:jamcgui:0.0.1-alpha-3"
+    modImplementation "io.github.ye-yu:jamcgui:0.0.1-alpha-4"
 }
 
 processResources {
