@@ -43,7 +43,7 @@ class VindorClientScreen<T : ScreenRendererHandler>(handler: T, player: PlayerIn
 
         val vindorSendSlot = InventoryPanel(
                 relativeX = 36,
-                relativeY = -47,
+                relativeY = -41,
                 height = 20,
                 width = backgroundWidth - 14,
                 inventoryIndex = playerInventory.size(),
@@ -123,8 +123,8 @@ class VindorClientScreen<T : ScreenRendererHandler>(handler: T, player: PlayerIn
         ))
 
         otherPanel.add(LabelWidget(
-                relativeX = 38,
-                relativeY = 30,
+                relativeX = 65,
+                relativeY = 21,
                 horizontalAnchor = AnchorType.END,
                 label = LiteralText("Send:"),
                 shadow = false,
