@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.renderer
 
+import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.mobs.entity.Evione
 import fp.yeyu.monsterfriend.mobs.renderer.feature.EvioneHeldItemFeatureRenderer
 import fp.yeyu.monsterfriend.mobs.renderer.model.EvioneEntityModel
@@ -16,7 +17,7 @@ class EvioneRenderer(
     }
 
     companion object {
-        val TEXTURE = Identifier("textures/entity/illager/evoker.png")
+        val TEXTURE = Identifier(BefriendMinecraft.NAMESPACE, "textures/entity/evione.png")
     }
 
     override fun getTexture(entity: Evione?): Identifier {
