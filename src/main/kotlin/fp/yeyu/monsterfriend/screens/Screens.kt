@@ -20,22 +20,22 @@ object Screens {
 
     fun registerServer() {
         VINDOR_SCREEN =
-                register("vindor_screen") { syncId: Int, player: PlayerInventory ->
-                    ClientVindorScreenHandler(
-                            VINDOR_SCREEN,
-                            syncId,
-                            player
-                    )
-                }
+            register("vindor_screen") { syncId: Int, player: PlayerInventory ->
+                ClientVindorScreenHandler(
+                    VINDOR_SCREEN,
+                    syncId,
+                    player
+                )
+            }
 
         EVIONE_SCREEN =
-                register("evione_screen") { syncId: Int, player: PlayerInventory ->
-                    EvioneClientScreenHandler(
-                            EVIONE_SCREEN,
-                            syncId,
-                            player
-                    )
-                }
+            register("evione_screen") { syncId: Int, player: PlayerInventory ->
+                EvioneClientScreenHandler(
+                    EVIONE_SCREEN,
+                    syncId,
+                    player
+                )
+            }
 
     }
 
@@ -51,8 +51,8 @@ object Screens {
 
     private fun <T : ScreenHandler> register(name: String, entry: (Int, PlayerInventory) -> T): ScreenHandlerType<T> {
         return ScreenHandlerRegistry.registerSimple<T>(
-                Identifier(BefriendMinecraft.NAMESPACE, name),
-                entry
+            Identifier(BefriendMinecraft.NAMESPACE, name),
+            entry
         )
     }
 }

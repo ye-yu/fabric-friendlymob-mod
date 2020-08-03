@@ -12,10 +12,10 @@ import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 
 class ServerVindorScreenHandler<T : ScreenRendererHandler>(
-        type: ScreenHandlerType<T>,
-        syncId: Int,
-        playerInventory: PlayerInventory,
-        val vindor: Vindor
+    type: ScreenHandlerType<T>,
+    syncId: Int,
+    playerInventory: PlayerInventory,
+    val vindor: Vindor
 ) : ServerInventoryHandler<T>(type, syncId, playerInventory) {
 
     init {
@@ -29,8 +29,9 @@ class ServerVindorScreenHandler<T : ScreenRendererHandler>(
 
     override fun clientHasInit() {
         super.clientHasInit()
-        ScreenPacket.sendPacket(syncId, VindorPackets.VINDOR_TEXT_UPDATE, false,
-                playerInventory.player as ServerPlayerEntity
+        ScreenPacket.sendPacket(
+            syncId, VindorPackets.VINDOR_TEXT_UPDATE, false,
+            playerInventory.player as ServerPlayerEntity
         ) {
             it.writeString(vindor.senderMsg)
         }

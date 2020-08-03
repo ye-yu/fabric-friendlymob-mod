@@ -27,7 +27,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class FishingBobberMixin {
 
 
-    @Shadow private Entity hookedEntity;
+    @Shadow
+    private Entity hookedEntity;
 
     @Inject(method = "pullHookedEntity", at = @At("HEAD"))
     public void pullEvioneEntityCheck(CallbackInfo ci) {

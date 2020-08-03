@@ -9,14 +9,14 @@ import net.minecraft.client.util.math.MatrixStack
 import kotlin.math.ceil
 
 class JamcguiProgressBarWidget(
-        override val relativeX: Int = 0,
-        override val relativeY: Int = 0,
-        override val width: Int = 1,
-        override val height: Int = 1,
-        private val growDirection: Direction = Direction.LEFT,
-        private val color: Int = DrawerUtil.constructColor(0xFF, 0xFF, 0xFF, 0xFF),
-        private val backgroundColor: Int = DrawerUtil.constructColor(0x50, 0x50, 0x50, 0xFF),
-        override val name: String
+    override val relativeX: Int = 0,
+    override val relativeY: Int = 0,
+    override val width: Int = 1,
+    override val height: Int = 1,
+    private val growDirection: Direction = Direction.LEFT,
+    private val color: Int = DrawerUtil.constructColor(0xFF, 0xFF, 0xFF, 0xFF),
+    private val backgroundColor: Int = DrawerUtil.constructColor(0x50, 0x50, 0x50, 0xFF),
+    override val name: String
 ) : ChildWidget {
 
     private var parent: ParentWidget? = null

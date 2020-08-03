@@ -242,8 +242,18 @@ class Evione(
 
     private fun castSpell() {
         spellCastingPoseTick = MAX_SPELL_TICK
-        Particle.spawnParticle(this.world, this.blockPos, DrawerUtil.constructColor(0xFF, 0x50, 0x50, 0xFF), Particles.ENTITY)
-        Particle.spawnParticle(this.world, this.blockPos.add(0, 1, 0), DrawerUtil.constructColor(0xFF, 0x50, 0x50, 0xFF), Particles.ENTITY)
+        Particle.spawnParticle(
+            this.world,
+            this.blockPos,
+            DrawerUtil.constructColor(0xFF, 0x50, 0x50, 0xFF),
+            Particles.ENTITY
+        )
+        Particle.spawnParticle(
+            this.world,
+            this.blockPos.add(0, 1, 0),
+            DrawerUtil.constructColor(0xFF, 0x50, 0x50, 0xFF),
+            Particles.ENTITY
+        )
     }
 
     private fun validatePose() {

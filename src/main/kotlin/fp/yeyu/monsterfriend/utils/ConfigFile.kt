@@ -111,6 +111,7 @@ object ConfigFile {
         val isBoolean = { i: JsonPrimitive -> i.isBoolean }
         val isString = { i: JsonPrimitive -> i.isString }
     }
+
     enum class Defaults(val def: Any, val validator: (JsonPrimitive) -> Boolean) {
         WONDER_SPACE(5, Validator.isNumber),
         SIMULATE_MULTIPLAYER(true, Validator.isBoolean),

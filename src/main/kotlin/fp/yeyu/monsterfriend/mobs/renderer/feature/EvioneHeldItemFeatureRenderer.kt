@@ -9,7 +9,6 @@ import net.minecraft.client.render.entity.feature.VillagerHeldItemFeatureRendere
 import net.minecraft.client.render.model.json.ModelTransformation
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.client.util.math.Vector3f
-import net.minecraft.entity.EquipmentSlot
 
 class EvioneHeldItemFeatureRenderer(featureRendererContext: FeatureRendererContext<Evione, EvioneEntityModel>) :
     VillagerHeldItemFeatureRenderer<Evione, EvioneEntityModel>(featureRendererContext) {

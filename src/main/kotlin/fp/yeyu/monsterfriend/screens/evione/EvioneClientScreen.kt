@@ -17,9 +17,9 @@ import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 
 class EvioneClientScreen<T : ScreenRendererHandler>(
-        handler: T,
-        inventory: PlayerInventory,
-        title: Text
+    handler: T,
+    inventory: PlayerInventory,
+    title: Text
 ) : ScreenRenderer<T>(handler, inventory, title) {
 
     companion object {
@@ -31,89 +31,90 @@ class EvioneClientScreen<T : ScreenRendererHandler>(
 
 
         val evioneFuelSlot = InventoryPanel(
-                relativeX = -52,
-                relativeY = -35,
-                height = SingleItemSlotWidget.SQUARE_SIZE,
-                width = SingleItemSlotWidget.SQUARE_SIZE,
-                inventoryIndex = playerInventory.size() + 1,
-                numberOfSlots = 1,
-                cols = 1,
-                horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
-                verticalAnchor = ParentWidget.AnchorType.MIDDLE,
-                name = "evione-inv-2"
+            relativeX = -52,
+            relativeY = -35,
+            height = SingleItemSlotWidget.SQUARE_SIZE,
+            width = SingleItemSlotWidget.SQUARE_SIZE,
+            inventoryIndex = playerInventory.size() + 1,
+            numberOfSlots = 1,
+            cols = 1,
+            horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
+            verticalAnchor = ParentWidget.AnchorType.MIDDLE,
+            name = "evione-inv-2"
         )
 
         val evioneSynthesisSlot = InventoryPanel(
-                relativeX = -23,
-                relativeY = -35,
-                height = SingleItemSlotWidget.SQUARE_SIZE,
-                width = SingleItemSlotWidget.SQUARE_SIZE,
-                inventoryIndex = playerInventory.size(),
-                numberOfSlots = 1,
-                cols = 1,
-                horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
-                verticalAnchor = ParentWidget.AnchorType.MIDDLE,
-                name = "evione-inv-1"
+            relativeX = -23,
+            relativeY = -35,
+            height = SingleItemSlotWidget.SQUARE_SIZE,
+            width = SingleItemSlotWidget.SQUARE_SIZE,
+            inventoryIndex = playerInventory.size(),
+            numberOfSlots = 1,
+            cols = 1,
+            horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
+            verticalAnchor = ParentWidget.AnchorType.MIDDLE,
+            name = "evione-inv-1"
         )
 
 
         val evioneResultingSlot = InventoryPanel(
-                relativeX = 42,
-                relativeY = -35,
-                height = SingleItemSlotWidget.SQUARE_SIZE,
-                width = SingleItemSlotWidget.SQUARE_SIZE,
-                inventoryIndex = playerInventory.size() + 2,
-                numberOfSlots = 1,
-                cols = 1,
-                horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
-                verticalAnchor = ParentWidget.AnchorType.MIDDLE,
-                name = "evione-inv-3"
+            relativeX = 42,
+            relativeY = -35,
+            height = SingleItemSlotWidget.SQUARE_SIZE,
+            width = SingleItemSlotWidget.SQUARE_SIZE,
+            inventoryIndex = playerInventory.size() + 2,
+            numberOfSlots = 1,
+            cols = 1,
+            horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
+            verticalAnchor = ParentWidget.AnchorType.MIDDLE,
+            name = "evione-inv-3"
         )
 
         val playerInventoryPanel = InventoryPanel(
-                relativeY = 32,
-                height = 64,
-                width = backgroundWidth - 14,
-                inventoryIndex = 9,
-                numberOfSlots = 9 * 3,
-                cols = 9,
-                horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
-                verticalAnchor = ParentWidget.AnchorType.MIDDLE,
-                name = "player-inv"
+            relativeY = 32,
+            height = 64,
+            width = backgroundWidth - 14,
+            inventoryIndex = 9,
+            numberOfSlots = 9 * 3,
+            cols = 9,
+            horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
+            verticalAnchor = ParentWidget.AnchorType.MIDDLE,
+            name = "player-inv"
         )
 
         val hotbarPanel = InventoryPanel(
-                relativeY = 68,
-                height = 20,
-                width = backgroundWidth - 14,
-                inventoryIndex = 0,
-                numberOfSlots = 9,
-                cols = 9,
-                horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
-                verticalAnchor = ParentWidget.AnchorType.MIDDLE,
-                name = "hotbar"
+            relativeY = 68,
+            height = 20,
+            width = backgroundWidth - 14,
+            inventoryIndex = 0,
+            numberOfSlots = 9,
+            cols = 9,
+            horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
+            verticalAnchor = ParentWidget.AnchorType.MIDDLE,
+            name = "hotbar"
         )
 
         val progressBar = JamcguiProgressBarWidget(
-                relativeX = 80,
-                relativeY = 45,
-                width = 32,
-                height = 4,
-                name = EvionePacket.PROGRESS_NAME
+            relativeX = 80,
+            relativeY = 45,
+            width = 32,
+            height = 4,
+            name = EvionePacket.PROGRESS_NAME
         )
 
         val labellingPanel = Panel(
-                height = backgroundHeight,
-                width = backgroundWidth,
-                horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
-                verticalAnchor = ParentWidget.AnchorType.MIDDLE,
-                backgroundColor = 0,
-                name = "other-panel"
+            height = backgroundHeight,
+            width = backgroundWidth,
+            horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
+            verticalAnchor = ParentWidget.AnchorType.MIDDLE,
+            backgroundColor = 0,
+            name = "other-panel"
         )
 
         labellingPanel.add(progressBar)
 
-        labellingPanel.add(LabelWidget(
+        labellingPanel.add(
+            LabelWidget(
                 relativeX = backgroundWidth / 2,
                 relativeY = 7,
                 horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
@@ -121,9 +122,11 @@ class EvioneClientScreen<T : ScreenRendererHandler>(
                 shadow = false,
                 name = "title",
                 color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
-        ))
+            )
+        )
 
-        labellingPanel.add(LabelWidget(
+        labellingPanel.add(
+            LabelWidget(
                 relativeX = 36,
                 relativeY = 30,
                 horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
@@ -131,9 +134,11 @@ class EvioneClientScreen<T : ScreenRendererHandler>(
                 shadow = false,
                 name = "fuel-label",
                 color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
-        ))
+            )
+        )
 
-        labellingPanel.add(LabelWidget(
+        labellingPanel.add(
+            LabelWidget(
                 relativeX = 65,
                 relativeY = 30,
                 horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
@@ -141,9 +146,11 @@ class EvioneClientScreen<T : ScreenRendererHandler>(
                 shadow = false,
                 name = "target-label",
                 color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
-        ))
+            )
+        )
 
-        labellingPanel.add(LabelWidget(
+        labellingPanel.add(
+            LabelWidget(
                 relativeX = 129,
                 relativeY = 23,
                 horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
@@ -151,7 +158,8 @@ class EvioneClientScreen<T : ScreenRendererHandler>(
                 shadow = false,
                 name = "receive-label",
                 color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
-        ))
+            )
+        )
 
 
         this.addParent(hotbarPanel)

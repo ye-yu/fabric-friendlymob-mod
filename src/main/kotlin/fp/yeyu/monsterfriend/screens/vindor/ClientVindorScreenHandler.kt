@@ -9,7 +9,6 @@ import net.fabricmc.fabric.api.network.PacketContext
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandlerType
-import java.lang.IllegalArgumentException
 
 class ClientVindorScreenHandler<T : ScreenRendererHandler>(
     type: ScreenHandlerType<T>,

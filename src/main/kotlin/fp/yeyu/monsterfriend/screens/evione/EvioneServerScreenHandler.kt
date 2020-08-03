@@ -10,10 +10,10 @@ import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
 
 class EvioneServerScreenHandler<T : ScreenRendererHandler>(
-        type: ScreenHandlerType<T>,
-        syncId: Int,
-        playerInventory: PlayerInventory,
-        private val evione: Evione
+    type: ScreenHandlerType<T>,
+    syncId: Int,
+    playerInventory: PlayerInventory,
+    private val evione: Evione
 ) : ServerInventoryHandler<T>(type, syncId, playerInventory) {
 
     var lastProgress = 0
@@ -41,7 +41,12 @@ class EvioneServerScreenHandler<T : ScreenRendererHandler>(
         val progress = evione.getSynthesisProgress().toInt()
 
         if (lastProgress == progress) return // don't send if it is not different
-        ScreenPacket.sendPacket(syncId, EvionePacket.SET_PROGRESS, false, playerInventory.player as ServerPlayerEntity) {
+        ScreenPacket.sendPacket(
+            syncId,
+            EvionePacket.SET_PROGRESS,
+            false,
+            playerInventory.player as ServerPlayerEntity
+        ) {
             it.writeInt(progress)
         }
         lastProgress = progress

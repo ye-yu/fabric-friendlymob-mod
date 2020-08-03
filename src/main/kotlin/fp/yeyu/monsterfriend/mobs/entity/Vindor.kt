@@ -369,10 +369,10 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity?): ScreenHandler? {
             who.wonderTick = -1
             return ServerVindorScreenHandler(
-                    Screens.VINDOR_SCREEN,
-                    syncId,
-                    inv,
-                    who
+                Screens.VINDOR_SCREEN,
+                syncId,
+                inv,
+                who
             )
         }
 
