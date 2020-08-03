@@ -1,6 +1,7 @@
 package fp.yeyu.monsterfriend.mixins;
 
-import fp.yeyu.monsterfriend.Packet;
+import fp.yeyu.monsterfriend.Particle;
+import fp.yeyu.monsterfriend.Particle.Particles;
 import fp.yeyu.monsterfriend.mixinutil.Transformer;
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
 import fp.yeyu.monsterfriend.utils.ConfigFile;
@@ -41,7 +42,10 @@ public abstract class VindicatorEntityMixin extends IllagerEntity implements Tra
                     if (this.transformTo(MobRegistry.INSTANCE.getVindor().getEntityType()) != null) {
                         Logger.INSTANCE.info("Spawned a vindor");
                         final BlockPos entityPos = this.getBlockPos();
-                        Packet.INSTANCE.spawnParticle(this.world, entityPos, DrawerUtil.INSTANCE.constructColor(0x70, 0x50, 0x70, 0xFF));
+                        Particle.INSTANCE.spawnParticle(this.world,
+                                entityPos,
+                                DrawerUtil.INSTANCE.constructColor(0x70, 0x50, 0x70, 0xFF),
+                                Particles.POOF);
                         playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1f, 0.8f + world.random.nextFloat() / 10 * 4); // 1.0f +- 0.2f
                     } else {
                         Logger.INSTANCE.error("Cannot spawn a vindor!", new Throwable());

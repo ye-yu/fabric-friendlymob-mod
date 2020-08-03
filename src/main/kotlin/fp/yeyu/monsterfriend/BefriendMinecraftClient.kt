@@ -11,6 +11,6 @@ class BefriendMinecraftClient : ClientModInitializer {
         Logger.info("[Client-side] Mod is loaded.")
         MobRegistry.registerMobs(true)
         Screens.registerScreens()
-        Packet.registerClient()
+        Particle.registerClient()
     }
 }

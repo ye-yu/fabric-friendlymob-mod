@@ -1,9 +1,12 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
+import fp.yeyu.monsterfriend.Particle
+import fp.yeyu.monsterfriend.Particle.Particles
 import fp.yeyu.monsterfriend.item.ItemRegistry
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.screens.evione.EvioneServerScreenHandler
 import fp.yeyu.monsterfriend.utils.ConfigFile
+import io.github.yeyu.util.DrawerUtil
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.ai.goal.EscapeDangerGoal
 import net.minecraft.entity.ai.goal.LookAroundGoal
@@ -38,8 +41,6 @@ import java.util.stream.IntStream
 import kotlin.math.max
 import kotlin.math.min
 
-// todo: drop vex essence after some ticks
-// todo: drop many vex essence at full moon midnight
 class Evione(
     entityType: EntityType<out PathAwareEntity>?,
     world: World?
@@ -83,6 +84,8 @@ class Evione(
 
         private var SYNTHESIS_SPEED_UP_COUNT =
             ConfigFile.getInt(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_COUNT).toLong()
+
+        private var DROP_VEX_ESSENCE_CHANCE = ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_DROP_VEX_ESSENCE_CHANCE)
 
     }
 
@@ -160,6 +163,28 @@ class Evione(
         validatePose()
         synthesisItem()
         validateSynthesis()
+        dropEssence()
+    }
+
+    private fun dropEssence() {
+        if (isNight()) {
+            // always roll at night
+            if (random.nextDouble() < DROP_VEX_ESSENCE_CHANCE) dropItem(ItemRegistry.vexEssence, 2)
+
+            // always roll extra at full moon
+            if (isFullMoon()) if (random.nextDouble() < DROP_VEX_ESSENCE_CHANCE) dropItem(ItemRegistry.vexEssence, 2)
+        }
+        if (!getInventory().getStack(0).isEmpty) return
+        if (random.nextDouble() > DROP_VEX_ESSENCE_CHANCE) return
+        dropItem(ItemRegistry.vexEssence, 2)
+    }
+
+    private fun isNight(): Boolean {
+        return this.world.timeOfDay in 13000 until 23216
+    }
+
+    private fun isFullMoon(): Boolean {
+        return this.world.moonSize >= 0.99
     }
 
     private fun validateSynthesis() {
@@ -217,6 +242,8 @@ class Evione(
 
     private fun castSpell() {
         spellCastingPoseTick = MAX_SPELL_TICK
+        Particle.spawnParticle(this.world, this.blockPos, DrawerUtil.constructColor(0xFF, 0x50, 0x50, 0xFF), Particles.ENTITY)
+        Particle.spawnParticle(this.world, this.blockPos.add(0, 1, 0), DrawerUtil.constructColor(0xFF, 0x50, 0x50, 0xFF), Particles.ENTITY)
     }
 
     private fun validatePose() {

@@ -11,13 +11,12 @@ import net.minecraft.client.particle.ParticleManager
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.particle.DefaultParticleType
 import net.minecraft.particle.ParticleTypes
-import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.util.*
 
-object Packet {
+object Particle {
     private val PARTICLE_ID = Identifier(BefriendMinecraft.NAMESPACE, "particle")
     private val random = Random()
 
@@ -25,11 +24,17 @@ object Packet {
         ClientSidePacketRegistryImpl.INSTANCE.register(PARTICLE_ID, ::onParticlePacket)
     }
 
-    fun spawnParticle(world: World, pos: BlockPos, color: Int = DrawerUtil.constructColor(0xAA, 0x50, 0x70, 0xFF)) {
+    fun spawnParticle(
+        world: World,
+        pos: BlockPos,
+        color: Int = DrawerUtil.constructColor(0xAA, 0x50, 0x70, 0xFF),
+        particle: Particles
+    ) {
         check(!world.isClient) { "Cannot send particle from client!" }
         val buf = PacketByteBuf(Unpooled.buffer())
         buf.writeBlockPos(pos)
         buf.writeInt(8)
+        buf.writeEnumConstant(particle)
         buf.writeInt(color)
         PlayerStream.watching(world, pos).forEach {
             ServerSidePacketRegistryImpl.INSTANCE.sendToPlayer(it, PARTICLE_ID, buf)
@@ -39,12 +44,13 @@ object Packet {
     private fun onParticlePacket(context: PacketContext, buf: PacketByteBuf) {
         val position = buf.readBlockPos()
         val count = buf.readInt()
+        val particle = buf.readEnumConstant(Particles::class.java)
         val color = decomposeColor(buf.readInt())
 
         for (i in 0 until count) {
             context.taskQueue.execute {
                 MinecraftClient.getInstance().particleManager.addParticle(
-                    ParticleTypes.POOF,
+                    particle.instance,
                     position.x,
                     position.y,
                     position.z,
@@ -57,32 +63,36 @@ object Packet {
         }
     }
 
-    private fun decomposeColor(color: Int) : Array<Int> {
+    private fun decomposeColor(color: Int): Array<Int> {
         val a = (color shr 24) and 255
         val r = (color shr 16) and 255
-        val g = (color shr  8) and 255
+        val g = (color shr 8) and 255
         val b = color and 255
         return arrayOf(r, g, b, a)
     }
-}
 
-private fun ParticleManager.addParticle(
-    particle: DefaultParticleType,
-    x: Int,
-    y: Int,
-    z: Int,
-    r: Int,
-    g: Int,
-    b: Int,
-    random: Random
-) {
-    this.addParticle(
-        particle,
-        x.toDouble() + random.nextDouble(),
-        y.toDouble() + random.nextDouble(),
-        z.toDouble() + random.nextDouble(),
-        r.toDouble(),
-        g.toDouble(),
-        b.toDouble()
-    )
+    enum class Particles(val instance: DefaultParticleType) {
+        POOF(ParticleTypes.POOF), ENTITY(ParticleTypes.ENTITY_EFFECT);
+    }
+
+    private fun ParticleManager.addParticle(
+        particle: DefaultParticleType,
+        x: Int,
+        y: Int,
+        z: Int,
+        r: Int,
+        g: Int,
+        b: Int,
+        random: Random
+    ) {
+        this.addParticle(
+            particle,
+            x.toDouble() + random.nextDouble(),
+            y.toDouble() + random.nextDouble(),
+            z.toDouble() + random.nextDouble(),
+            r.toDouble(),
+            g.toDouble(),
+            b.toDouble()
+        )
+    }
 }
