@@ -5,14 +5,17 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.item.ItemStack;
 
+import javax.annotation.Nullable;
+
 public interface Transformer {
     MobEntity getEntity();
 
-    default boolean transformTo(EntityType<? extends MobEntity> factory) {
+    @Nullable
+    default MobEntity transformTo(EntityType<? extends MobEntity> factory) {
         final MobEntity oldEntity = getEntity();
-        if (oldEntity.removed) return false;
+        if (oldEntity.removed) return null;
         MobEntity newEntity = factory.create(oldEntity.world);
-        if (newEntity == null) return false;
+        if (newEntity == null) return null;
 
         newEntity.copyPositionAndRotation(oldEntity);
         newEntity.setCanPickUpLoot(oldEntity.canPickUpLoot());
@@ -40,6 +43,6 @@ public interface Transformer {
         newEntity.setInvulnerable(oldEntity.isInvulnerable());
         oldEntity.world.spawnEntity(newEntity);
         oldEntity.remove();
-        return true;
+        return newEntity;
     }
 }

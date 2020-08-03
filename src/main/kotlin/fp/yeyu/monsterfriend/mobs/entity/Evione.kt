@@ -23,7 +23,6 @@ import net.minecraft.inventory.Inventories
 import net.minecraft.inventory.Inventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
@@ -39,6 +38,8 @@ import java.util.stream.IntStream
 import kotlin.math.max
 import kotlin.math.min
 
+// todo: drop vex essence after some ticks
+// todo: drop many vex essence at full moon midnight
 class Evione(
     entityType: EntityType<out PathAwareEntity>?,
     world: World?
@@ -80,7 +81,8 @@ class Evione(
         private var SYNTHESIS_SPEED_UP_CHANCE =
             ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_CHANCE)
 
-        private var SYNTHESIS_SPEED_UP_COUNT = ConfigFile.getInt(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_COUNT).toLong()
+        private var SYNTHESIS_SPEED_UP_COUNT =
+            ConfigFile.getInt(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_COUNT).toLong()
 
     }
 

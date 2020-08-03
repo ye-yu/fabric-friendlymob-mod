@@ -35,7 +35,7 @@ public abstract class VindicatorEntityMixin extends IllagerEntity implements Tra
             final BlockState block = serverWorld.getBlockState(new BlockPos(pos));
             if (block.getBlock() == Blocks.EMERALD_BLOCK) {
                 if (this.random.nextFloat() < ConfigFile.INSTANCE.getFloat(ConfigFile.Defaults.VINDOR_TRANSFORM_CHANCE)) {
-                    if (this.transformTo(MobRegistry.INSTANCE.getVindor().getEntityType())) {
+                    if (this.transformTo(MobRegistry.INSTANCE.getVindor().getEntityType()) != null) {
                         Logger.INSTANCE.info("Spawned a vindor");
                     } else {
                         Logger.INSTANCE.error("Cannot spawn a vindor!", new Throwable());
