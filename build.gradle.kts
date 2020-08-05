@@ -10,6 +10,7 @@ plugins {
 
 group = Info.group
 version = Info.version
+project.setProperty("archivesBaseName", Info.modid)
 
 repositories {
     maven(url = "https://maven.fabricmc.net") { name = "Fabric" }
