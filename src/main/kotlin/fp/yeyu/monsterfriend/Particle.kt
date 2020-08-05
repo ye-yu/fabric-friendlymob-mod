@@ -47,8 +47,8 @@ object Particle {
         val particle = buf.readEnumConstant(Particles::class.java)
         val color = decomposeColor(buf.readInt())
 
-        for (i in 0 until count) {
-            context.taskQueue.execute {
+        context.taskQueue.execute {
+            for (i in 0 until count) {
                 MinecraftClient.getInstance().particleManager.addParticle(
                     particle.instance,
                     position.x,
