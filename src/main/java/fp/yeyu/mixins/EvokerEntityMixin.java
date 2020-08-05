@@ -1,6 +1,6 @@
-package fp.yeyu.monsterfriend.mixins;
+package fp.yeyu.mixins;
 
-import fp.yeyu.monsterfriend.mixinutil.Transformer;
+import fp.yeyu.mixinutil.Transformer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.EvokerEntity;
 import net.minecraft.entity.mob.IllagerEntity;

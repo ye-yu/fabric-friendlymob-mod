@@ -1,6 +1,5 @@
 package fp.yeyu.monsterfriend.screens.evione
 
-import com.mojang.blaze3d.systems.RenderSystem
 import fp.yeyu.monsterfriend.BefriendMinecraft
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.renderer.ScreenRenderer
@@ -10,7 +9,6 @@ import io.github.yeyu.gui.renderer.widget.children.SingleItemSlotWidget
 import io.github.yeyu.gui.renderer.widget.parents.InventoryPanel
 import io.github.yeyu.gui.renderer.widget.parents.Panel
 import io.github.yeyu.util.DrawerUtil
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
@@ -20,7 +18,7 @@ class EvioneClientScreen<T : ScreenRendererHandler>(
     handler: T,
     inventory: PlayerInventory,
     title: Text
-) : ScreenRenderer<T>(handler, inventory, title) {
+) : ScreenRenderer<T>(handler, inventory, title, TEXTURE) {
 
     companion object {
         val TEXTURE = Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/evione.png")
@@ -174,14 +172,5 @@ class EvioneClientScreen<T : ScreenRendererHandler>(
         this.addListener(evioneFuelSlot)
         this.addListener(evioneSynthesisSlot)
         this.addListener(evioneResultingSlot)
-    }
-
-    override fun drawBackground(matrices: MatrixStack?, delta: Float, mouseX: Int, mouseY: Int) {
-        @Suppress("DEPRECATION")
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f)
-        client!!.textureManager.bindTexture(TEXTURE)
-        val i = (width - backgroundWidth) / 2
-        val j = (height - backgroundHeight) / 2
-        this.drawTexture(matrices, i, j, 0, 0, backgroundWidth, backgroundHeight)
     }
 }

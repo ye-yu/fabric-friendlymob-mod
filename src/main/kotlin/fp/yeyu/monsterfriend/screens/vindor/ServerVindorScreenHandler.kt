@@ -7,6 +7,7 @@ import io.github.yeyu.packet.ScreenPacket
 import net.fabricmc.fabric.api.network.PacketContext
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.inventory.Inventory
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.server.network.ServerPlayerEntity
@@ -22,8 +23,8 @@ class ServerVindorScreenHandler<T : ScreenRendererHandler>(
         super.blockInventory = vindor.getInventory()
     }
 
-    override fun initBlockInventory() {
-        super.initBlockInventory()
+    override fun initBlockInventory(blockInv: Inventory) {
+        super.initBlockInventory(blockInv)
         constrainedSlots[playerInventory.size() + 1].insertPredicate = { false }
     }
 

@@ -1,6 +1,5 @@
 package fp.yeyu.monsterfriend.screens.vindor
 
-import com.mojang.blaze3d.systems.RenderSystem
 import fp.yeyu.monsterfriend.BefriendMinecraft
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.renderer.ScreenRenderer
@@ -11,14 +10,13 @@ import io.github.yeyu.gui.renderer.widget.parents.InventoryPanel
 import io.github.yeyu.gui.renderer.widget.parents.Panel
 import io.github.yeyu.util.DrawerUtil
 import io.github.yeyu.util.TextureDrawerHelper
-import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 
 class VindorClientScreen<T : ScreenRendererHandler>(handler: T, player: PlayerInventory, title: Text) :
-    ScreenRenderer<T>(handler, player, title) {
+    ScreenRenderer<T>(handler, player, title, TEXTURE) {
     companion object {
         private val TEXTURE: Identifier = Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/vindor.png")
         private const val TEXT_FIELD_HEIGHT = 16
@@ -161,14 +159,5 @@ class VindorClientScreen<T : ScreenRendererHandler>(handler: T, player: PlayerIn
         this.addListener(vindorSendSlot)
         this.addListener(vindorReceivedSlot)
 
-    }
-
-    override fun drawBackground(matrices: MatrixStack?, delta: Float, mouseX: Int, mouseY: Int) {
-        @Suppress("DEPRECATION")
-        RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f)
-        client!!.textureManager.bindTexture(TEXTURE)
-        val i = (width - backgroundWidth) / 2
-        val j = (height - backgroundHeight) / 2
-        this.drawTexture(matrices, i, j, 0, 0, backgroundWidth, backgroundHeight)
     }
 }

@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.mixins;
+package fp.yeyu.mixins;
 
 import fp.yeyu.monsterfriend.mobs.AttributeRegistry;
 import net.minecraft.entity.EntityType;

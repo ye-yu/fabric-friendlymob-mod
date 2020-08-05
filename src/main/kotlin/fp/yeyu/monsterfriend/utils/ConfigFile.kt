@@ -5,10 +5,10 @@ import com.google.gson.JsonPrimitive
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import fp.yeyu.monsterfriend.BefriendMinecraft
-import org.apache.commons.io.FileUtils
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.File
+import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.FileWriter
 import java.nio.file.Paths
@@ -80,9 +80,9 @@ object ConfigFile {
 
         json.endObject().close()
 
-        val resourceFile = File(this::class.java.getResource("/randomMessage.txt").toURI())
         val destFile = getFile("randomMessage.txt")
-        FileUtils.copyFile(resourceFile, destFile)
+        if (!destFile.exists()) destFile.createNewFile()
+        this::class.java.getResourceAsStream("/randomMessage.txt").copyTo(FileOutputStream(destFile))
     }
 
     private fun validate() {

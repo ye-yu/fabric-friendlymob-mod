@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.mixinutil;
+package fp.yeyu.mixinutil;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;

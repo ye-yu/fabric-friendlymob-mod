@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "monster-friend-mc",
-  "version": "${version}",
+  "version": "$version",
   "name": "Befriend!",
   "description": "More mobs from befriending monsters!",
   "authors": [
@@ -12,14 +12,20 @@
     "sources": "https://github.com/ye-yu"
   },
   "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/friendlymob/icon.png",
   "environment": "*",
   "entrypoints": {
     "client": [
-      "fp.yeyu.monsterfriend.BefriendMinecraftClient"
+      {
+        "adapter": "kotlin",
+        "value": "fp.yeyu.monsterfriend.BefriendMinecraftClient"
+      }
     ],
     "main": [
-      "fp.yeyu.monsterfriend.BefriendMinecraft"
+      {
+        "adapter": "kotlin",
+        "value": "fp.yeyu.monsterfriend.BefriendMinecraft"
+      }
     ]
   },
   "mixins": [
@@ -33,6 +39,5 @@
   },
   "suggests": {
     "flamingo": "*"
-  },
-  "accessWidener": "fabric.accesswidener"
+  }
 }
