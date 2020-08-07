@@ -26,3 +26,5 @@ Next update:
 - Wizard, a crafter: just tell him what you want to craft, and he will tell you to gather the materials. Once the materials have been gathered, you can let Wizard to craft the item.
 - Skeleton, a gambler: skeleton love to gamble, but he just don't have enough luck. He has sold everything even his own skin just to gamble more and more! Maybe you can change the fate of his life - by gambling with him
 - Silverfish, a party animal: silverfish found barrels of beer and was severely drunk. He attacks you because he thought you were one of his girlfriends that just never want to be loyal. He just want to light up the world of another silverfish...
+
+This mod has a configuration file. Customize your configuration file from the guideline [here](CONFIG.md).
