@@ -29,7 +29,7 @@ public abstract class FishingBobberMixin {
     @Shadow
     private Entity hookedEntity;
 
-    @Inject(method = "pullHookedEntity", at = @At("HEAD"))
+    @Inject(method = "pullHookedEntity", at = @At("HEAD"), cancellable = true)
     public void pullEvioneEntityCheck(CallbackInfo ci) {
         final FishingBobberEntity bobberEntity = ((FishingBobberEntity) (Object) this);
         if (bobberEntity.world.isClient) return;
@@ -63,10 +63,8 @@ public abstract class FishingBobberMixin {
                     evione.getBlockPos(),
                     DrawerUtil.INSTANCE.constructColor(0xED, 0xDC, 0x47, 0xFF),
                     Particles.POOF);
-
+            ci.cancel();
         }
-
-        hookedEntity = evione;
     }
 
 }

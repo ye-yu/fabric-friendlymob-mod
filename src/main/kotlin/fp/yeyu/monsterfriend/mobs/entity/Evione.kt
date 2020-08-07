@@ -17,6 +17,7 @@ import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.data.DataTracker
 import net.minecraft.entity.data.TrackedData
+import net.minecraft.entity.data.TrackedDataHandler
 import net.minecraft.entity.data.TrackedDataHandlerRegistry
 import net.minecraft.entity.mob.MobEntity
 import net.minecraft.entity.mob.PathAwareEntity
@@ -27,6 +28,7 @@ import net.minecraft.inventory.Inventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.sound.SoundEvent
@@ -52,12 +54,14 @@ class Evione(
     private val guiHandler = EvioneGuiHandler(this)
 
     companion object {
-        val POSE_STATE: TrackedData<Byte> =
-            DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
+        val POSE_STATE: TrackedData<State> =
+            DataTracker.registerData(Evione::class.java, State.TRACKED_STATE)
+        // todo: dont sync progress
         val SYNTHESIS_PROGRESS: TrackedData<Byte> =
             DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.BYTE)
 
-        val INVENTORY: MutableList<TrackedData<ItemStack>> = MutableList(3) {
+        // todo: dont sync inventory, only set item to mainhand and send to client
+        val INVENTORY: List<TrackedData<ItemStack>> = List(3) {
             DataTracker.registerData(Evione::class.java, TrackedDataHandlerRegistry.ITEM_STACK)
         }
 
@@ -108,16 +112,16 @@ class Evione(
     override fun getDeathSound(): SoundEvent = SoundEvents.ENTITY_EVOKER_DEATH
 
     private fun setState(state: State) {
-        this.dataTracker.set(POSE_STATE, State[state])
+        this.dataTracker.set(POSE_STATE, state)
     }
 
     fun getState(): State {
-        return State[this.dataTracker.get(POSE_STATE)]
+        return this.dataTracker.get(POSE_STATE)
     }
 
     override fun initDataTracker() {
         super.initDataTracker()
-        this.dataTracker.startTracking(POSE_STATE, State[State.CROSSED])
+        this.dataTracker.startTracking(POSE_STATE, State.CROSSED)
         this.dataTracker.startTracking(SYNTHESIS_PROGRESS, 0)
         INVENTORY.forEach {
             this.dataTracker.startTracking(it, ItemStack.EMPTY)
@@ -126,14 +130,14 @@ class Evione(
 
     override fun writeCustomDataToTag(tag: CompoundTag) {
         super.writeCustomDataToTag(tag)
-        tag.putByte(POSE_STATE_NAME, State[getState()])
+        tag.putByte(POSE_STATE_NAME, getState().ordinal.toByte())
         tag.putByte(SYNTHESIS_PROGRESS_NAME, getSynthesisProgress())
         Inventories.toTag(tag, (getInventory() as EvioneInventory).toList())
     }
 
     override fun readCustomDataFromTag(tag: CompoundTag) {
         super.readCustomDataFromTag(tag)
-        if (tag.contains(POSE_STATE_NAME)) setState(State[tag.getByte(POSE_STATE_NAME)])
+        if (tag.contains(POSE_STATE_NAME)) setState(State.values()[tag.getByte(POSE_STATE_NAME).toInt()])
         val list = DefaultedList.ofSize(3, ItemStack.EMPTY)
         Inventories.fromTag(tag, list)
         (getInventory() as EvioneInventory).load(list)
@@ -278,21 +282,24 @@ class Evione(
 
     enum class State {
         CROSSED, SPELL_CASTING;
-
         companion object {
-            operator fun get(index: Byte): State {
-                return when (index) {
-                    0.toByte() -> CROSSED
-                    1.toByte() -> SPELL_CASTING
-                    else -> throw IndexOutOfBoundsException(index.toString())
+            val TRACKED_STATE = object : TrackedDataHandler<State> {
+                override fun write(data: PacketByteBuf, state: State) {
+                    data.writeEnumConstant(state)
                 }
+
+                override fun copy(state: State): State {
+                    return state
+                }
+
+                override fun read(packetByteBuf: PacketByteBuf): State {
+                    return packetByteBuf.readEnumConstant(State::class.java)
+                }
+
             }
 
-            operator fun get(state: State): Byte {
-                return when (state) {
-                    CROSSED -> 0
-                    SPELL_CASTING -> 1
-                }
+            fun init() {
+                TrackedDataHandlerRegistry.register(TRACKED_STATE)
             }
         }
     }

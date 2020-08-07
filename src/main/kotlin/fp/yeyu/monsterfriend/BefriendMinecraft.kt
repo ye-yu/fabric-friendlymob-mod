@@ -2,6 +2,7 @@ package fp.yeyu.monsterfriend
 
 import fp.yeyu.monsterfriend.item.ItemRegistry
 import fp.yeyu.monsterfriend.mobs.MobRegistry
+import fp.yeyu.monsterfriend.mobs.entity.Evione
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.utils.ConfigFile
 import io.github.yeyu.util.Logger
@@ -17,6 +18,7 @@ class BefriendMinecraft : ModInitializer {
         Screens.registerServer()
         MobRegistry.registerMobs(false)
         MobRegistry.registerEggs()
+        Evione.State.init()
         ItemRegistry.registerItem()
         ConfigFile.visit()
     }
