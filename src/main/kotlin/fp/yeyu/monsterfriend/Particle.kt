@@ -18,34 +18,56 @@ import java.util.*
 
 object Particle {
     private val PARTICLE_ID = Identifier(BefriendMinecraft.NAMESPACE, "particle")
+    private val ZEROS = arrayOf(0, 0, 0)
     private val random = Random()
 
     fun registerClient() {
         ClientSidePacketRegistryImpl.INSTANCE.register(PARTICLE_ID, ::onParticlePacket)
     }
 
-    fun spawnParticle(
+    fun spawnLightParticle(
         world: World,
         pos: BlockPos,
         color: Int = DrawerUtil.constructColor(0xAA, 0x50, 0x70, 0xFF),
         particle: Particles
     ) {
-        check(!world.isClient) { "Cannot send particle from client!" }
-        val buf = PacketByteBuf(Unpooled.buffer())
-        buf.writeBlockPos(pos)
-        buf.writeInt(8)
-        buf.writeEnumConstant(particle)
-        buf.writeInt(color)
-        PlayerStream.watching(world, pos).forEach {
-            ServerSidePacketRegistryImpl.INSTANCE.sendToPlayer(it, PARTICLE_ID, buf)
-        }
+        Thread {
+            check(!world.isClient) { "Cannot send particle from client!" }
+            val buf = PacketByteBuf(Unpooled.buffer())
+            buf.writeBlockPos(pos)
+            buf.writeInt(8)
+            buf.writeEnumConstant(particle)
+            buf.writeInt(color)
+            PlayerStream.watching(world, pos).forEach {
+                ServerSidePacketRegistryImpl.INSTANCE.sendToPlayer(it, PARTICLE_ID, buf)
+            }
+        }.start()
+    }
+
+    fun spawnHeavyParticle(
+        world: World,
+        pos: BlockPos,
+        color: Int = DrawerUtil.constructColor(0xAA, 0x50, 0x70, 0xFF),
+        particle: Particles
+    ) {
+        Thread {
+            check(!world.isClient) { "Cannot send particle from client!" }
+            val buf = PacketByteBuf(Unpooled.buffer())
+            buf.writeBlockPos(pos)
+            buf.writeInt(30)
+            buf.writeEnumConstant(particle)
+            buf.writeInt(color)
+            PlayerStream.watching(world, pos).forEach {
+                ServerSidePacketRegistryImpl.INSTANCE.sendToPlayer(it, PARTICLE_ID, buf)
+            }
+        }.start()
     }
 
     private fun onParticlePacket(context: PacketContext, buf: PacketByteBuf) {
         val position = buf.readBlockPos()
         val count = buf.readInt()
         val particle = buf.readEnumConstant(Particles::class.java)
-        val color = decomposeColor(buf.readInt())
+        val color = if (particle == Particles.POOF) ZEROS else decomposeColor(buf.readInt())
 
         context.taskQueue.execute {
             for (i in 0 until count) {

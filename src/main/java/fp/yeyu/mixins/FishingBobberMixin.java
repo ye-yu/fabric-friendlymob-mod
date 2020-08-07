@@ -1,12 +1,10 @@
 package fp.yeyu.mixins;
 
-import fp.yeyu.mixinutil.Transformer;
 import fp.yeyu.monsterfriend.Particle;
-import fp.yeyu.monsterfriend.Particle.Particles;
 import fp.yeyu.monsterfriend.item.ItemRegistry;
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
 import fp.yeyu.monsterfriend.utils.ConfigFile;
-import io.github.yeyu.util.DrawerUtil;
+import fp.yeyu.util.Transformable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.entity.ItemEntity;
@@ -54,17 +52,9 @@ public abstract class FishingBobberMixin {
         if (playerEntity.getRandom().nextFloat() >= ConfigFile.INSTANCE.getFloat(ConfigFile.Defaults.EVIONE_TRANSFORM_CHANCE))
             return;
 
-        // passed chance to transform entity to evione
-        Transformer evoker = (Transformer) bobberEntityHookedEntity;
-        final MobEntity evione = evoker.transformTo(MobRegistry.INSTANCE.getEvione().getEntityType());
-        if (evione != null) {
-            evione.playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1f, 0.8f + playerEntity.world.random.nextFloat() / 10 * 4); // 1.0f +- 0.2f
-            Particle.INSTANCE.spawnParticle(evione.world,
-                    evione.getBlockPos(),
-                    DrawerUtil.INSTANCE.constructColor(0xED, 0xDC, 0x47, 0xFF),
-                    Particles.POOF);
-            ci.cancel();
-        }
+        final MobEntity evione = ((Transformable) bobberEntityHookedEntity).transformTo(MobRegistry.INSTANCE.getEvione().getEntityType());
+        Particle.INSTANCE.spawnHeavyParticle(evione.world, evione.getBlockPos(), 0, Particle.Particles.POOF);
+        bobberEntityHookedEntity.playSound(SoundEvents.ENTITY_ZOMBIE_CONVERTED_TO_DROWNED, 1f, 0.8f + bobberEntityHookedEntity.world.random.nextFloat() / 10 * 4); // 1.0f +- 0.2f
     }
 
 }

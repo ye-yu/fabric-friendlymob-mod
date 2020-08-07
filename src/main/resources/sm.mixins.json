@@ -6,6 +6,7 @@
     "DefaultAttributeRegistryMixin",
     "EvokerEntityMixin",
     "FishingBobberMixin",
+    "MobEntityMixin",
     "VindicatorEntityMixin"
   ],
   "client": [
