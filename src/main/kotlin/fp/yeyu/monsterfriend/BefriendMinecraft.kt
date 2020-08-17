@@ -16,7 +16,7 @@ class BefriendMinecraft : ModInitializer {
     override fun onInitialize() {
         Logger.info("Mod is loaded. [Main]")
         Screens.registerServer()
-        MobRegistry.registerMobs(false)
+        MobRegistry.registerMobs()
         MobRegistry.registerEggs()
         Evione.State.init()
         ItemRegistry.registerItem()

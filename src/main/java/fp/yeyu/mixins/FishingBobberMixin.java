@@ -3,6 +3,7 @@ package fp.yeyu.mixins;
 import fp.yeyu.monsterfriend.Particle;
 import fp.yeyu.monsterfriend.item.ItemRegistry;
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
+import fp.yeyu.monsterfriend.mobs.egg.EvioneEgg;
 import fp.yeyu.monsterfriend.utils.ConfigFile;
 import fp.yeyu.util.Transformable;
 import net.minecraft.entity.Entity;
@@ -52,6 +53,7 @@ public abstract class FishingBobberMixin {
         if (playerEntity.getRandom().nextFloat() >= ConfigFile.INSTANCE.getFloat(ConfigFile.Defaults.EVIONE_TRANSFORM_CHANCE))
             return;
 
+        // todo: use MobEntity#playSpawnEffect
         final MobEntity evione = ((Transformable) bobberEntityHookedEntity).transformTo(MobRegistry.INSTANCE.getEvione().getEntityType());
         Particle.INSTANCE.spawnHeavyParticle(evione.world, evione.getBlockPos(), 0, Particle.Particles.POOF);
         bobberEntityHookedEntity.playSound(SoundEvents.ENTITY_ZOMBIE_CONVERTED_TO_DROWNED, 1f, 0.8f + bobberEntityHookedEntity.world.random.nextFloat() / 10 * 4); // 1.0f +- 0.2f

@@ -9,7 +9,7 @@ class BefriendMinecraftClient : ClientModInitializer {
 
     override fun onInitializeClient() {
         Logger.info("[Client-side] Mod is loaded.")
-        MobRegistry.registerMobs(true)
+        MobRegistry.registerMobRenderers()
         Screens.registerScreens()
         Particle.registerClient()
     }

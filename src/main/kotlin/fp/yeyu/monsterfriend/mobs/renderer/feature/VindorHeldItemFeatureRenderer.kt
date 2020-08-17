@@ -11,21 +11,30 @@ class VindorHeldItemFeatureRenderer(vindorRenderer: VindorRenderer) :
     HeldItemFeatureRenderer<Vindor, VindorEntityModel>(vindorRenderer) {
 
     override fun render(
-        matrixStack: MatrixStack?,
-        vertexConsumerProvider: VertexConsumerProvider?,
-        i: Int,
-        livingEntity: Vindor?,
-        f: Float,
-        g: Float,
-        h: Float,
-        j: Float,
-        k: Float,
-        l: Float
+        matrixStack: MatrixStack,
+        vertexConsumerProvider: VertexConsumerProvider,
+        light: Int,
+        livingEntity: Vindor,
+        limbAngle: Float,
+        limbDistance: Float,
+        tickDelta: Float,
+        animationProgress: Float,
+        headYaw: Float,
+        headPitch: Float
     ) {
-        if (livingEntity != null) {
-            if (livingEntity.isAttacking)
-                super.render(matrixStack, vertexConsumerProvider, i, livingEntity, f, g, h, j, k, l)
-        }
+        if (livingEntity.isAttacking)
+            super.render(
+                matrixStack,
+                vertexConsumerProvider,
+                light,
+                livingEntity,
+                limbAngle,
+                limbDistance,
+                tickDelta,
+                animationProgress,
+                headYaw,
+                headPitch
+            )
     }
 
 }

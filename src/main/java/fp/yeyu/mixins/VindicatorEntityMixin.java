@@ -37,6 +37,8 @@ public abstract class VindicatorEntityMixin extends IllagerEntity {
         if (!(this.random.nextFloat() < ConfigFile.INSTANCE.getFloat(ConfigFile.Defaults.VINDOR_TRANSFORM_CHANCE)))
             return;
         final MobEntity vindor = ((Transformable) this).transformTo(MobRegistry.INSTANCE.getVindor().getEntityType());
+
+        // todo: use MobEntity#playSpawnEffect
         Particle.INSTANCE.spawnHeavyParticle(vindor.world, vindor.getBlockPos(), 0, Particle.Particles.POOF);
         vindor.playSound(SoundEvents.ENTITY_ZOMBIE_CONVERTED_TO_DROWNED, 1f, 0.8f + world.random.nextFloat() / 10 * 4); // 1.0f +- 0.2f
     }

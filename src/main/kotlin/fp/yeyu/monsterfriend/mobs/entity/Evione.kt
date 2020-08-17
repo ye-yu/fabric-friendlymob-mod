@@ -233,6 +233,8 @@ class Evione(
 
     private fun castSpell() {
         spellCastingPoseTick = MAX_SPELL_TICK
+
+        // todo: use this.world.sendEntityStatus and handleStatus instead
         Particle.spawnLightParticle(
             this.world,
             this.blockPos,
@@ -245,6 +247,10 @@ class Evione(
             DrawerUtil.constructColor(0xFF, 0x50, 0x50, 0xFF),
             Particles.ENTITY
         )
+    }
+
+    override fun handleStatus(status: Byte) {
+        super.handleStatus(status)
     }
 
     private fun validatePose() {

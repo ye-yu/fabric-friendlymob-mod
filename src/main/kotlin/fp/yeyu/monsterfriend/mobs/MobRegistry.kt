@@ -3,10 +3,13 @@ package fp.yeyu.monsterfriend.mobs
 import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.mobs.egg.EvioneEgg
 import fp.yeyu.monsterfriend.mobs.egg.VindorEgg
+import fp.yeyu.monsterfriend.mobs.egg.WizardEgg
 import fp.yeyu.monsterfriend.mobs.entity.Evione
 import fp.yeyu.monsterfriend.mobs.entity.Vindor
+import fp.yeyu.monsterfriend.mobs.entity.Wizard
 import fp.yeyu.monsterfriend.mobs.renderer.EvioneRenderer
 import fp.yeyu.monsterfriend.mobs.renderer.VindorRenderer
+import fp.yeyu.monsterfriend.mobs.renderer.WizardRenderer
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricEntityTypeBuilder
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry
 import net.minecraft.client.render.entity.EntityRenderDispatcher
@@ -27,20 +30,22 @@ import kotlin.reflect.KFunction2
 object MobRegistry {
     val vindor = MobStruct(::Vindor, ::VindorRenderer)
     val evione = MobStruct(::Evione, ::EvioneRenderer)
-    private val registry = arrayListOf(vindor, evione)
+    val wizard = MobStruct(::Wizard, ::WizardRenderer)
+    private val registry = arrayListOf(vindor, evione, wizard)
 
-    fun registerMobs(client: Boolean) {
-        if (client) {
-            registry.forEach {
-                EntityRendererRegistry.INSTANCE.register(
-                    it.entityType
-                ) { dispatcher, _ ->
-                    it.rendererFactory(dispatcher)
-                }
+    fun registerMobs() {
+        vindor.create(Identifier(BefriendMinecraft.NAMESPACE, "vindor"), 0.6f, 1.95f, 8)
+        evione.create(Identifier(BefriendMinecraft.NAMESPACE, "evione"), 0.6f, 1.95f, 8)
+        wizard.create(Identifier(BefriendMinecraft.NAMESPACE, "wizard"), 0.6f, 1.95f, 8)
+    }
+
+    fun registerMobRenderers() {
+        registry.forEach {
+            EntityRendererRegistry.INSTANCE.register(
+                it.entityType
+            ) { dispatcher, _ ->
+                it.rendererFactory(dispatcher)
             }
-        } else {
-            vindor.create(Identifier(BefriendMinecraft.NAMESPACE, "vindor"), 0.6f, 1.95f, 8)
-            evione.create(Identifier(BefriendMinecraft.NAMESPACE, "evione"), 0.6f, 1.95f, 8)
         }
     }
 
@@ -48,7 +53,7 @@ object MobRegistry {
         registerItem(
             VindorEgg.NAME,
             VindorEgg(
-                vindor.entityType,
+                vindor.entityType!!,
                 3407872,
                 12369084,
                 Item.Settings().maxCount(64).group(ItemGroup.MISC)
@@ -57,8 +62,17 @@ object MobRegistry {
         registerItem(
             EvioneEgg.NAME,
             EvioneEgg(
-                evione.entityType,
+                evione.entityType!!,
                 0xFFF5500,
+                0xF006634,
+                Item.Settings().maxCount(64).group(ItemGroup.MISC)
+            )
+        )
+        registerItem(
+            WizardEgg.NAME,
+            WizardEgg(
+                wizard.entityType!!,
+                0xF0055FF,
                 0xF006634,
                 Item.Settings().maxCount(64).group(ItemGroup.MISC)
             )

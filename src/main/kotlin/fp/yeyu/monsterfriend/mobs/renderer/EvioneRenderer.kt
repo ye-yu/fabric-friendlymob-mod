@@ -2,7 +2,7 @@ package fp.yeyu.monsterfriend.mobs.renderer
 
 import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.mobs.entity.Evione
-import fp.yeyu.monsterfriend.mobs.renderer.feature.EvioneHeldItemFeatureRenderer
+import fp.yeyu.monsterfriend.mobs.renderer.feature.FoldedHandHeldItemFeatureRenderer
 import fp.yeyu.monsterfriend.mobs.renderer.model.EvioneEntityModel
 import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.render.entity.MobEntityRenderer
@@ -13,7 +13,7 @@ class EvioneRenderer(
 ) : MobEntityRenderer<Evione, EvioneEntityModel>(entityRenderDispatcher, EvioneEntityModel(0.0f, 0.0f, 64, 64), 0.5f) {
 
     init {
-        addFeature(EvioneHeldItemFeatureRenderer(this))
+        addFeature(FoldedHandHeldItemFeatureRenderer(this))
     }
 
     companion object {

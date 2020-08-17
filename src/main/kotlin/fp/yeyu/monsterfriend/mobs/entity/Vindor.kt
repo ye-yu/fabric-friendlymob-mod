@@ -97,6 +97,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         NEUTRAL(0), READY(1), RECEIVED(2);
 
         companion object {
+            // todo: change to ordinals lol
             operator fun get(index: Int): WonderState {
                 return when (index) {
                     0 -> NEUTRAL

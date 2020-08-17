@@ -10,6 +10,10 @@ import net.minecraft.client.render.model.json.ModelTransformation
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.client.util.math.Vector3f
 
+@Deprecated(
+    "To be replaced with FoldedHandHeldItemFeatureRenderer",
+    replaceWith = ReplaceWith("FoldedHandHeldItemFeatureRenderer")
+)
 class EvioneHeldItemFeatureRenderer(featureRendererContext: FeatureRendererContext<Evione, EvioneEntityModel>) :
     VillagerHeldItemFeatureRenderer<Evione, EvioneEntityModel>(featureRendererContext) {
 
