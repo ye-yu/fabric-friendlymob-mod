@@ -45,6 +45,7 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.util.function.Predicate
 
+// todo: do not extend iron golem entity
 class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : IronGolemEntity(entityType, world) {
 
     init {
