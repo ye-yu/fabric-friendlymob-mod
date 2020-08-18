@@ -15,7 +15,7 @@ class EvioneEgg(type: EntityType<*>, primaryColor: Int, secondaryColor: Int, set
     SpawnEggItem(type, primaryColor, secondaryColor, settings) {
     companion object {
         const val NAME = "evione_egg"
-        val SPAWN_ENTITY = MobRegistry.evione.entityType!!
+        val SPAWN_ENTITY = MobRegistry.evione.entityType
     }
 
     override fun useOnBlock(context: ItemUsageContext): ActionResult? {

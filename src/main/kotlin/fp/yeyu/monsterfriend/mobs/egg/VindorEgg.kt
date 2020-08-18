@@ -15,7 +15,7 @@ class VindorEgg(type: EntityType<*>, primaryColor: Int, secondaryColor: Int, set
     SpawnEggItem(type, primaryColor, secondaryColor, settings) {
     companion object {
         const val NAME = "vindor_egg"
-        val SPAWN_ENTITY = MobRegistry.vindor.entityType!!
+        val SPAWN_ENTITY = MobRegistry.vindor.entityType
     }
 
     override fun useOnBlock(context: ItemUsageContext): ActionResult? {

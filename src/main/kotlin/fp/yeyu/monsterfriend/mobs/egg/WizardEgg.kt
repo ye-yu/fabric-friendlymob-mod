@@ -15,7 +15,7 @@ class WizardEgg(type: EntityType<*>, primaryColor: Int, secondaryColor: Int, set
     SpawnEggItem(type, primaryColor, secondaryColor, settings) {
     companion object {
         const val NAME = "wizard_egg"
-        val SPAWN_ENTITY = MobRegistry.wizard.entityType!!
+        val SPAWN_ENTITY = MobRegistry.wizard.entityType
     }
 
     override fun useOnBlock(context: ItemUsageContext): ActionResult {

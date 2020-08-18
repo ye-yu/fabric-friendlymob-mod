@@ -21,90 +21,97 @@ import net.minecraft.entity.SpawnGroup
 import net.minecraft.entity.mob.MobEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
+import net.minecraft.item.SpawnEggItem
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 import kotlin.reflect.KFunction1
 import kotlin.reflect.KFunction2
+import kotlin.reflect.KFunction4
 
 object MobRegistry {
-    val vindor = MobStruct(::Vindor, ::VindorRenderer)
-    val evione = MobStruct(::Evione, ::EvioneRenderer)
-    val wizard = MobStruct(::Wizard, ::WizardRenderer)
+
+    val vindor = MobStruct(::Vindor, ::VindorRenderer, EggAttr(::VindorEgg, 3407872, 12369084), ModelAttr(), "vindor")
+    val evione =
+        MobStruct(::Evione, ::EvioneRenderer, EggAttr(::EvioneEgg, 0xFFF5500, 0xF006634), ModelAttr(), "evione")
+    val wizard =
+        MobStruct(::Wizard, ::WizardRenderer, EggAttr(::WizardEgg, 0xF0055FF, 0xF006634), ModelAttr(), "wizard")
     private val registry = arrayListOf(vindor, evione, wizard)
 
     fun registerMobs() {
-        vindor.create(Identifier(BefriendMinecraft.NAMESPACE, "vindor"), 0.6f, 1.95f, 8)
-        evione.create(Identifier(BefriendMinecraft.NAMESPACE, "evione"), 0.6f, 1.95f, 8)
-        wizard.create(Identifier(BefriendMinecraft.NAMESPACE, "wizard"), 0.6f, 1.95f, 8)
+        registry.forEach { it.visit() }
     }
 
     fun registerMobRenderers() {
-        registry.forEach {
-            EntityRendererRegistry.INSTANCE.register(
-                it.entityType
-            ) { dispatcher, _ ->
-                it.rendererFactory(dispatcher)
-            }
-        }
+        registry.forEach { it.registerMobRenderer() }
     }
 
     fun registerEggs() {
-        registerItem(
-            VindorEgg.NAME,
-            VindorEgg(
-                vindor.entityType!!,
-                3407872,
-                12369084,
-                Item.Settings().maxCount(64).group(ItemGroup.MISC)
-            )
-        )
-        registerItem(
-            EvioneEgg.NAME,
-            EvioneEgg(
-                evione.entityType!!,
-                0xFFF5500,
-                0xF006634,
-                Item.Settings().maxCount(64).group(ItemGroup.MISC)
-            )
-        )
-        registerItem(
-            WizardEgg.NAME,
-            WizardEgg(
-                wizard.entityType!!,
-                0xF0055FF,
-                0xF006634,
-                Item.Settings().maxCount(64).group(ItemGroup.MISC)
-            )
-        )
+        registry.forEach { it.registerEgg() }
     }
 
-    private fun registerItem(id: String, instantiation: Item) {
-        Registry.register(
-            Registry.ITEM, Identifier(BefriendMinecraft.NAMESPACE, id), instantiation
-        )
-    }
-
-    class MobStruct<T : MobEntity, V : CompositeEntityModel<T>>(
+    class MobStruct<T : MobEntity, V : CompositeEntityModel<T>, E : SpawnEggItem>(
         private val entityFactory: KFunction2<
                 @ParameterName(name = "entityType") EntityType<T>,
                 @ParameterName(name = "world") World,
                 T>,
         val rendererFactory: KFunction1<
                 @ParameterName(name = "entityRenderDispatcher") EntityRenderDispatcher?,
-                MobEntityRenderer<T, V>>
+                MobEntityRenderer<T, V>>,
+        private val eggAttr: EggAttr<E>,
+        private val modelAttr: ModelAttr,
+        name: String
     ) {
-        var entityType: EntityType<T>? = null
+        val entityType: EntityType<T> by lazy { entityTypeInit() }
+        private val id = Identifier(BefriendMinecraft.NAMESPACE, name)
+        private val eggId = Identifier(BefriendMinecraft.NAMESPACE, name + "_egg")
 
-        fun create(id: Identifier, width: Float, height: Float, trackingDistance: Int) {
-            if (entityType != null) return
+        private fun entityTypeInit(): EntityType<T> {
             val fabricEntity = FabricEntityTypeBuilder.create<T>(SpawnGroup.CREATURE, entityFactory)
-            entityType = Registry.register(
+            return Registry.register(
                 Registry.ENTITY_TYPE,
                 id,
-                fabricEntity.dimensions(EntityDimensions(width, height, true)).trackable(trackingDistance, 3).build()
+                fabricEntity.dimensions(EntityDimensions(modelAttr.width, modelAttr.height, true))
+                    .trackable(modelAttr.trackingDistance, 3).build()
+            )
+        }
+
+        fun registerMobRenderer() {
+            EntityRendererRegistry.INSTANCE.register(
+                entityType
+            ) { dispatcher, _ ->
+                rendererFactory(dispatcher)
+            }
+        }
+
+        fun registerEgg() {
+            eggAttr.registerEgg(eggId, entityType)
+        }
+
+        fun visit() {
+        }
+    }
+
+    class EggAttr<T>(
+        val eggFactory: KFunction4<@ParameterName(name = "type") EntityType<*>, @ParameterName(
+            name = "primaryColor"
+        ) Int, @ParameterName(name = "secondaryColor") Int, @ParameterName(name = "settings") Item.Settings, T>,
+        private val primaryColor: Int,
+        private val secondaryColor: Int
+    ) where T : SpawnEggItem {
+        fun registerEgg(id: Identifier, entity: EntityType<*>) {
+            Registry.register(
+                Registry.ITEM,
+                id,
+                eggFactory(
+                    entity,
+                    primaryColor,
+                    secondaryColor,
+                    Item.Settings().maxCount(64).group(ItemGroup.MISC)
+                )
             )
         }
     }
 
+    data class ModelAttr(val width: Float = 0.55f, val height: Float = 1.85f, val trackingDistance: Int = 8)
 }
