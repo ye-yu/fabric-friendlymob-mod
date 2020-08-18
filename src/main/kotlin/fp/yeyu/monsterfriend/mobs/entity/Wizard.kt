@@ -9,7 +9,6 @@ import net.minecraft.entity.mob.Angerable
 import net.minecraft.entity.mob.PathAwareEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.projectile.thrown.PotionEntity
-import net.minecraft.entity.raid.RaiderEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.potion.PotionUtil
@@ -42,14 +41,8 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         val throwZ = target.z + targetVelocity.z - this.z
         val rootSquaredDistance = MathHelper.sqrt(throwX * throwX + throwZ * throwZ)
         var potion = Potions.HARMING
-        if (target is RaiderEntity) {
-            potion = if (target.getHealth() <= 4.0f) {
-                Potions.HEALING
-            } else {
-                Potions.REGENERATION
-            }
-            this.target = null
-        } else if (rootSquaredDistance >= 8.0f && !target.hasStatusEffect(StatusEffects.SLOWNESS)) {
+
+        if (rootSquaredDistance >= 8.0f && !target.hasStatusEffect(StatusEffects.SLOWNESS)) {
             potion = Potions.SLOWNESS
         } else if (target.health >= 8.0f && !target.hasStatusEffect(StatusEffects.POISON)) {
             potion = Potions.POISON
