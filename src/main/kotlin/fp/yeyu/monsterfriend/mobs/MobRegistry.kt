@@ -10,6 +10,7 @@ import fp.yeyu.monsterfriend.mobs.entity.Wizard
 import fp.yeyu.monsterfriend.mobs.renderer.EvioneRenderer
 import fp.yeyu.monsterfriend.mobs.renderer.VindorRenderer
 import fp.yeyu.monsterfriend.mobs.renderer.WizardRenderer
+import io.github.yeyu.util.Logger
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricEntityTypeBuilder
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry
 import net.minecraft.client.render.entity.EntityRenderDispatcher
@@ -30,13 +31,12 @@ import kotlin.reflect.KFunction2
 import kotlin.reflect.KFunction4
 
 object MobRegistry {
-
     val vindor = MobStruct(::Vindor, ::VindorRenderer, EggAttr(::VindorEgg, 3407872, 12369084), ModelAttr(), "vindor")
     val evione =
         MobStruct(::Evione, ::EvioneRenderer, EggAttr(::EvioneEgg, 0xFFF5500, 0xF006634), ModelAttr(), "evione")
     val wizard =
         MobStruct(::Wizard, ::WizardRenderer, EggAttr(::WizardEgg, 0xF0055FF, 0xF006634), ModelAttr(), "wizard")
-    private val registry = arrayListOf(vindor, evione, wizard)
+    private val registry = listOf(vindor, evione, wizard)
 
     fun registerMobs() {
         registry.forEach { it.visit() }
@@ -89,6 +89,7 @@ object MobRegistry {
         }
 
         fun visit() {
+            Logger.info("Triggered entity registry for " + entityType.translationKey)
         }
     }
 
