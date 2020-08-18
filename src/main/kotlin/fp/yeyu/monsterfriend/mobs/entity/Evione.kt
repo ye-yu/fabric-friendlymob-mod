@@ -1,12 +1,9 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
-import fp.yeyu.monsterfriend.Particle
-import fp.yeyu.monsterfriend.Particle.Particles
 import fp.yeyu.monsterfriend.item.ItemRegistry
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.screens.evione.EvioneServerScreenHandler
 import fp.yeyu.monsterfriend.utils.ConfigFile
-import io.github.yeyu.util.DrawerUtil
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.ai.goal.EscapeDangerGoal
@@ -30,8 +27,10 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.PacketByteBuf
+import net.minecraft.particle.ParticleTypes
 import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
@@ -82,6 +81,8 @@ class Evione(
             ConfigFile.getInt(ConfigFile.Defaults.EVIONE_SYNTHESIS_SPEED_UP_COUNT).toLong()
 
         private var DROP_VEX_ESSENCE_CHANCE = ConfigFile.getFloat(ConfigFile.Defaults.EVIONE_DROP_VEX_ESSENCE_CHANCE)
+
+        private const val SPELLCASTING_STATUS_NUMBER: Byte = 80
 
     }
 
@@ -233,24 +234,36 @@ class Evione(
 
     private fun castSpell() {
         spellCastingPoseTick = MAX_SPELL_TICK
-
-        // todo: use this.world.sendEntityStatus and handleStatus instead
-        Particle.spawnLightParticle(
-            this.world,
-            this.blockPos,
-            DrawerUtil.constructColor(0xFF, 0x50, 0x50, 0xFF),
-            Particles.ENTITY
-        )
-        Particle.spawnLightParticle(
-            this.world,
-            this.blockPos.add(0, 1, 0),
-            DrawerUtil.constructColor(0xFF, 0x50, 0x50, 0xFF),
-            Particles.ENTITY
-        )
+        playSpellCastingEffect()
     }
 
     override fun handleStatus(status: Byte) {
-        super.handleStatus(status)
+        if (status == SPELLCASTING_STATUS_NUMBER) {
+            playSpellCastingEffect()
+        } else {
+            super.handleStatus(status)
+        }
+    }
+
+    private fun playSpellCastingEffect() {
+        if (world is ServerWorld) {
+            world.sendEntityStatus(this, SPELLCASTING_STATUS_NUMBER)
+        } else {
+            for (i in 0 until 20) {
+                val particleX = blockPos.x + random.nextDouble()
+                val particleY = this.randomBodyY - random.nextGaussian() * 0.02
+                val particleZ = blockPos.z + random.nextDouble()
+                world.addParticle(
+                    ParticleTypes.ENTITY_EFFECT,
+                    particleX,
+                    particleY,
+                    particleZ,
+                    255.0, // is now color red
+                    80.0, // is now color green
+                    80.0 // is now color blue
+                )
+            }
+        }
     }
 
     private fun validatePose() {
