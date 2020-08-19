@@ -39,7 +39,7 @@ object MobRegistry {
     private val registry = listOf(vindor, evione, wizard)
 
     fun registerMobs() {
-        registry.forEach { it.visit() }
+        registry.forEach { it.registerMob() }
     }
 
     fun registerMobRenderers() {
@@ -63,6 +63,7 @@ object MobRegistry {
         name: String
     ) {
         val entityType: EntityType<T> by lazy { entityTypeInit() }
+        val egg: E by lazy { eggInit() }
         private val id = Identifier(BefriendMinecraft.NAMESPACE, name)
         private val eggId = Identifier(BefriendMinecraft.NAMESPACE, name + "_egg")
 
@@ -76,6 +77,10 @@ object MobRegistry {
             )
         }
 
+        private fun eggInit(): E {
+            return eggAttr.registerEgg(eggId, entityType)
+        }
+
         fun registerMobRenderer() {
             EntityRendererRegistry.INSTANCE.register(
                 entityType
@@ -85,10 +90,10 @@ object MobRegistry {
         }
 
         fun registerEgg() {
-            eggAttr.registerEgg(eggId, entityType)
+            Logger.info("Triggered entity egg registry for " + egg.translationKey)
         }
 
-        fun visit() {
+        fun registerMob() {
             Logger.info("Triggered entity registry for " + entityType.translationKey)
         }
     }
@@ -100,8 +105,8 @@ object MobRegistry {
         private val primaryColor: Int,
         private val secondaryColor: Int
     ) where T : SpawnEggItem {
-        fun registerEgg(id: Identifier, entity: EntityType<*>) {
-            Registry.register(
+        fun registerEgg(id: Identifier, entity: EntityType<*>): T {
+            return Registry.register(
                 Registry.ITEM,
                 id,
                 eggFactory(
