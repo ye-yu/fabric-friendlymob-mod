@@ -193,7 +193,10 @@ object WizardUtil {
             var item: Item
             do {
                 item = Registry.ITEM.getRandom(random)
-            } while (forbiddenItems.contains(item) || flowers.contains(item) || PotionUtil.potionType.contains(item) || unobtainables.contains(item))
+            } while (forbiddenItems.contains(item) || flowers.contains(item) || PotionUtil.potionType.contains(item) || unobtainables.contains(
+                    item
+                )
+            )
             return item
         }
 

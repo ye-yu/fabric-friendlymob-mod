@@ -55,11 +55,23 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     private fun makeNewCraft() {
         val index = currentLevel - 1
         val craftMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomItem(random, true) }
-        val bookMaker: () -> ItemStack = { WizardUtil.EnchantmentBookUtil.createRandomEnchantedBook(currentLevel.coerceAtLeast(1).coerceAtMost(3), random) }
+        val bookMaker: () -> ItemStack = {
+            WizardUtil.EnchantmentBookUtil.createRandomEnchantedBook(
+                currentLevel.coerceAtLeast(1).coerceAtMost(3),
+                random
+            )
+        }
         val itemMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomItem(random, false) }
         val flowerMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomFlower(random) }
         val potionMaker: () -> ItemStack = { WizardUtil.PotionUtil.createRandomPotion(random) }
-        learntRecipe.recipes[index] = CustomRecipe(if (random.nextBoolean()) craftMaker() else bookMaker(), itemMaker(), itemMaker(), flowerMaker(), potionMaker(), currentLevel * 2)
+        learntRecipe.recipes[index] = CustomRecipe(
+            if (random.nextBoolean()) craftMaker() else bookMaker(),
+            itemMaker(),
+            itemMaker(),
+            flowerMaker(),
+            potionMaker(),
+            currentLevel * 2
+        )
         Logger.info("Created: ${learntRecipe.recipes[index]}")
     }
 

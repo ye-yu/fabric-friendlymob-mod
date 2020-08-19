@@ -1,9 +1,7 @@
 package fp.yeyu.mixins;
 
-import fp.yeyu.monsterfriend.Particle;
 import fp.yeyu.monsterfriend.item.ItemRegistry;
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
-import fp.yeyu.monsterfriend.mobs.egg.EvioneEgg;
 import fp.yeyu.monsterfriend.utils.ConfigFile;
 import fp.yeyu.util.Transformable;
 import net.minecraft.entity.Entity;

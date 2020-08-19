@@ -1,6 +1,5 @@
 package fp.yeyu.mixins;
 
-import fp.yeyu.monsterfriend.Particle;
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
 import fp.yeyu.monsterfriend.utils.ConfigFile;
 import fp.yeyu.util.Transformable;

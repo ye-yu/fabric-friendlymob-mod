@@ -1,6 +1,5 @@
 package fp.yeyu.monsterfriend.mobs.egg
 
-import fp.yeyu.monsterfriend.mobs.MobRegistry
 import net.minecraft.block.Blocks
 import net.minecraft.block.FluidBlock
 import net.minecraft.block.entity.MobSpawnerBlockEntity
@@ -26,7 +25,11 @@ import net.minecraft.world.World
 
 object EggUtil {
 
-    fun useOnBlock(context: ItemUsageContext, spawnEntity: EntityType<out MobEntity>, fallbackMob: EntityType<out MobEntity>): ActionResult {
+    fun useOnBlock(
+        context: ItemUsageContext,
+        spawnEntity: EntityType<out MobEntity>,
+        fallbackMob: EntityType<out MobEntity>
+    ): ActionResult {
         val world = context.world
         return if (world.isClient) {
             ActionResult.SUCCESS
