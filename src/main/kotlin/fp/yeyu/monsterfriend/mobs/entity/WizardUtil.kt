@@ -11,7 +11,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.potion.PotionUtil.setPotion
 import net.minecraft.potion.Potions
 import net.minecraft.util.registry.Registry
-import java.lang.RuntimeException
+import org.apache.commons.lang3.StringUtils
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.math.pow
@@ -162,7 +162,7 @@ object WizardUtil {
             var item: Item
             do {
                 item = Registry.ITEM.getRandom(random)
-            } while(forbiddenItems.contains(item) || flowers.contains(item) || unobtainables.contains(item))
+            } while (forbiddenItems.contains(item) || flowers.contains(item) || unobtainables.contains(item))
             return item
         }
 
@@ -170,7 +170,7 @@ object WizardUtil {
             var item: Item
             do {
                 item = Registry.ITEM.getRandom(random)
-            } while(forbiddenItems.contains(item) || flowers.contains(item))
+            } while (forbiddenItems.contains(item) || flowers.contains(item))
             return item
         }
     }
@@ -203,7 +203,7 @@ object WizardUtil {
             do {
                 count++
                 reduce -= BASE_EXP_PER_LEVEL * EXP_MULTIPLIER.toDouble().pow(count.toDouble()).toInt()
-            } while(reduce >= 0)
+            } while (reduce >= 0)
             return count
         }
 
@@ -223,7 +223,7 @@ object WizardUtil {
             do {
                 count++
                 reduce -= BASE_EXP_PER_LEVEL * EXP_MULTIPLIER.toDouble().pow(count.toDouble()).toInt()
-            } while(reduce >= 0)
+            } while (reduce >= 0)
 
             // recover last
             reduce += BASE_EXP_PER_LEVEL * EXP_MULTIPLIER.toDouble().pow(count.toDouble()).toInt()
@@ -241,7 +241,7 @@ object WizardUtil {
             cumulative += weight
             if (random < cumulative) return element
         }
-        throw RuntimeException("Unknown error!")
+        throw RuntimeException("Unknown error! Weights: ${StringUtils.join(probabilityWeight, ",")}, Rolled: $random")
     }
 
     private fun <T> Random.choice(list: List<T>): T {

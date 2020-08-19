@@ -35,16 +35,11 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     var debugTick = 0
 
     init {
-        makeNewCraft()
+        if (world is ServerWorld) makeNewCraft()
     }
 
     @Development
     private fun debugTick() {
-        debugTick = --debugTick % 30
-        if (debugTick == 0) {
-            craftSuccessful(1)
-            Logger.info("Incremented experience: Current level = $currentLevel, Remainder level = $remainingExp, Percentage to next = ${"%.02f".format(100 * remainingExp.toDouble() / (remainingExp + WizardUtil.LevelUtil.getRemainingToLevelUp(experience)))}")
-        }
     }
 
     private fun craftSuccessful(reward: Int) {
