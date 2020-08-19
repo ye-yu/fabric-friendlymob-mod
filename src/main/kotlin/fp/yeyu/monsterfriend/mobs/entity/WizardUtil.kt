@@ -24,7 +24,7 @@ object WizardUtil {
             Potions.EMPTY, Potions.WATER, Potions.AWKWARD, Potions.THICK, Potions.MUNDANE
         )
 
-        private val potionType = listOf(
+        val potionType = listOf(
             Items.POTION,
             Items.SPLASH_POTION,
             Items.LINGERING_POTION
@@ -50,15 +50,35 @@ object WizardUtil {
 
     object ItemUtil {
         private val forbiddenItems = listOf(
+            // command blocks
             Items.COMMAND_BLOCK,
             Items.COMMAND_BLOCK_MINECART,
             Items.CHAIN_COMMAND_BLOCK,
             Items.REPEATING_COMMAND_BLOCK,
+
+            // structure blocks
             Items.STRUCTURE_BLOCK,
             Items.STRUCTURE_VOID,
             Items.JIGSAW,
+
+            // can't give an empty written book
             Items.WRITTEN_BOOK,
-            Items.AIR
+
+            // forbidden blocks
+            Items.AIR,
+            Items.BEDROCK,
+            Items.END_PORTAL_FRAME,
+            Items.BARRIER,
+
+            // armorer
+            Items.CHAINMAIL_BOOTS,
+            Items.CHAINMAIL_CHESTPLATE,
+            Items.CHAINMAIL_HELMET,
+            Items.CHAINMAIL_LEGGINGS,
+
+            // cartographer
+            Items.MAP,
+            Items.FILLED_MAP
         )
 
         private val flowers = listOf(
@@ -147,7 +167,18 @@ object WizardUtil {
             Items.ZOMBIFIED_PIGLIN_SPAWN_EGG,
             MobRegistry.vindor.egg,
             MobRegistry.evione.egg,
-            MobRegistry.wizard.egg
+            MobRegistry.wizard.egg,
+
+            Items.INFESTED_CHISELED_STONE_BRICKS,
+            Items.INFESTED_COBBLESTONE,
+            Items.INFESTED_CRACKED_STONE_BRICKS,
+            Items.INFESTED_MOSSY_STONE_BRICKS,
+            Items.INFESTED_STONE,
+            Items.INFESTED_STONE_BRICKS,
+
+            Items.GRASS_PATH,
+            Items.FARMLAND,
+            Items.COBWEB
         )
 
         fun createRandomItem(random: Random, withUnobtainables: Boolean): ItemStack {
@@ -162,7 +193,7 @@ object WizardUtil {
             var item: Item
             do {
                 item = Registry.ITEM.getRandom(random)
-            } while (forbiddenItems.contains(item) || flowers.contains(item) || unobtainables.contains(item))
+            } while (forbiddenItems.contains(item) || flowers.contains(item) || PotionUtil.potionType.contains(item) || unobtainables.contains(item))
             return item
         }
 
@@ -170,7 +201,7 @@ object WizardUtil {
             var item: Item
             do {
                 item = Registry.ITEM.getRandom(random)
-            } while (forbiddenItems.contains(item) || flowers.contains(item))
+            } while (forbiddenItems.contains(item) || flowers.contains(item) || PotionUtil.potionType.contains(item))
             return item
         }
     }

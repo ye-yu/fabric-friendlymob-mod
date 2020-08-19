@@ -2,7 +2,9 @@ package fp.yeyu.monsterfriend.utils.wondertrade
 
 import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.utils.ConfigFile
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.PositionTracker
 import net.minecraft.util.registry.Registry
@@ -17,6 +19,32 @@ import java.util.stream.IntStream
 import kotlin.math.max
 
 object WonderTrade {
+
+    private val multiplayerForbiddenItems = listOf(
+        // command blocks
+        Items.COMMAND_BLOCK,
+        Items.COMMAND_BLOCK_MINECART,
+        Items.CHAIN_COMMAND_BLOCK,
+        Items.REPEATING_COMMAND_BLOCK,
+
+        // structure blocks
+        Items.STRUCTURE_BLOCK,
+        Items.STRUCTURE_VOID,
+        Items.JIGSAW,
+
+        // can't give an empty written book
+        Items.WRITTEN_BOOK,
+
+        // forbidden blocks
+        Items.AIR,
+        Items.BEDROCK,
+        Items.END_PORTAL_FRAME,
+        Items.BARRIER,
+
+        // cartographer
+        Items.MAP,
+        Items.FILLED_MAP
+    )
     const val wonderItemTag: String = "wonder_item"
     const val wonderMsgTag = "wonder_msg"
     private var stackLength: Int =
@@ -78,7 +106,11 @@ object WonderTrade {
     }
 
     private fun randomItemStack(): ItemStack {
-        val randomItem = Registry.ITEM.getRandom(random)
+        var item: Item
+        do {
+            item = Registry.ITEM.getRandom(random)
+        } while (multiplayerForbiddenItems.contains(item))
+        val randomItem = item
         val maxCount = max(1, random.nextInt(randomItem.maxCount + 1))
         return ItemStack(randomItem, maxCount)
     }
