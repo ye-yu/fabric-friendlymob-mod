@@ -1,6 +1,5 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
-import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.mobs.MobRegistry
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
@@ -151,8 +150,8 @@ object WizardUtil {
             MobRegistry.wizard.egg
         )
 
-        fun createRandomItem(random: Random): ItemStack {
-            return ItemStack(getRandomItem(random))
+        fun createRandomItem(random: Random, withUnobtainables: Boolean): ItemStack {
+            return ItemStack(if (withUnobtainables) getRandomItemWithUnobtainables(random) else getRandomItem(random))
         }
 
         fun createRandomFlower(random: Random): ItemStack {
@@ -160,6 +159,14 @@ object WizardUtil {
         }
 
         private fun getRandomItem(random: Random): Item {
+            var item: Item
+            do {
+                item = Registry.ITEM.getRandom(random)
+            } while(forbiddenItems.contains(item) || flowers.contains(item) || unobtainables.contains(item))
+            return item
+        }
+
+        private fun getRandomItemWithUnobtainables(random: Random): Item {
             var item: Item
             do {
                 item = Registry.ITEM.getRandom(random)
