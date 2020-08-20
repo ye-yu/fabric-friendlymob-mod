@@ -76,6 +76,17 @@ class WizardClientScreen<T : ScreenRendererHandler>(
 
         panel.add(scrollBar)
 
+        JamcguiRecipePanel(
+            relativeX = -89,
+            relativeY = 5,
+            horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
+            verticalAnchor = ParentWidget.AnchorType.MIDDLE,
+            name = "recipe-panel"
+        ).apply {
+            this@WizardClientScreen.addParent(this)
+            this@WizardClientScreen.addListener(this)
+        }
+
         addParent(panel)
         addListener(scrollBar)
     }

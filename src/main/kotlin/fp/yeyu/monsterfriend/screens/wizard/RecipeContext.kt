@@ -4,12 +4,11 @@ import fp.yeyu.monsterfriend.mobs.entity.Wizard.CustomRecipe
 import fp.yeyu.monsterfriend.mobs.entity.Wizard.LearntRecipe
 import io.github.yeyu.gui.handler.ServerScreenHandler
 import io.github.yeyu.packet.ScreenPacket
-import io.github.yeyu.util.Logger
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.network.ServerPlayerEntity
 
 class RecipeContext(recipes: LearntRecipe?) {
-    private val learntRecipe: LearntRecipe = recipes ?: LearntRecipe()
+    val learntRecipe: LearntRecipe = recipes ?: LearntRecipe()
     var level = 0
 
     init {
@@ -32,7 +31,6 @@ class RecipeContext(recipes: LearntRecipe?) {
 
     fun sync(buf: PacketByteBuf) {
         level = buf.readInt()
-        Logger.info("Got new level of $level")
         for (index in learntRecipe.recipes.indices) {
             learntRecipe.recipes[index] = CustomRecipe(
                 buf.readItemStack(),
@@ -43,7 +41,6 @@ class RecipeContext(recipes: LearntRecipe?) {
                 buf.readInt()
             )
             if (learntRecipe.recipes[index].toCraft.isEmpty) continue
-            Logger.info("Got recipe of ${learntRecipe.recipes[index]}")
         }
     }
 }
