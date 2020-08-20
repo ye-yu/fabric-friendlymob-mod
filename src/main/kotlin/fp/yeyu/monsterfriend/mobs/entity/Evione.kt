@@ -333,7 +333,7 @@ class Evione(
     class EvioneGuiHandler(private val evione: Evione) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
             return EvioneServerScreenHandler(
-                Screens.EVIONE_SCREEN,
+                Screens.EVIONE_SCREEN.screenHandlerType,
                 syncId,
                 inv,
                 evione
@@ -341,7 +341,7 @@ class Evione(
         }
 
         override fun getDisplayName(): Text {
-            return TranslatableText("container.friendlymob.evione")
+            return TranslatableText(Screens.EVIONE_SCREEN.translationKey)
         }
     }
 

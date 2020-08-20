@@ -6,7 +6,7 @@
   "item.friendlymob.evione_egg": "Evione Spawn Egg",
   "item.friendlymob.wizard_egg": "Wizard Spawn Egg",
   "item.friendlymob.vex_essence": "Vex Essence",
-  "container.friendlymob.vindor": "Wonder Box",
-  "container.friendlymob.evione": "Synthesiser",
-  "container.friendlymob.wizard": "Wizardry"
+  "container.friendlymob.vindor_screen": "Wonder Box",
+  "container.friendlymob.evione_screen": "Synthesiser",
+  "container.friendlymob.wizard_screen": "Wizardry"
 }

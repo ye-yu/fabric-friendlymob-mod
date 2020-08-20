@@ -361,7 +361,7 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity?): ScreenHandler? {
             who.wonderTick = -1
             return ServerVindorScreenHandler(
-                Screens.VINDOR_SCREEN,
+                Screens.VINDOR_SCREEN.screenHandlerType,
                 syncId,
                 inv,
                 who
@@ -369,7 +369,7 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         }
 
         override fun getDisplayName(): Text {
-            return TranslatableText("container.friendlymob.vindor")
+            return TranslatableText(Screens.VINDOR_SCREEN.translationKey)
         }
     }
 

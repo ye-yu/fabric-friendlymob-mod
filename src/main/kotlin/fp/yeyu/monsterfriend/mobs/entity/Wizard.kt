@@ -1,7 +1,10 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.annotation.Development
+import fp.yeyu.monsterfriend.screens.Screens
+import fp.yeyu.monsterfriend.screens.wizard.ServerWizardScreenHandler
 import io.github.yeyu.util.Logger
+import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.RangedAttackMob
@@ -10,15 +13,21 @@ import net.minecraft.entity.effect.StatusEffects
 import net.minecraft.entity.mob.Angerable
 import net.minecraft.entity.mob.PathAwareEntity
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.entity.projectile.thrown.PotionEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.potion.PotionUtil
 import net.minecraft.potion.Potions
+import net.minecraft.screen.NamedScreenHandlerFactory
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvents
+import net.minecraft.text.Text
+import net.minecraft.text.TranslatableText
+import net.minecraft.util.ActionResult
+import net.minecraft.util.Hand
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 import java.util.*
@@ -33,6 +42,9 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     val currentLevel get() = WizardUtil.LevelUtil.getCurrentLevel(experience)
     val remainingExp get() = WizardUtil.LevelUtil.getRemainderExp(experience)
     var debugTick = 0
+
+    var customer: PlayerEntity? = null
+    val screenFactory = WizardScreen(this)
 
     init {
         if (world is ServerWorld) makeNewCraft()
@@ -118,6 +130,14 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
             )
         }
         world.spawnEntity(potionEntity)
+    }
+
+    override fun interactMob(player: PlayerEntity?, hand: Hand?): ActionResult {
+        if (player == null) return super.interactMob(player, hand)
+        if (customer != null) return super.interactMob(player, hand)
+        customer = player
+        customer!!.openHandledScreen(screenFactory)
+        return super.interactMob(player, hand)
     }
 
     override fun getAngerTime(): Int = anger.angerTime
@@ -253,6 +273,16 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
             for (i in recipes.indices) {
                 CustomRecipe.toTag(recipes[i], i, tag)
             }
+        }
+    }
+
+    class WizardScreen(private val who: Wizard) : NamedScreenHandlerFactory {
+        override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
+            return ServerWizardScreenHandler(Screens.WIZARD_SCREEN.screenHandlerType, syncId, player.inventory, who)
+        }
+
+        override fun getDisplayName(): Text {
+            return TranslatableText(Screens.WIZARD_SCREEN.translationKey)
         }
     }
 }
