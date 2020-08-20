@@ -34,14 +34,14 @@ class ServerVindorScreenHandler<T : ScreenRendererHandler>(
             syncId, VindorPackets.VINDOR_TEXT_UPDATE, false,
             playerInventory.player as ServerPlayerEntity
         ) {
-            it.writeString(vindor.senderMsg)
+            it.writeString(vindor.senderMessage)
         }
     }
 
     override fun onClient2Server(action: String, context: PacketContext, buf: PacketByteBuf) {
         super.onClient2Server(action, context, buf)
         if (action.equals(VindorPackets.VINDOR_TEXT_UPDATE, true)) {
-            vindor.senderMsg = buf.readString()
+            vindor.senderMessage = buf.readString()
         }
     }
 

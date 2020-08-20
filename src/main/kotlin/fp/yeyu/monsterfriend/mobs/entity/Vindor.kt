@@ -16,11 +16,7 @@ import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.damage.DamageSource
 import net.minecraft.entity.data.DataTracker
 import net.minecraft.entity.data.TrackedDataHandlerRegistry
-import net.minecraft.entity.mob.CreeperEntity
-import net.minecraft.entity.mob.HostileEntity
-import net.minecraft.entity.mob.MobEntity
-import net.minecraft.entity.mob.Monster
-import net.minecraft.entity.passive.IronGolemEntity
+import net.minecraft.entity.mob.*
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
@@ -43,10 +39,10 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.world.World
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import java.util.*
 import java.util.function.Predicate
 
-// todo: do not extend iron golem entity
-class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : IronGolemEntity(entityType, world) {
+class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(entityType, world), Angerable {
 
     init {
         equipStack(EquipmentSlot.MAINHAND, ItemStack(Items.IRON_AXE))
@@ -224,7 +220,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
                 tag.put(WONDER_SLOT_ONE, slot1.toTag(vindorInvTag))
             if (!slot2.isEmpty)
                 tag.put(WONDER_SLOT_TWO, slot2.toTag(vindorInvTag))
-            tag.putString(WONDER_SENDER_MSG, getSenderMessage())
+            tag.putString(WONDER_SENDER_MSG, senderMessage)
             tag.putString(WONDER_RECEIVER_MSG, receivedMessage)
         }
     }
@@ -246,7 +242,7 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         }
 
         if (tag.contains(WONDER_SENDER_MSG)) {
-            setSenderMessage(tag.getString(WONDER_SENDER_MSG))
+            senderMessage = tag.getString(WONDER_SENDER_MSG)
         }
 
         if (tag.contains(WONDER_RECEIVER_MSG)) {
@@ -267,29 +263,23 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
             wonderTick--
         } else if (wonderTick == 0) {
             if (WonderTrade.lock()) {
-                val poppedItem = WonderTrade.popWonderItem(inventory.getStack(0), senderMsg)
+                val poppedItem = WonderTrade.popWonderItem(inventory.getStack(0), senderMessage)
                 inventory.clear()
                 inventory.setStack(1, poppedItem.item)
                 receivedMessage = poppedItem.msg
-                setSenderMessage("")
+                senderMessage = ""
                 WonderTrade.unlock()
                 wonderTick = -1
                 this.world.playSound(null, this.blockPos, getReceivedWonderTradeSound(), SoundCategory.VOICE, 1f, 1f)
                 validateWonderState()
             }
         }
+
+        tickAngerLogic(world as ServerWorld, true)
     }
 
     private var receivedMessage = ""
-    var senderMsg = ""
-
-    fun setSenderMessage(msg: String) {
-        senderMsg = msg
-    }
-
-    fun getSenderMessage(): String {
-        return senderMsg
-    }
+    var senderMessage = ""
 
     private fun flushMessage() {
         if (receivedMessage.isEmpty()) return
@@ -425,5 +415,24 @@ class Vindor(entityType: EntityType<out IronGolemEntity>?, world: World?) : Iron
         override fun size(): Int {
             return 2
         }
+    }
+
+    private var angerTime: Int = -1
+    private var angryAt: UUID? = null
+
+    override fun getAngerTime(): Int = angerTime
+
+    override fun setAngerTime(ticks: Int) {
+        angerTime = ticks
+    }
+
+    override fun chooseRandomAngerTime() {
+        angerTime = 50
+    }
+
+    override fun getAngryAt(): UUID? = angryAt
+
+    override fun setAngryAt(uuid: UUID?) {
+        angryAt = uuid
     }
 }
