@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.SimpleInventory
 import net.minecraft.screen.ScreenHandlerType
+import net.minecraft.server.network.ServerPlayerEntity
 
 class ServerWizardScreenHandler<T : ScreenRendererHandler>(
     type: ScreenHandlerType<T>,
@@ -16,6 +17,7 @@ class ServerWizardScreenHandler<T : ScreenRendererHandler>(
 ) : ServerInventoryHandler<T>(type, syncId, playerInventory) {
 
     private val suggestedCrafts = SimpleInventory(5)
+    private val recipeContext = RecipeContext(wizard.learntRecipe)
     init {
         super.blockInventory = suggestedCrafts
         constrainedSlots[playerInventory.size() + 4].insertPredicate = { false }
@@ -28,5 +30,10 @@ class ServerWizardScreenHandler<T : ScreenRendererHandler>(
             player.dropItem(stack, false)
         }
         wizard.customer = null
+    }
+
+    override fun clientHasInit() {
+        super.clientHasInit()
+        recipeContext.sync(this, WizardPackets.SYNC_PACKET, playerInventory.player as ServerPlayerEntity)
     }
 }

@@ -1,6 +1,7 @@
 package fp.yeyu.monsterfriend.screens.wizard
 
 import io.github.yeyu.gui.handler.ScreenRendererHandler
+import io.github.yeyu.gui.handler.provider.IntegerProvider
 import io.github.yeyu.gui.renderer.ScreenRenderer
 import io.github.yeyu.gui.renderer.widget.ChildWidget
 import io.github.yeyu.gui.renderer.widget.ParentWidget
@@ -16,15 +17,17 @@ class JamcguiTwoStatesTexturedScrollBarWidget(
     override val height: Int,
     private val scrollHeight: Int,
     private val texture: TextureDrawerHelper,
+    private val inactiveTexture: TextureDrawerHelper,
     private val relativeBound: Rectangle,
     override val name: String
 ) : ChildWidget, MouseListener {
 
     // states
-    private var isTop = true
+    private var top = true
     private var focused: Boolean = false
 
     private lateinit var parent: ParentWidget
+    var scrollablePredicate: (Int) -> Boolean = { true }
 
     override fun getParent(): ParentWidget = parent
 
@@ -35,7 +38,10 @@ class JamcguiTwoStatesTexturedScrollBarWidget(
     override fun render(matrices: MatrixStack, relativeMouseX: Int, relativeMouseY: Int, screen: ScreenRenderer<*>) {
         val drawX = getDrawX()
         val drawY = getDrawY()
-        texture.drawOn(matrices, drawX, drawY + if (isTop) 0 else scrollHeight - height)
+        if (scrollablePredicate((screen.getHandler() as IntegerProvider).getInteger(name)))
+            texture.drawOn(matrices, drawX, drawY + if (top) 0 else scrollHeight - height)
+        else
+            inactiveTexture.drawOn(matrices, drawX, drawY)
     }
 
     override fun isFocused(): Boolean = focused
@@ -57,13 +63,13 @@ class JamcguiTwoStatesTexturedScrollBarWidget(
     }
 
     override fun <T : ScreenRendererHandler> onMouseScroll(mouseX: Double, mouseY: Double, amount: Double, handler: T) {
-        if (isFocused()) isTop = amount > 0
+        if (isFocused()) top = amount > 0
     }
 
     override fun <T : ScreenRendererHandler> onMouseUp(mouseX: Double, mouseY: Double, button: Int, handler: T) {
     }
 
-    fun isMouseOverBound(mouseX: Double, mouseY: Double): Boolean {
+    private fun isMouseOverBound(mouseX: Double, mouseY: Double): Boolean {
         val absX: Int = getParent().getDrawX() + relativeX + relativeBound.x
         val absY: Int = getParent().getDrawY() + relativeY + relativeBound.y
         return (betweenIncExc(absX, mouseX.toInt(), absX + relativeBound.width)

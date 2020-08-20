@@ -36,7 +36,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     RangedAttackMob, Angerable {
 
     private val anger = Anger(-1, null)
-    private val learntRecipe = LearntRecipe()
+    val learntRecipe = LearntRecipe()
     var experience = 0
 
     val currentLevel get() = WizardUtil.LevelUtil.getCurrentLevel(experience)
