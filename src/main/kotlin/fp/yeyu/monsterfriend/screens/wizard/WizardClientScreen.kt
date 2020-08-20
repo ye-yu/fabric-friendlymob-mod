@@ -78,7 +78,7 @@ class WizardClientScreen<T : ScreenRendererHandler>(
 
         JamcguiRecipePanel(
             relativeX = -89,
-            relativeY = 5,
+            relativeY = 4,
             horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
             verticalAnchor = ParentWidget.AnchorType.MIDDLE,
             name = "recipe-panel"

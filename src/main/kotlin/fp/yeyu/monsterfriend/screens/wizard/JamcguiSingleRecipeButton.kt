@@ -23,10 +23,9 @@ class JamcguiSingleRecipeButton(
     override val relativeX: Int = 0
     override val relativeY: Int = 0
     override val width: Int = 88
-    override val height: Int = 40
+    override val height: Int = 47
 
     var offsetY = 0
-    var drawHalf = false
 
     internal object Drawer {
         val background = TextureDrawerHelper(
@@ -34,11 +33,11 @@ class JamcguiSingleRecipeButton(
             0,
             0,
             88,
-            40,
+            47,
             0,
             0,
             176,
-            40
+            47
         )
 
         val hoveredBackground = TextureDrawerHelper(
@@ -46,38 +45,14 @@ class JamcguiSingleRecipeButton(
             88,
             0,
             88,
-            40,
+            47,
             0,
             0,
             176,
-            40
+            47
         )
 
-        val backgroundHalf = TextureDrawerHelper(
-            Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/wizard/button.png"),
-            0,
-            0,
-            88,
-            20,
-            0,
-            0,
-            176,
-            40
-        )
-
-        val hoveredBackgroundHalf = TextureDrawerHelper(
-            Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/wizard/button.png"),
-            88,
-            0,
-            88,
-            20,
-            0,
-            0,
-            176,
-            40
-        )
-
-        const val marginY = 2
+        const val marginY = 4
         const val marginX = 5
     }
 
@@ -97,15 +72,9 @@ class JamcguiSingleRecipeButton(
         val drawX = getDrawX()
         val drawY = getDrawY() + offsetY
         if (hovered) {
-            if (drawHalf)
-                Drawer.hoveredBackgroundHalf.drawOn(matrices, drawX, drawY)
-            else
-                Drawer.hoveredBackground.drawOn(matrices, drawX, drawY)
+            Drawer.hoveredBackground.drawOn(matrices, drawX, drawY)
         } else {
-            if (drawHalf)
-                Drawer.backgroundHalf.drawOn(matrices, drawX, drawY)
-            else
-                Drawer.background.drawOn(matrices, drawX, drawY)
+            Drawer.background.drawOn(matrices, drawX, drawY)
         }
 
         if (hovered) {
@@ -114,10 +83,9 @@ class JamcguiSingleRecipeButton(
         
         drawItemStack(item1, drawX + Drawer.marginX, drawY + Drawer.marginY)
         drawItemStack(item2, drawX + Drawer.marginX + 25, drawY + Drawer.marginY)
-        drawItemStack(toCraft, drawX + Drawer.marginX + 61, drawY + Drawer.marginY + 7)
-        if (drawHalf) return
-        drawItemStack(flower, drawX + Drawer.marginX, drawY + Drawer.marginY + 16)
-        drawItemStack(potion, drawX + Drawer.marginX + 25, drawY + Drawer.marginY + 16)
+        drawItemStack(toCraft, drawX + Drawer.marginX + 61, drawY + Drawer.marginY + 10)
+        drawItemStack(flower, drawX + Drawer.marginX, drawY + Drawer.marginY + 18)
+        drawItemStack(potion, drawX + Drawer.marginX + 25, drawY + Drawer.marginY + 18)
     }
 
     override fun setFocused(focused: Boolean) {
@@ -136,13 +104,16 @@ class JamcguiSingleRecipeButton(
         hovered = isMouseOver(mouseX, mouseY)
         val (toCraft, item1, item2, flower, potion, _) = (handler as RecipeProvider).getRecipe(slot)
         if (toCraft.isEmpty) return
+        
+        val hoverOffsetX = 2
+        val hoverOffsetY = 6
 
         tooltipItem = when {
-            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX, Drawer.marginY) -> item1
-            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + 25, Drawer.marginY) -> item2
-            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + 61, Drawer.marginY + 7) -> toCraft
-            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX, Drawer.marginY + 16) -> flower
-            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + 25, Drawer.marginY + 16) -> potion
+            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX, Drawer.marginY + hoverOffsetY) -> item1
+            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX + 25, Drawer.marginY + hoverOffsetY) -> item2
+            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX + 61, Drawer.marginY + hoverOffsetY + 7) -> toCraft
+            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX, Drawer.marginY + hoverOffsetY + 16) -> flower
+            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX + 25, Drawer.marginY + hoverOffsetY + 16) -> potion
             else -> ItemStack.EMPTY
         }
 

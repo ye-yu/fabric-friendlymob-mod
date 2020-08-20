@@ -75,18 +75,15 @@ class JamcguiRecipePanel(
         children.forEach { it.setFocused(false) }
         children[scrollAt].apply {
             offsetY = 0
-            drawHalf = false
             setFocused(true)
         }
         children[scrollAt + 1].apply {
-            offsetY = 40
-            drawHalf = false
+            offsetY = 47
             setFocused(true)
         }
         if (scrollAt < 3) {
             children[scrollAt + 2].apply {
-                offsetY = 80
-                drawHalf = false
+                offsetY = 94
                 setFocused(true)
             }
         }
