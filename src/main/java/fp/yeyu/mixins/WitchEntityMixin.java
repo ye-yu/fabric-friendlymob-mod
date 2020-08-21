@@ -29,6 +29,7 @@ public abstract class WitchEntityMixin extends RaiderEntity implements Transform
         final ItemStack stackInHand = player.getStackInHand(hand);
         if (!WizardUtil.ItemUtil.INSTANCE.getFlowers().contains(stackInHand.getItem())) return super.interactMob(player, hand);
         stackInHand.decrement(1);
+        if (random.nextFloat() > 0.15f) return super.interactMob(player, hand);
         final MobEntity mobEntity = transformTo(MobRegistry.INSTANCE.getWizard().getEntityType());
         mobEntity.playSpawnEffects();
         ((Wizard) mobEntity).setProfession(WizardProfessionFactory.INSTANCE.getProfessionMap().getOrDefault(stackInHand.getItem(), WizardProfessionFactory.Enchanter.INSTANCE));
