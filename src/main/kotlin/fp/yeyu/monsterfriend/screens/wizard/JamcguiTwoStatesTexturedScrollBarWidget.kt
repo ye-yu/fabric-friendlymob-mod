@@ -18,6 +18,7 @@ class JamcguiTwoStatesTexturedScrollBarWidget(
     private val scrollHeight: Int,
     private val texture: TextureDrawerHelper,
     private val inactiveTexture: TextureDrawerHelper,
+    // todo: remove bound, listen off focus
     private val relativeBound: Rectangle,
     override val name: String
 ) : ChildWidget, MouseListener {

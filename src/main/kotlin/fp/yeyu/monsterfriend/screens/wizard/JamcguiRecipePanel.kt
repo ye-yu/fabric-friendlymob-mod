@@ -19,7 +19,7 @@ class JamcguiRecipePanel(
     override var parentScreen: ScreenRenderer<*>? = null
 
     override val height: Int = 140
-    override val width: Int = 87
+    override val width: Int = 88
     private val children: List<JamcguiSingleRecipeButton>
     private var scrollAt = 0
 

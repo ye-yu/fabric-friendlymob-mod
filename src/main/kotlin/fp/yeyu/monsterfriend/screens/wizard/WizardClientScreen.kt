@@ -72,7 +72,7 @@ class WizardClientScreen<T : ScreenRendererHandler>(
             inactiveTexture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 6, 0, 6, 27, 0, 0, 12, 27),
             relativeBound = Rectangle(-89, 0, 95, scrollHeight),
             name = WizardPackets.SCROLLBAR
-        ).apply { this.scrollablePredicate = { n: Int -> n > 2 } }
+        ).apply { this.scrollablePredicate = { n: Int -> n > 3 } }
 
         panel.add(scrollBar)
 
