@@ -106,7 +106,7 @@ class JamcguiSingleRecipeButton(
         if (toCraft.isEmpty) return
         
         val hoverOffsetX = 2
-        val hoverOffsetY = 6
+        val hoverOffsetY = 6 + offsetY
 
         tooltipItem = when {
             isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX, Drawer.marginY + hoverOffsetY) -> item1

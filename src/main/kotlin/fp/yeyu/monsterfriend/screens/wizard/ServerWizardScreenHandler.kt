@@ -1,8 +1,10 @@
 package fp.yeyu.monsterfriend.screens.wizard
 
 import fp.yeyu.monsterfriend.mobs.entity.Wizard
+import fp.yeyu.monsterfriend.mobs.entity.WizardUtil
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.handler.inventory.ServerInventoryHandler
+import io.github.yeyu.packet.ScreenPacket
 import io.github.yeyu.util.Logger
 import net.fabricmc.fabric.api.network.PacketContext
 import net.minecraft.entity.player.PlayerEntity
@@ -21,9 +23,11 @@ class ServerWizardScreenHandler<T : ScreenRendererHandler>(
 
     private val suggestedCrafts = SimpleInventory(5)
     private val recipeContext = RecipeContext(wizard.learntRecipe)
+    var lastExpBar: Int
     init {
         super.blockInventory = suggestedCrafts
         constrainedSlots[playerInventory.size() + 4].insertPredicate = { false }
+        lastExpBar = wizard.experience
     }
 
     override fun close(player: PlayerEntity) {
@@ -37,6 +41,19 @@ class ServerWizardScreenHandler<T : ScreenRendererHandler>(
 
     override fun clientHasInit() {
         super.clientHasInit()
+        recipeContext.sync(this, WizardPackets.SYNC_PACKET, playerInventory.player as ServerPlayerEntity)
+        ScreenPacket.sendPacket(syncId, WizardPackets.EXP_BAR, false, playerInventory.player as ServerPlayerEntity) {
+            it.writeDouble(wizard.remainingExp.toDouble() / (wizard.remainingExp.toDouble() + WizardUtil.LevelUtil.getRemainingToLevelUp(wizard.experience)))
+        }
+    }
+
+    override fun sendContentUpdates() {
+        super.sendContentUpdates()
+        if (lastExpBar == wizard.experience) return
+        lastExpBar = wizard.experience
+        ScreenPacket.sendPacket(syncId, WizardPackets.EXP_BAR, false, playerInventory.player as ServerPlayerEntity) {
+            it.writeDouble(wizard.remainingExp.toDouble() / (wizard.remainingExp.toDouble() + WizardUtil.LevelUtil.getRemainingToLevelUp(wizard.experience)))
+        }
         recipeContext.sync(this, WizardPackets.SYNC_PACKET, playerInventory.player as ServerPlayerEntity)
     }
 

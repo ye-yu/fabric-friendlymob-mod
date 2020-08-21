@@ -3,6 +3,7 @@ package fp.yeyu.monsterfriend.screens.wizard
 import fp.yeyu.monsterfriend.mobs.entity.Wizard.CustomRecipe
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.handler.inventory.ClientInventoryHandler
+import io.github.yeyu.gui.handler.provider.DoubleProvider
 import io.github.yeyu.gui.handler.provider.IntegerProvider
 import io.github.yeyu.packet.ScreenPacket
 import io.github.yeyu.util.Logger
@@ -16,24 +17,27 @@ class ClientWizardScreenHandler<T : ScreenRendererHandler>(
     type: ScreenHandlerType<T>,
     syncId: Int,
     playerInventory: PlayerInventory
-) : ClientInventoryHandler<T>(type, syncId, playerInventory), IntegerProvider, RecipeProvider, RecipeClickListener {
+) : ClientInventoryHandler<T>(type, syncId, playerInventory), IntegerProvider, DoubleProvider, RecipeProvider, RecipeClickListener {
 
     var recipeContext = RecipeContext(null)
+    var experience: Double = 0.0
 
     override fun getInteger(name: String): Int {
-        if (name.equals(WizardPackets.SCROLLBAR, true)) {
-            return recipeContext.level // ??
-        } else if (name.equals(WizardPackets.LEVEL, true)) {
-            return recipeContext.level
+        return when (name) {
+            WizardPackets.SCROLLBAR -> recipeContext.level
+            WizardPackets.LEVEL -> recipeContext.level
+            else -> throw IllegalArgumentException("Handler does not provide integer for $name")
         }
-        throw IllegalArgumentException("Handler does not provide integer for $name")
     }
 
     override fun onServer2Client(action: String, context: PacketContext, buf: PacketByteBuf) {
-        if (action.equals(WizardPackets.SYNC_PACKET, true)) {
-            recipeContext.sync(buf)
-        } else {
-            super.onServer2Client(action, context, buf)
+        when (action) {
+            WizardPackets.SYNC_PACKET -> recipeContext.sync(buf)
+            WizardPackets.EXP_BAR -> {
+                experience = buf.readDouble()
+                Logger.info("Got wizard experience level of $experience")
+            }
+            else -> super.onServer2Client(action, context, buf)
         }
     }
 
@@ -47,6 +51,13 @@ class ClientWizardScreenHandler<T : ScreenRendererHandler>(
 
         ScreenPacket.sendPacket(syncId, WizardPackets.RECIPE_CLICK, true, null) {
             it.writeInt(slot)
+        }
+    }
+
+    override fun getDouble(name: String): Double {
+        return when (name) {
+            WizardPackets.EXP_BAR -> experience
+            else -> throw IllegalArgumentException("Handler does not provide integer for $name")
         }
     }
 }
