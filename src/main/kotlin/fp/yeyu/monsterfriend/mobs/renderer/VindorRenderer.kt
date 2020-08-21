@@ -29,15 +29,9 @@ class VindorRenderer(entityRenderDispatcher: EntityRenderDispatcher?) :
     override fun getTexture(entity: Vindor?): Identifier {
         return when {
             entity == null -> TEXTURE
-            entity.getWonderState() == Vindor.WonderState.NEUTRAL -> {
-                WAITING_1
-            }
-            entity.getWonderState() == Vindor.WonderState.READY -> {
-                WAITING_2
-            }
-            else -> {
-                READY
-            }
+            entity.wonderState == Vindor.WonderState.NEUTRAL -> WAITING_1
+            entity.wonderState == Vindor.WonderState.READY -> WAITING_2
+            else -> READY
         }
     }
 

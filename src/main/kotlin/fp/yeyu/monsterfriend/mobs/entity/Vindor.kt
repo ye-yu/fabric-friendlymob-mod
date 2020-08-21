@@ -45,6 +45,24 @@ import java.util.function.Predicate
 class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(entityType, world), Angerable,
     GuiProvider {
 
+    private val guiHandler = VindorGuiHandler(this)
+    private val inventory = VindorInventory()
+
+    override var currentUser: PlayerEntity? = null
+    var wonderTick = -1 // means, no item to trade
+    var wonderState = WonderState.NEUTRAL
+        set(value) {
+            field = if (world.isClient) value
+            else {
+                if (field != value) this.world.sendEntityStatus(this, (90 + value.ordinal).toByte())
+                value
+            }
+        }
+    private var receivedMessage = ""
+    var senderMessage = ""
+    private var angerTime: Int = -1
+    private var angryAt: UUID? = null
+
     init {
         equipStack(EquipmentSlot.MAINHAND, ItemStack(Items.IRON_AXE))
     }
@@ -73,16 +91,13 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
 
     override fun initDataTracker() {
         super.initDataTracker()
-        this.dataTracker.startTracking(WONDER_STATE, WonderState.NEUTRAL.index)
+        this.dataTracker.startTracking(WONDER_STATE, WonderState.NEUTRAL.ordinal)
     }
 
     @Environment(EnvType.CLIENT)
     fun getState(): State? {
-        return if (isAttacking) {
-            State.ATTACKING
-        } else {
-            State.CROSSED
-        }
+        return if (isAttacking) State.ATTACKING
+        else State.CROSSED
     }
 
     @Environment(EnvType.CLIENT)
@@ -90,37 +105,13 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         CROSSED, ATTACKING
     }
 
-    @Environment(EnvType.CLIENT)
-    enum class WonderState(val index: Int) {
-        NEUTRAL(0), READY(1), RECEIVED(2);
-
-        companion object {
-            // todo: change to ordinals lol
-            operator fun get(index: Int): WonderState {
-                return when (index) {
-                    0 -> NEUTRAL
-                    1 -> READY
-                    2 -> RECEIVED
-                    else -> throw IndexOutOfBoundsException(index.toString())
-                }
-            }
-        }
-    }
-
-    @Environment(EnvType.CLIENT)
-    fun getWonderState(): WonderState {
-        return WonderState[this.dataTracker.get(WONDER_STATE)]
-    }
-
-    private fun setWonderState(wonderState: WonderState) {
-        this.dataTracker.set(WONDER_STATE, wonderState.index)
+    enum class WonderState {
+        NEUTRAL, READY, RECEIVED
     }
 
     private fun receivedWonderItem(): Boolean {
         return !inventory.getStack(1).isEmpty
     }
-
-    override var currentUser: PlayerEntity? = null
 
     override fun initGoals() {
         goalSelector.add(0, LookAtCustomerGoal(this))
@@ -153,7 +144,6 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         return interactMob
     }
 
-    private val guiHandler = VindorGuiHandler(this)
     private fun trade(player: PlayerEntity?): ActionResult {
         if (player == null) return ActionResult.success(this.world.isClient)
         if (currentUser != null) return ActionResult.success(this.world.isClient)
@@ -210,7 +200,6 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         }
     }
 
-    var wonderTick = -1 // means, no item to trade
     override fun writeCustomDataToTag(tag: CompoundTag) {
         super.writeCustomDataToTag(tag)
         tag.putInt(WONDER_TIMEOUT, wonderTick)
@@ -280,9 +269,6 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         tickAngerLogic(world as ServerWorld, true)
     }
 
-    private var receivedMessage = ""
-    var senderMessage = ""
-
     private fun flushMessage() {
         if (receivedMessage.isEmpty()) return
         if (this.world !is ServerWorld) return
@@ -293,21 +279,13 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         this.world.playSound(null, this.blockPos, getTradedSound(), SoundCategory.VOICE, 1f, 1f)
     }
 
-    private fun getTradedSound(): SoundEvent {
-        return SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP
-    }
+    private fun getTradedSound(): SoundEvent = SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP
 
-    private fun getReceivedWonderTradeSound(): SoundEvent {
-        return SoundEvents.ENTITY_PLAYER_LEVELUP
-    }
+    private fun getReceivedWonderTradeSound(): SoundEvent = SoundEvents.ENTITY_PLAYER_LEVELUP
 
-    override fun getHurtSound(source: DamageSource?): SoundEvent? {
-        return SoundEvents.ENTITY_VINDICATOR_HURT
-    }
+    override fun getHurtSound(source: DamageSource?): SoundEvent? = SoundEvents.ENTITY_VINDICATOR_HURT
 
-    override fun getDeathSound(): SoundEvent? {
-        return SoundEvents.ENTITY_VINDICATOR_DEATH
-    }
+    override fun getDeathSound(): SoundEvent? = SoundEvents.ENTITY_VINDICATOR_DEATH
 
     fun finishTrading(itemSlot1: ItemStack?, itemSlot2: ItemStack?) {
         if (itemSlot1 != null && !itemSlot1.isEmpty) {
@@ -333,11 +311,11 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
 
     private fun validateWonderState() {
         if (getInventory().getStack(0).isEmpty && !getInventory().getStack(1).isEmpty) {
-            setWonderState(WonderState.RECEIVED)
+            wonderState = WonderState.RECEIVED
         } else if (!getInventory().getStack(0).isEmpty && getInventory().getStack(1).isEmpty) {
-            setWonderState(WonderState.READY)
+            wonderState = WonderState.READY
         } else if (getInventory().getStack(0).isEmpty && getInventory().getStack(1).isEmpty) {
-            setWonderState(WonderState.NEUTRAL)
+            wonderState = WonderState.NEUTRAL
         } else {
             LOGGER.warn(
                 "Error in programming. \n"
@@ -350,14 +328,16 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         }
     }
 
-    private fun getHappySound(): SoundEvent {
-        return SoundEvents.ENTITY_VILLAGER_YES
+    override fun handleStatus(status: Byte) {
+        when (status) {
+            in 90 until (90 + WonderState.values().size) -> wonderState = WonderState.values()[status - 90]
+            else -> super.handleStatus(status)
+        }
     }
 
-    private val inventory = VindorInventory()
-    fun getInventory(): Inventory {
-        return inventory
-    }
+    private fun getHappySound(): SoundEvent = SoundEvents.ENTITY_VILLAGER_YES
+
+    fun getInventory(): Inventory = inventory
 
     class VindorGuiHandler(private val who: Vindor) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity?): ScreenHandler? {
@@ -379,8 +359,6 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         private val slots = arrayOf(ItemStack.EMPTY, ItemStack.EMPTY)
 
         override fun markDirty() {
-//            throw IllegalAccessError("Access is not relevant.")
-            io.github.yeyu.util.Logger.info("Mark dirty but does nothing")
         }
 
         override fun clear() {
@@ -392,13 +370,9 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
             slots[slot] = stack
         }
 
-        override fun isEmpty(): Boolean {
-            return slots[0] == ItemStack.EMPTY && slots[1] == ItemStack.EMPTY
-        }
+        override fun isEmpty(): Boolean = slots[0] == ItemStack.EMPTY && slots[1] == ItemStack.EMPTY
 
-        override fun removeStack(slot: Int, amount: Int): ItemStack {
-            return slots[slot].split(amount)
-        }
+        override fun removeStack(slot: Int, amount: Int): ItemStack = slots[slot].split(amount)
 
         override fun removeStack(slot: Int): ItemStack {
             val stack = slots[slot]
@@ -406,21 +380,12 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
             return stack
         }
 
-        override fun getStack(slot: Int): ItemStack {
-            return slots[slot]
-        }
+        override fun getStack(slot: Int): ItemStack = slots[slot]
 
-        override fun canPlayerUse(player: PlayerEntity?): Boolean {
-            return false
-        }
+        override fun canPlayerUse(player: PlayerEntity?): Boolean = false
 
-        override fun size(): Int {
-            return 2
-        }
+        override fun size(): Int = 2
     }
-
-    private var angerTime: Int = -1
-    private var angryAt: UUID? = null
 
     override fun getAngerTime(): Int = angerTime
 
