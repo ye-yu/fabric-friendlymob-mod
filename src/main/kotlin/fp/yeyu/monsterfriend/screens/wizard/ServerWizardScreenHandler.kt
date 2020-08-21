@@ -1,7 +1,7 @@
 package fp.yeyu.monsterfriend.screens.wizard
 
 import fp.yeyu.monsterfriend.mobs.entity.Wizard
-import fp.yeyu.monsterfriend.mobs.entity.WizardUtil
+import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardUtil
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.handler.inventory.ServerInventoryHandler
 import io.github.yeyu.gui.handler.inventory.utils.SlotActionType

@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.mobs.entity
+package fp.yeyu.monsterfriend.mobs.entity.wizard
 
 import fp.yeyu.monsterfriend.mobs.MobRegistry
 import net.minecraft.enchantment.Enchantment
@@ -35,8 +35,12 @@ object WizardUtil {
         )
 
         fun createRandomPotion(random: Random): ItemStack {
-            val potion: Potion = getRandomPotion(random)
-            return setPotion(ItemStack(random.weightedChoice(potionType, potionWeight)), potion)
+            val potion: Potion =
+                getRandomPotion(random)
+            return setPotion(ItemStack(random.weightedChoice(
+                potionType,
+                potionWeight
+            )), potion)
         }
 
         private fun getRandomPotion(random: Random): Potion {
@@ -82,7 +86,7 @@ object WizardUtil {
             Items.FILLED_MAP
         )
 
-        private val flowers = listOf(
+        val flowers = listOf(
             Items.DANDELION,
             Items.POPPY,
             Items.BLUE_ORCHID,
@@ -183,7 +187,10 @@ object WizardUtil {
         )
 
         fun createRandomItem(random: Random, withUnobtainables: Boolean): ItemStack {
-            return ItemStack(if (withUnobtainables) getRandomItemWithUnobtainables(random) else getRandomItem(random))
+            return ItemStack(if (withUnobtainables) getRandomItemWithUnobtainables(
+                random
+            ) else getRandomItem(random)
+            )
         }
 
         fun createRandomFlower(random: Random): ItemStack {
@@ -216,7 +223,8 @@ object WizardUtil {
 
         fun createRandomEnchantedBook(level: Int, random: Random): ItemStack {
             val book = ENCHANTED_BOOK.copy()
-            val possibleEntries = EnchantmentHelper.getPossibleEntries(level, BOOK, true)
+            val possibleEntries = EnchantmentHelper.getPossibleEntries(level,
+                BOOK, true)
             val enchantment: HashMap<Enchantment, Int> = random.choice(possibleEntries).toMap().apply {
                 keys.forEach {
                     this[it] = it.maxLevel
@@ -234,7 +242,9 @@ object WizardUtil {
         const val MAX_LEVEL = 5
 
         fun canLevelUp(currentExp: Int, incomingExp: Int): Boolean {
-            return getRemainingToLevelUp(currentExp) <= incomingExp
+            return getRemainingToLevelUp(
+                currentExp
+            ) <= incomingExp
         }
 
         fun getCurrentLevel(exp: Int): Int {

@@ -7,7 +7,8 @@
     "EvokerEntityMixin",
     "FishingBobberMixin",
     "MobEntityMixin",
-    "VindicatorEntityMixin"
+    "VindicatorEntityMixin",
+    "WitchEntityMixin"
   ],
   "client": [
   ],

@@ -1,5 +1,7 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
+import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardProfession
+import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardUtil
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.screens.wizard.ServerWizardScreenHandler
 import io.github.yeyu.util.Logger
@@ -40,12 +42,10 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     val currentLevel get() = WizardUtil.LevelUtil.getCurrentLevel(experience)
     val remainingExp get() = WizardUtil.LevelUtil.getRemainderExp(experience)
 
+    lateinit var profession: WizardProfession
+
     override var currentUser: PlayerEntity? = null
     private val screenFactory = WizardScreen(this)
-
-    init {
-        if (world is ServerWorld) makeNewCraft()
-    }
 
     fun craftSuccessful(reward: Int) {
         if (currentLevel < WizardUtil.LevelUtil.MAX_LEVEL) {
@@ -59,23 +59,17 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         }
     }
 
-    private fun makeNewCraft() {
+    fun makeNewCraft() {
         val index = currentLevel - 1
         Logger.info("Making new craft at index $index")
-        val craftMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomItem(random, true) }
-        val bookMaker: () -> ItemStack = {
-            WizardUtil.EnchantmentBookUtil.createRandomEnchantedBook(
-                currentLevel.coerceAtLeast(1).coerceAtMost(3),
-                random
-            )
-        }
+        val craftMaker: () -> ItemStack = { profession.getRandom(random, index) }
         val itemMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomItem(random, false) }
         val flowerMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomFlower(random) }
         val potionMaker: () -> ItemStack = { WizardUtil.PotionUtil.createRandomPotion(random) }
         learntRecipe.recipes[index] = CustomRecipe(
-            if (random.nextBoolean()) craftMaker() else bookMaker(),
-            itemMaker(),
-            itemMaker(),
+            craftMaker(),
+            if (index > 1) itemMaker() else ItemStack.EMPTY,
+            if (index > 3) itemMaker() else ItemStack.EMPTY,
             flowerMaker(),
             potionMaker(),
             currentLevel * 2
