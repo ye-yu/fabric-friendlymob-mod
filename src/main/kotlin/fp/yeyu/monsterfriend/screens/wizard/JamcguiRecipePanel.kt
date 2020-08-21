@@ -58,7 +58,7 @@ class JamcguiRecipePanel(
     }
 
     override fun <T : ScreenRendererHandler> onMouseScroll(mouseX: Double, mouseY: Double, amount: Double, handler: T) {
-        if (amount > 0) {
+        if (amount < 0) {
             scrollAt++
         } else {
             scrollAt--
@@ -66,13 +66,16 @@ class JamcguiRecipePanel(
 
         scrollAt = scrollAt.coerceAtLeast(0)
             .coerceAtMost((handler as IntegerProvider).getInteger(WizardPackets.LEVEL) - 1)
-            .coerceAtMost(3)
+            .coerceAtMost(2)
 
         validateChildren()
     }
 
     private fun validateChildren() {
-        children.forEach { it.setFocused(false) }
+        children.forEach {
+            it.setFocused(false)
+            it.hovered = false
+        }
         children[scrollAt].apply {
             offsetY = 0
             setFocused(true)

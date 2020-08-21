@@ -19,7 +19,7 @@ class JamcguiSingleRecipeButton(
 ) : ChildWidget, MouseListener {
 
     private var focused = false
-    private var hovered = false
+    var hovered = false
     override val relativeX: Int = 0
     override val relativeY: Int = 0
     override val width: Int = 88

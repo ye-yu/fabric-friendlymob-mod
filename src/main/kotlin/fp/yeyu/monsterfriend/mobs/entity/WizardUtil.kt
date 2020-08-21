@@ -11,6 +11,8 @@ import net.minecraft.item.Items
 import net.minecraft.potion.Potion
 import net.minecraft.potion.PotionUtil.setPotion
 import net.minecraft.potion.Potions
+import net.minecraft.text.LiteralText
+import net.minecraft.util.Formatting
 import net.minecraft.util.registry.Registry
 import org.apache.commons.lang3.StringUtils
 import java.util.*
@@ -212,7 +214,9 @@ object WizardUtil {
     }
 
     object EnchantmentBookUtil {
-        private val BOOK = ItemStack(Items.ENCHANTED_BOOK)
+        private val BOOK = ItemStack(Items.BOOK).apply {
+            this.setCustomName(LiteralText("Enchanted Book").formatted(Formatting.AQUA))
+        }
 
         fun createRandomEnchantedBook(level: Int, random: Random): ItemStack {
             val book = BOOK.copy()

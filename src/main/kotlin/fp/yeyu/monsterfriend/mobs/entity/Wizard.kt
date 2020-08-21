@@ -171,11 +171,14 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     override fun toTag(tag: CompoundTag): CompoundTag {
         val compoundTag = super.toTag(tag)
         learntRecipe.toTag(compoundTag)
+        compoundTag.putInt("experience", experience)
         return compoundTag
     }
 
     override fun fromTag(tag: CompoundTag) {
         super.fromTag(tag)
+        if (tag.contains("experience"))
+        experience = tag.getInt("experience")
         learntRecipe.fromTag(tag)
     }
 

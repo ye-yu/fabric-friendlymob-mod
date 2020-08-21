@@ -54,6 +54,7 @@ class ServerWizardScreenHandler<T : ScreenRendererHandler>(
         ScreenPacket.sendPacket(syncId, WizardPackets.EXP_BAR, false, playerInventory.player as ServerPlayerEntity) {
             it.writeDouble(wizard.remainingExp.toDouble() / (wizard.remainingExp.toDouble() + WizardUtil.LevelUtil.getRemainingToLevelUp(wizard.experience)))
         }
+        recipeContext.level = wizard.currentLevel
         recipeContext.sync(this, WizardPackets.SYNC_PACKET, playerInventory.player as ServerPlayerEntity)
     }
 
