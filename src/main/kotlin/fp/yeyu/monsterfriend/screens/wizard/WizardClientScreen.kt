@@ -64,7 +64,7 @@ class WizardClientScreen<T : ScreenRendererHandler>(
 
         val scrollBar = JamcguiTwoStatesTexturedScrollBarWidget(
             relativeX = 44,
-            relativeY = 18,
+            relativeY = 17,
             width = 6,
             height = 27,
             scrollHeight = scrollHeight,
@@ -77,7 +77,7 @@ class WizardClientScreen<T : ScreenRendererHandler>(
         panel.add(scrollBar)
 
         JamcguiRecipePanel(
-            relativeX = -89,
+            relativeX = -90,
             relativeY = 4,
             horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
             verticalAnchor = ParentWidget.AnchorType.MIDDLE,

@@ -215,7 +215,8 @@ object WizardUtil {
 
     object EnchantmentBookUtil {
         private val BOOK = ItemStack(Items.BOOK).apply {
-            this.setCustomName(LiteralText("Enchanted Book").formatted(Formatting.AQUA))
+            this.removeCustomName()
+            this.setCustomName(LiteralText("Enchanted Book").formatted(Formatting.RESET, Formatting.YELLOW))
         }
 
         fun createRandomEnchantedBook(level: Int, random: Random): ItemStack {

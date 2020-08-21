@@ -19,7 +19,7 @@ class JamcguiRecipePanel(
     override var parentScreen: ScreenRenderer<*>? = null
 
     override val height: Int = 140
-    override val width: Int = 88
+    override val width: Int = 87
     private val children: List<JamcguiSingleRecipeButton>
     private var scrollAt = 0
 
@@ -58,15 +58,19 @@ class JamcguiRecipePanel(
     }
 
     override fun <T : ScreenRendererHandler> onMouseScroll(mouseX: Double, mouseY: Double, amount: Double, handler: T) {
+        val level = (handler as IntegerProvider).getInteger(WizardPackets.LEVEL) - 1
+        if (level < 3) return
         if (amount < 0) {
             scrollAt++
+            if (level == 4) scrollAt++
         } else {
             scrollAt--
+            if (level == 4) scrollAt--
         }
 
         scrollAt = scrollAt.coerceAtLeast(0)
-            .coerceAtMost((handler as IntegerProvider).getInteger(WizardPackets.LEVEL) - 1)
             .coerceAtMost(2)
+        if (level == 3) scrollAt = scrollAt.coerceAtMost(1)
 
         validateChildren()
     }
