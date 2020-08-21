@@ -8,9 +8,12 @@ import io.github.yeyu.gui.handler.provider.IntegerProvider
 import io.github.yeyu.packet.ScreenPacket
 import io.github.yeyu.util.Logger
 import net.fabricmc.fabric.api.network.PacketContext
+import net.minecraft.client.MinecraftClient
+import net.minecraft.client.sound.PositionedSoundInstance
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.screen.ScreenHandlerType
+import net.minecraft.sound.SoundEvents
 import java.lang.IllegalArgumentException
 
 class ClientWizardScreenHandler<T : ScreenRendererHandler>(
@@ -46,9 +49,6 @@ class ClientWizardScreenHandler<T : ScreenRendererHandler>(
     }
 
     override fun onRecipeButtonClick(slot: Int) {
-        if (recipeContext.learntRecipe.recipes[slot].toCraft.isEmpty) return
-        Logger.info("Sending recipe click of $slot")
-
         ScreenPacket.sendPacket(syncId, WizardPackets.RECIPE_CLICK, true, null) {
             it.writeInt(slot)
         }

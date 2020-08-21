@@ -9,8 +9,11 @@ import io.github.yeyu.gui.renderer.widget.ParentWidget
 import io.github.yeyu.gui.renderer.widget.listener.MouseListener
 import io.github.yeyu.util.TextureDrawerHelper
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.sound.PositionedSoundInstance
+import net.minecraft.client.sound.SoundInstance
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.item.ItemStack
+import net.minecraft.sound.SoundEvents
 import net.minecraft.util.Identifier
 
 class JamcguiSingleRecipeButton(
@@ -97,7 +100,10 @@ class JamcguiSingleRecipeButton(
     override fun isListenOffFocus(): Boolean = true
 
     override fun <T : ScreenRendererHandler> onMouseDown(mouseX: Double, mouseY: Double, button: Int, handler: T) {
-        if (isMouseOver(mouseX, mouseY) && focused) (handler as RecipeClickListener).onRecipeButtonClick(slot)
+        if (!isMouseOver(mouseX, mouseY) || !focused) return
+        if ((handler as RecipeProvider).getRecipe(slot).toCraft.isEmpty) return
+        MinecraftClient.getInstance().soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1f))
+        (handler as RecipeClickListener).onRecipeButtonClick(slot)
     }
 
     override fun <T : ScreenRendererHandler> onMouseMove(mouseX: Double, mouseY: Double, handler: T) {
