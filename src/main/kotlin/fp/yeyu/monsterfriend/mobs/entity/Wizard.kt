@@ -40,17 +40,12 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
 
     val currentLevel get() = WizardUtil.LevelUtil.getCurrentLevel(experience)
     val remainingExp get() = WizardUtil.LevelUtil.getRemainderExp(experience)
-    var debugTick = 0
 
     var customer: PlayerEntity? = null
     private val screenFactory = WizardScreen(this)
 
     init {
         if (world is ServerWorld) makeNewCraft()
-    }
-
-    @Development
-    private fun debugTick() {
     }
 
     fun craftSuccessful(reward: Int) {
@@ -177,7 +172,6 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     override fun tickMovement() {
         super.tickMovement()
         if (world is ServerWorld) tickAngerLogic(world as ServerWorld, true)
-        if (world is ServerWorld) debugTick()
     }
 
     override fun toTag(tag: CompoundTag): CompoundTag {
