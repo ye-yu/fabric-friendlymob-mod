@@ -1,7 +1,9 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardProfession
+import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardProfessionFactory
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardUtil
+import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardUtil.ItemUtil.flowers
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.screens.wizard.ServerWizardScreenHandler
 import io.github.yeyu.util.Logger
@@ -42,10 +44,16 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     val currentLevel get() = WizardUtil.LevelUtil.getCurrentLevel(experience)
     val remainingExp get() = WizardUtil.LevelUtil.getRemainderExp(experience)
 
-    lateinit var profession: WizardProfession
+    private var flower: ItemStack = ItemStack(flowers[0])
+    var profession: WizardProfession = WizardProfessionFactory.professionMap.getOrDefault(flower.item, WizardProfessionFactory.Enchanter)
 
     override var currentUser: PlayerEntity? = null
     private val screenFactory = WizardScreen(this)
+
+    fun setFlower(flower: ItemStack) {
+        this.flower = flower
+        profession = WizardProfessionFactory.professionMap.getOrDefault(flower.item, WizardProfessionFactory.Enchanter)
+    }
 
     fun craftSuccessful(reward: Int) {
         if (currentLevel < WizardUtil.LevelUtil.MAX_LEVEL) {
@@ -141,6 +149,14 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
 
     override fun interactMob(player: PlayerEntity?, hand: Hand?): ActionResult {
         if (player == null) return super.interactMob(player, hand)
+        if (learntRecipe.recipes[0].toCraft.isEmpty) {
+            val stackInHand = player.getStackInHand(hand)
+            if (!flowers.contains(stackInHand.item)) return super.interactMob(player, hand)
+            stackInHand.decrement(1)
+            setFlower(stackInHand.copy().apply { count = 1 })
+            makeNewCraft()
+            return super.interactMob(player, hand)
+        }
         if (currentUser != null) return super.interactMob(player, hand)
         currentUser = player
         currentUser!!.openHandledScreen(screenFactory)
@@ -172,13 +188,17 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         val compoundTag = super.toTag(tag)
         learntRecipe.toTag(compoundTag)
         compoundTag.putInt("experience", experience)
+        val flowerTag = CompoundTag()
+        flower.toTag(flowerTag)
+        compoundTag.put("profession-flower", flowerTag)
         return compoundTag
     }
 
     override fun fromTag(tag: CompoundTag) {
         super.fromTag(tag)
-        if (tag.contains("experience"))
-            experience = tag.getInt("experience")
+        if (tag.contains("experience")) experience = tag.getInt("experience")
+        if (tag.contains("profession-flower")) setFlower(ItemStack.fromTag(tag.getCompound("profession-flower")))
+        else setFlower(ItemStack(flowers[0]))
         learntRecipe.fromTag(tag)
     }
 

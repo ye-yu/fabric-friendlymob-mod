@@ -87,10 +87,10 @@ object WizardUtil {
         )
 
         val flowers = listOf(
-            Items.DANDELION,
-            Items.POPPY,
-            Items.BLUE_ORCHID,
-            Items.ALLIUM,
+            Items.DANDELION, // enchanter
+            Items.POPPY, // carpenter
+            Items.BLUE_ORCHID, // miner
+            Items.ALLIUM, //
             Items.AZURE_BLUET,
             Items.ORANGE_TULIP,
             Items.PINK_TULIP,
