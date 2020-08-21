@@ -1,5 +1,6 @@
-package fp.yeyu.monsterfriend.screens.wizard
+package fp.yeyu.monsterfriend.screens.gui
 
+import fp.yeyu.monsterfriend.screens.wizard.WizardPackets
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.handler.provider.IntegerProvider
 import io.github.yeyu.gui.renderer.ScreenRenderer
@@ -29,7 +30,10 @@ class JamcguiRecipePanel(
     }
 
     private fun createChildren(index: Int): JamcguiSingleRecipeButton {
-        return JamcguiSingleRecipeButton(index, "recipe-slot-$index").apply { setParent(this@JamcguiRecipePanel) }
+        return JamcguiSingleRecipeButton(
+            index,
+            "recipe-slot-$index"
+        ).apply { setParent(this@JamcguiRecipePanel) }
     }
 
     override fun add(w: ChildWidget) {

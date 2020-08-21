@@ -1,7 +1,9 @@
-package fp.yeyu.monsterfriend.screens.wizard
+package fp.yeyu.monsterfriend.screens.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
 import fp.yeyu.monsterfriend.BefriendMinecraft
+import fp.yeyu.monsterfriend.screens.wizard.RecipeClickListener
+import fp.yeyu.monsterfriend.screens.wizard.RecipeProvider
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.renderer.ScreenRenderer
 import io.github.yeyu.gui.renderer.widget.ChildWidget
@@ -10,7 +12,6 @@ import io.github.yeyu.gui.renderer.widget.listener.MouseListener
 import io.github.yeyu.util.TextureDrawerHelper
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.sound.PositionedSoundInstance
-import net.minecraft.client.sound.SoundInstance
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.item.ItemStack
 import net.minecraft.sound.SoundEvents

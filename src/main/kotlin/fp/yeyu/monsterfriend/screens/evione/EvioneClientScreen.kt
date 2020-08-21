@@ -1,6 +1,7 @@
 package fp.yeyu.monsterfriend.screens.evione
 
 import fp.yeyu.monsterfriend.BefriendMinecraft
+import fp.yeyu.monsterfriend.screens.gui.JamcguiProgressBarWidget
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.renderer.ScreenRenderer
 import io.github.yeyu.gui.renderer.widget.ParentWidget

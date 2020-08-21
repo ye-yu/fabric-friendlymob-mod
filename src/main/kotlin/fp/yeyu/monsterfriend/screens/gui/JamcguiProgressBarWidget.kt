@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.screens.evione
+package fp.yeyu.monsterfriend.screens.gui
 
 import io.github.yeyu.gui.handler.provider.DoubleProvider
 import io.github.yeyu.gui.renderer.ScreenRenderer

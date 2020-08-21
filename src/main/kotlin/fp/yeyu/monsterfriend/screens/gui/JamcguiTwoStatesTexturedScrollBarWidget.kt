@@ -1,4 +1,4 @@
-package fp.yeyu.monsterfriend.screens.wizard
+package fp.yeyu.monsterfriend.screens.gui
 
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.handler.provider.IntegerProvider

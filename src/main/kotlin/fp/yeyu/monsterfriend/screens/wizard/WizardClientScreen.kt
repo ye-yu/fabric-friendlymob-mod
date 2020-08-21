@@ -2,6 +2,8 @@ package fp.yeyu.monsterfriend.screens.wizard
 
 import com.mojang.blaze3d.systems.RenderSystem
 import fp.yeyu.monsterfriend.BefriendMinecraft
+import fp.yeyu.monsterfriend.screens.gui.JamcguiRecipePanel
+import fp.yeyu.monsterfriend.screens.gui.JamcguiTwoStatesTexturedScrollBarWidget
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.renderer.ScreenRenderer
 import io.github.yeyu.gui.renderer.widget.ParentWidget
@@ -60,7 +62,7 @@ class WizardClientScreen<T : ScreenRendererHandler>(
             )
         )
 
-        val scrollHeight = 140
+        val scrollHeight = 141
 
         val scrollBar = JamcguiTwoStatesTexturedScrollBarWidget(
             relativeX = 44,
@@ -77,7 +79,7 @@ class WizardClientScreen<T : ScreenRendererHandler>(
         panel.add(scrollBar)
 
         JamcguiRecipePanel(
-            relativeX = -90,
+            relativeX = -89,
             relativeY = 4,
             horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
             verticalAnchor = ParentWidget.AnchorType.MIDDLE,
