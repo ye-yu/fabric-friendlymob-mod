@@ -1,6 +1,7 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.mobs.MobRegistry
+import io.github.yeyu.util.Logger
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.EnchantmentLevelEntry
@@ -63,6 +64,7 @@ object WizardUtil {
 
             // can't give an empty written book
             Items.WRITTEN_BOOK,
+            Items.KNOWLEDGE_BOOK,
 
             // forbidden blocks
             Items.AIR,
@@ -210,12 +212,16 @@ object WizardUtil {
     }
 
     object EnchantmentBookUtil {
-        private val BOOK = ItemStack(Items.BOOK)
+        private val BOOK = ItemStack(Items.ENCHANTED_BOOK)
 
         fun createRandomEnchantedBook(level: Int, random: Random): ItemStack {
             val book = BOOK.copy()
             val possibleEntries = EnchantmentHelper.getPossibleEntries(level, book, false)
-            val enchantment: HashMap<Enchantment, Int> = random.choice(possibleEntries).toMap()
+            val enchantment: HashMap<Enchantment, Int> = random.choice(possibleEntries).toMap().apply {
+                keys.forEach{
+                    this[it] = it.maxLevel
+                }
+            }
 
             EnchantmentHelper.set(enchantment, book)
             return book
