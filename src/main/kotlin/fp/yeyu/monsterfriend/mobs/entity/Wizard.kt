@@ -1,6 +1,5 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
-import fp.yeyu.monsterfriend.annotation.Development
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.screens.wizard.ServerWizardScreenHandler
 import io.github.yeyu.util.Logger
@@ -32,7 +31,7 @@ import net.minecraft.world.World
 import java.util.*
 
 class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : PathAwareEntity(entityType, world),
-    RangedAttackMob, Angerable {
+    RangedAttackMob, Angerable, GuiProvider {
 
     private val anger = Anger(-1, null)
     val learntRecipe = LearntRecipe()
@@ -41,7 +40,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     val currentLevel get() = WizardUtil.LevelUtil.getCurrentLevel(experience)
     val remainingExp get() = WizardUtil.LevelUtil.getRemainderExp(experience)
 
-    var customer: PlayerEntity? = null
+    override var currentUser: PlayerEntity? = null
     private val screenFactory = WizardScreen(this)
 
     init {
@@ -102,6 +101,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
 
     override fun initGoals() {
         super.initGoals()
+        this.goalSelector.add(0, LookAtCustomerGoal(this))
         this.goalSelector.add(1, SwimGoal(this))
         this.goalSelector.add(2, AngerableProjectileAttackGoal(this, 1.0, 60, 10.0f))
         this.goalSelector.add(2, RevengeGoal(this, *arrayOfNulls(0)))
@@ -147,9 +147,9 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
 
     override fun interactMob(player: PlayerEntity?, hand: Hand?): ActionResult {
         if (player == null) return super.interactMob(player, hand)
-        if (customer != null) return super.interactMob(player, hand)
-        customer = player
-        customer!!.openHandledScreen(screenFactory)
+        if (currentUser != null) return super.interactMob(player, hand)
+        currentUser = player
+        currentUser!!.openHandledScreen(screenFactory)
         return super.interactMob(player, hand)
     }
 
@@ -184,7 +184,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     override fun fromTag(tag: CompoundTag) {
         super.fromTag(tag)
         if (tag.contains("experience"))
-        experience = tag.getInt("experience")
+            experience = tag.getInt("experience")
         learntRecipe.fromTag(tag)
     }
 

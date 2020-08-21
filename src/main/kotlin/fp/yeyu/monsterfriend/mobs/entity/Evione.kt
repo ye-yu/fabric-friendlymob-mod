@@ -44,10 +44,10 @@ import java.util.stream.IntStream
 class Evione(
     entityType: EntityType<out PathAwareEntity>?,
     world: World?
-) : PathAwareEntity(entityType, world) {
+) : PathAwareEntity(entityType, world), GuiProvider {
 
     private var spellCastingPoseTick: Int = -1
-    private var currentInteraction: PlayerEntity? = null
+    override var currentUser: PlayerEntity? = null
     private val inventory = EvioneInventory(this)
     private val guiHandler = EvioneGuiHandler(this)
     private var synthesisProgress = 0
@@ -145,6 +145,7 @@ class Evione(
     override fun initGoals() {
         super.initGoals()
         goalSelector.add(0, EscapeDangerGoal(this, 0.8))
+        goalSelector.add(0, LookAtCustomerGoal(this))
         goalSelector.add(1, LookAroundGoal(this))
         goalSelector.add(2, EvioneWanderAroundGoal(this, 0.6, 120, true))
         goalSelector.add(3, LookAtEntityGoal(this, PlayerEntity::class.java, 6.0f))
@@ -321,13 +322,13 @@ class Evione(
     }
 
     private fun speakWith(player: PlayerEntity) {
-        if (currentInteraction != null) return
-        currentInteraction = player
+        if (currentUser != null) return
+        currentUser = player
         player.openHandledScreen(guiHandler)
     }
 
     fun endInteraction() {
-        currentInteraction = null
+        currentUser = null
     }
 
     class EvioneGuiHandler(private val evione: Evione) : NamedScreenHandlerFactory {
@@ -349,7 +350,7 @@ class Evione(
         WanderAroundGoal(pathAwareEntity, speed, chance, bl) {
 
         override fun canStart(): Boolean {
-            if ((mob as Evione).currentInteraction != null) return false
+            if ((mob as Evione).currentUser != null) return false
             return super.canStart()
         }
     }

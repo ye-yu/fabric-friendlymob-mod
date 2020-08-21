@@ -39,7 +39,7 @@ class ServerWizardScreenHandler<T : ScreenRendererHandler>(
             if (stack.isEmpty) continue
             player.dropItem(stack, false)
         }
-        wizard.customer = null
+        wizard.currentUser = null
     }
 
     override fun clientHasInit() {

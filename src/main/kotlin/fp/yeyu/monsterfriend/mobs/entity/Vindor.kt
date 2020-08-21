@@ -42,7 +42,8 @@ import org.apache.logging.log4j.Logger
 import java.util.*
 import java.util.function.Predicate
 
-class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(entityType, world), Angerable {
+class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(entityType, world), Angerable,
+    GuiProvider {
 
     init {
         equipStack(EquipmentSlot.MAINHAND, ItemStack(Items.IRON_AXE))
@@ -119,9 +120,10 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         return !inventory.getStack(1).isEmpty
     }
 
-    var currentCustomer: PlayerEntity? = null
+    override var currentUser: PlayerEntity? = null
 
     override fun initGoals() {
+        goalSelector.add(0, LookAtCustomerGoal(this))
         goalSelector.add(1, MeleeAttackGoal(this, 1.0, true))
         goalSelector.add(2, WanderNearTargetGoal(this, 0.9, 32.0f))
         goalSelector.add(2, WanderAroundPointOfInterestGoal(this, 0.6, false))
@@ -154,9 +156,9 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
     private val guiHandler = VindorGuiHandler(this)
     private fun trade(player: PlayerEntity?): ActionResult {
         if (player == null) return ActionResult.success(this.world.isClient)
-        if (currentCustomer != null) return ActionResult.success(this.world.isClient)
+        if (currentUser != null) return ActionResult.success(this.world.isClient)
         player.openHandledScreen(guiHandler)
-        currentCustomer = player
+        currentUser = player
         return ActionResult.success(this.world.isClient)
     }
 
@@ -284,9 +286,9 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
     private fun flushMessage() {
         if (receivedMessage.isEmpty()) return
         if (this.world !is ServerWorld) return
-        if (currentCustomer == null) return
-        currentCustomer!!.sendMessage(LiteralText("Wonder trade succesful! They said: $receivedMessage"), false)
-        currentCustomer!!.sendMessage(LiteralText("\"$receivedMessage\""), true)
+        if (currentUser == null) return
+        currentUser!!.sendMessage(LiteralText("Wonder trade succesful! They said: $receivedMessage"), false)
+        currentUser!!.sendMessage(LiteralText("\"$receivedMessage\""), true)
         receivedMessage = ""
         this.world.playSound(null, this.blockPos, getTradedSound(), SoundCategory.VOICE, 1f, 1f)
     }
@@ -317,14 +319,14 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
         getInventory().setStack(1, ItemStack.EMPTY)
 
         if (itemSlot2 != null && !itemSlot2.isEmpty) {
-            currentCustomer!!.dropStack(itemSlot2)
+            currentUser!!.dropStack(itemSlot2)
         }
 
         wonderTick = if (inventory.getStack(0).isEmpty) -1
         else 20 * 30 + this.world.random.nextInt(20 * 30)
 
         flushMessage()
-        currentCustomer = null
+        currentUser = null
         this.world.playSound(null, this.blockPos, getHappySound(), SoundCategory.VOICE, 1f, 1f)
         validateWonderState()
     }

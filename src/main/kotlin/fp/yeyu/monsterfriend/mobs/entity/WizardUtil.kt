@@ -1,7 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.mobs.MobRegistry
-import io.github.yeyu.util.Logger
 import net.minecraft.enchantment.Enchantment
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.EnchantmentLevelEntry
@@ -223,7 +222,7 @@ object WizardUtil {
             val book = BOOK.copy()
             val possibleEntries = EnchantmentHelper.getPossibleEntries(level, book, false)
             val enchantment: HashMap<Enchantment, Int> = random.choice(possibleEntries).toMap().apply {
-                keys.forEach{
+                keys.forEach {
                     this[it] = it.maxLevel
                 }
             }
