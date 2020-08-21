@@ -3,6 +3,7 @@ package fp.yeyu.monsterfriend.screens.wizard
 import com.mojang.blaze3d.systems.RenderSystem
 import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.screens.gui.JamcguiRecipePanel
+import fp.yeyu.monsterfriend.screens.gui.JamcguiTexturedProgressBarWidget
 import fp.yeyu.monsterfriend.screens.gui.JamcguiTwoStatesTexturedScrollBarWidget
 import io.github.yeyu.gui.handler.ScreenRendererHandler
 import io.github.yeyu.gui.renderer.ScreenRenderer
@@ -26,8 +27,10 @@ class WizardClientScreen<T : ScreenRendererHandler>(
 ) : ScreenRenderer<T>(handler, inventory, title, TEXTURE) {
 
     companion object {
+
         private val TEXTURE = Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/wizard/main.png")
         private val SCROLLBAR_TEXTURE: Identifier = Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/wizard/scrollbar.png")
+        private val EXP_BAR_TEXTURE: Identifier = Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/wizard/expbar.png")
     }
 
     init {
@@ -41,16 +44,35 @@ class WizardClientScreen<T : ScreenRendererHandler>(
         createBlockInventorySlots()
         createPlayerInventorySlots()
 
-        val panel = Panel(
+        Panel(
             height = backgroundHeight,
             width = backgroundWidth,
             horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
             verticalAnchor = ParentWidget.AnchorType.MIDDLE,
             backgroundColor = 0,
             name = "full-panel"
-        )
+        ).apply {
+            val panel = this
+            addParent(panel)
 
-        panel.add(
+            // add scroll bar the panel
+            val scrollHeight = 141
+            JamcguiTwoStatesTexturedScrollBarWidget(
+                relativeX = 44,
+                relativeY = 17,
+                width = 6,
+                height = 27,
+                scrollHeight = scrollHeight,
+                texture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 0, 0, 6, 27, 0, 0, 12, 27),
+                inactiveTexture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 6, 0, 6, 27, 0, 0, 12, 27),
+                relativeBound = Rectangle(-89, 0, 95, scrollHeight),
+                name = WizardPackets.SCROLLBAR
+            ).apply {
+                addListener(this)
+                panel.add(this)
+            }.scrollablePredicate = { n: Int -> n > 3 }
+
+            // add title label
             LabelWidget(
                 relativeX = 101 + (backgroundWidth - 101) / 2,
                 relativeY = 7,
@@ -59,24 +81,25 @@ class WizardClientScreen<T : ScreenRendererHandler>(
                 shadow = false,
                 name = "title",
                 color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
-            )
-        )
+            ).apply {
+                panel.add(this)
+            }
 
-        val scrollHeight = 141
+            // add a progress bar
+            JamcguiTexturedProgressBarWidget(
+                relativeX = 50 + (backgroundWidth - 101) / 2,
+                relativeY = 18,
+                width = 101,
+                height = 5,
+                growDirection = JamcguiTexturedProgressBarWidget.Direction.LEFT,
+                activeTexture = TextureDrawerHelper(EXP_BAR_TEXTURE, 0, 10, 101, 5, 0, 0, 101, 15),
+                bgTexture = TextureDrawerHelper(EXP_BAR_TEXTURE, 0, 5, 101, 5, 0, 0, 101, 15),
+                name = WizardPackets.EXP_BAR
+            ).apply {
+                panel.add(this)
+            }
 
-        val scrollBar = JamcguiTwoStatesTexturedScrollBarWidget(
-            relativeX = 44,
-            relativeY = 17,
-            width = 6,
-            height = 27,
-            scrollHeight = scrollHeight,
-            texture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 0, 0, 6, 27, 0, 0, 12, 27),
-            inactiveTexture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 6, 0, 6, 27, 0, 0, 12, 27),
-            relativeBound = Rectangle(-89, 0, 95, scrollHeight),
-            name = WizardPackets.SCROLLBAR
-        ).apply { this.scrollablePredicate = { n: Int -> n > 3 } }
-
-        panel.add(scrollBar)
+        }
 
         JamcguiRecipePanel(
             relativeX = -89,
@@ -85,12 +108,9 @@ class WizardClientScreen<T : ScreenRendererHandler>(
             verticalAnchor = ParentWidget.AnchorType.MIDDLE,
             name = "recipe-panel"
         ).apply {
-            this@WizardClientScreen.addParent(this)
-            this@WizardClientScreen.addListener(this)
+            addParent(this)
+            addListener(this)
         }
-
-        addParent(panel)
-        addListener(scrollBar)
     }
 
     private fun createPlayerInventorySlots() {
