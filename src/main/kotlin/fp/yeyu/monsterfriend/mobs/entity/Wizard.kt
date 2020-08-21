@@ -4,7 +4,6 @@ import fp.yeyu.monsterfriend.annotation.Development
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.screens.wizard.ServerWizardScreenHandler
 import io.github.yeyu.util.Logger
-import net.minecraft.client.MinecraftClient
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.RangedAttackMob
@@ -44,7 +43,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     var debugTick = 0
 
     var customer: PlayerEntity? = null
-    val screenFactory = WizardScreen(this)
+    private val screenFactory = WizardScreen(this)
 
     init {
         if (world is ServerWorld) makeNewCraft()
@@ -52,20 +51,27 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
 
     @Development
     private fun debugTick() {
+        debugTick = ++debugTick % 20
+        if (debugTick == 0) {
+            craftSuccessful(1)
+        }
     }
 
     private fun craftSuccessful(reward: Int) {
         if (currentLevel < WizardUtil.LevelUtil.MAX_LEVEL) {
             if (WizardUtil.LevelUtil.canLevelUp(experience, reward)) {
+                experience += reward
                 playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1.0f, (0.8f + random.nextDouble() * 0.4f).toFloat())
                 makeNewCraft()
+            } else {
+                experience += reward
             }
-            experience += reward
         }
     }
 
     private fun makeNewCraft() {
         val index = currentLevel - 1
+        Logger.info("Making new craft at index $index")
         val craftMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomItem(random, true) }
         val bookMaker: () -> ItemStack = {
             WizardUtil.EnchantmentBookUtil.createRandomEnchantedBook(
