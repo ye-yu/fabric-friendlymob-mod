@@ -10,8 +10,6 @@ import net.minecraft.item.Items
 import net.minecraft.potion.Potion
 import net.minecraft.potion.PotionUtil.setPotion
 import net.minecraft.potion.Potions
-import net.minecraft.text.LiteralText
-import net.minecraft.util.Formatting
 import net.minecraft.util.registry.Registry
 import org.apache.commons.lang3.StringUtils
 import java.util.*
@@ -213,14 +211,12 @@ object WizardUtil {
     }
 
     object EnchantmentBookUtil {
-        private val BOOK = ItemStack(Items.BOOK).apply {
-            this.removeCustomName()
-            this.setCustomName(LiteralText("Enchanted Book").formatted(Formatting.RESET, Formatting.YELLOW))
-        }
+        private val BOOK = ItemStack(Items.BOOK)
+        private val ENCHANTED_BOOK = ItemStack(Items.ENCHANTED_BOOK)
 
         fun createRandomEnchantedBook(level: Int, random: Random): ItemStack {
-            val book = BOOK.copy()
-            val possibleEntries = EnchantmentHelper.getPossibleEntries(level, book, false)
+            val book = ENCHANTED_BOOK.copy()
+            val possibleEntries = EnchantmentHelper.getPossibleEntries(level, BOOK, true)
             val enchantment: HashMap<Enchantment, Int> = random.choice(possibleEntries).toMap().apply {
                 keys.forEach {
                     this[it] = it.maxLevel
