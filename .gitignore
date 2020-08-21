@@ -12,6 +12,6 @@ out/
 *.iws
 
 # fabric
-
+log/
 run/
 minecraft/
