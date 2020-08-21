@@ -7,7 +7,6 @@ import io.github.yeyu.gui.handler.provider.BooleanProvider
 import io.github.yeyu.gui.handler.provider.DoubleProvider
 import io.github.yeyu.gui.handler.provider.IntegerProvider
 import io.github.yeyu.packet.ScreenPacket
-import io.github.yeyu.util.Logger
 import net.fabricmc.fabric.api.network.PacketContext
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.network.PacketByteBuf
@@ -27,10 +26,7 @@ class ClientWizardScreenHandler<T : ScreenRendererHandler>(
     override fun onServer2Client(action: String, context: PacketContext, buf: PacketByteBuf) {
         when (action) {
             WizardPackets.SYNC_PACKET -> recipeContext.sync(buf)
-            WizardPackets.EXP_BAR -> {
-                experience = buf.readDouble()
-                Logger.info("Got wizard experience level of $experience")
-            }
+            WizardPackets.EXP_BAR -> experience = buf.readDouble()
             else -> super.onServer2Client(action, context, buf)
         }
     }

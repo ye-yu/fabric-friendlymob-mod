@@ -51,13 +51,9 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
 
     @Development
     private fun debugTick() {
-        debugTick = ++debugTick % 20
-        if (debugTick == 0) {
-            craftSuccessful(1)
-        }
     }
 
-    private fun craftSuccessful(reward: Int) {
+    fun craftSuccessful(reward: Int) {
         if (currentLevel < WizardUtil.LevelUtil.MAX_LEVEL) {
             if (WizardUtil.LevelUtil.canLevelUp(experience, reward)) {
                 experience += reward
@@ -91,6 +87,22 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
             currentLevel * 2
         )
         Logger.info("Created: ${learntRecipe.recipes[index]}")
+    }
+
+    fun prepareCraft(item1: ItemStack, item2: ItemStack, flower: ItemStack, potion: ItemStack): ItemStack {
+        for (recipe in learntRecipe.recipes) {
+            val craft = recipe.craft(item1, item2, flower, potion)
+            if (!craft.isEmpty) return craft
+        }
+        return ItemStack.EMPTY
+    }
+
+    fun getCraftReward(item1: ItemStack, item2: ItemStack, flower: ItemStack, potion: ItemStack): Int {
+        for (recipe in learntRecipe.recipes) {
+            val craft = recipe.craft(item1, item2, flower, potion)
+            if (!craft.isEmpty) return recipe.expReward
+        }
+        return 0
     }
 
     override fun initGoals() {
