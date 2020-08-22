@@ -147,6 +147,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     }
 
     override fun interactMob(player: PlayerEntity?, hand: Hand?): ActionResult {
+        if (world.isClient) return ActionResult.SUCCESS
         if (player == null) return super.interactMob(player, hand)
         if (learntRecipe.recipes[0].toCraft.isEmpty) {
             val stackInHand = player.getStackInHand(hand)
@@ -159,7 +160,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         if (currentUser != null) return super.interactMob(player, hand)
         currentUser = player
         currentUser!!.openHandledScreen(screenFactory)
-        return super.interactMob(player, hand)
+        return ActionResult.CONSUME
     }
 
     override fun getAngerTime(): Int = anger.angerTime
