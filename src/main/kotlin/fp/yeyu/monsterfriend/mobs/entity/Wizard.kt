@@ -37,7 +37,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     RangedAttackMob, Angerable, GuiProvider {
 
     private val anger = Anger(-1, null)
-    val learntRecipe = LearntRecipe()
+    val learntRecipe = LearntRecipe(this)
     var experience = 0
 
     val currentLevel get() = WizardUtil.LevelUtil.getCurrentLevel(experience)
@@ -68,19 +68,27 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
 
     fun makeNewCraft() {
         val index = currentLevel - 1
+        refreshCraft(index)
+    }
+
+    private fun refreshCraft(index: Int) {
         Logger.info("Making new craft at index $index")
         val craftMaker: () -> ItemStack = { profession.getRandom(random, index) }
         val itemMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomItem(random, false) }
         val flowerMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomFlower(random) }
         val potionMaker: () -> ItemStack = { WizardUtil.PotionUtil.createRandomPotion(random) }
-        learntRecipe.recipes[index] = CustomRecipe(
-            craftMaker(),
-            if (index > 1) itemMaker() else ItemStack.EMPTY,
-            if (index > 3) itemMaker() else ItemStack.EMPTY,
-            flowerMaker(),
-            potionMaker(),
-            currentLevel * 2
-        )
+        var newCraft: CustomRecipe
+        do {
+            newCraft = CustomRecipe(
+                craftMaker(),
+                if (index > 1) itemMaker() else ItemStack.EMPTY,
+                if (index > 3) itemMaker() else ItemStack.EMPTY,
+                flowerMaker(),
+                potionMaker(),
+                currentLevel * 2
+            )
+        } while (!learntRecipe.canAdd(newCraft))
+        learntRecipe.recipes[index] = newCraft
         Logger.info("Created: ${learntRecipe.recipes[index]}")
     }
 
@@ -182,6 +190,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     override fun tickMovement() {
         super.tickMovement()
         if (world is ServerWorld) tickAngerLogic(world as ServerWorld, true)
+        if (world is ServerWorld) learntRecipe.tick()
     }
 
     override fun toTag(tag: CompoundTag): CompoundTag {
@@ -221,6 +230,14 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         val potion: ItemStack,
         val expReward: Int
     ) {
+        private var tick = 60 * 60 * 20
+
+        fun tick() {
+            tick = (--tick).coerceAtLeast(0)
+        }
+
+        val expired: Boolean get() = tick == 0
+
         fun craft(item1: ItemStack, item2: ItemStack, flower: ItemStack, potion: ItemStack): ItemStack {
             return if (isIdentical(this.item1, item1) && isIdentical(this.item2, item2) && isIdentical(
                     this.flower,
@@ -273,6 +290,8 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
                 tag.put("$TAG_PREFIX$index$FLOWER", itemTag[3])
                 tag.put("$TAG_PREFIX$index$POTION", itemTag[4])
                 tag.putInt("$TAG_PREFIX$index$REWARD", customRecipe.expReward)
+
+                tag.putInt("craft-tick", customRecipe.tick)
             }
 
             fun fromTag(index: Int, tag: CompoundTag): CustomRecipe {
@@ -284,13 +303,16 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
                     ItemStack.fromTag(tag.getCompound("$TAG_PREFIX$index$FLOWER")),
                     ItemStack.fromTag(tag.getCompound("$TAG_PREFIX$index$POTION")),
                     tag.getInt("$TAG_PREFIX$index$REWARD")
-                )
+                ).apply {
+                    this.tick = if (tag.contains("craft-tick")) tag.getInt("craft-tick") else 50
+                }
             }
         }
     }
 
-    class LearntRecipe {
+    class LearntRecipe(private val who: Wizard? = null) {
         val recipes = MutableList(WizardUtil.LevelUtil.MAX_LEVEL) { CustomRecipe.EMPTY }
+        var dirty = false
         fun fromTag(tag: CompoundTag) {
             for (i in recipes.indices) {
                 recipes[i] = CustomRecipe.fromTag(i, tag)
@@ -302,6 +324,26 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
             for (i in recipes.indices) {
                 CustomRecipe.toTag(recipes[i], i, tag)
             }
+        }
+
+        fun canAdd(recipe: CustomRecipe): Boolean {
+            return recipes.none { ScreenHandler.canStacksCombine(it.toCraft, recipe.toCraft) }
+        }
+
+        fun tick() {
+            recipes.indices.forEach {
+                recipes[it].tick()
+                if (recipes[it].expired && recipes[it] != CustomRecipe.EMPTY) {
+                    who?.refreshCraft(it)
+                    dirty = true
+                }
+            }
+        }
+
+        fun popDirty(): Boolean {
+            if (!dirty) return false
+            dirty = false
+            return true
         }
     }
 

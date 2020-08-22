@@ -57,7 +57,7 @@ class ServerWizardScreenHandler<T : ScreenRendererHandler>(
     override fun sendContentUpdates() {
         refreshContent()
         super.sendContentUpdates()
-        if (lastExpBar == wizard.experience) return
+        if (lastExpBar == wizard.experience && !recipeContext.learntRecipe.popDirty()) return
         lastExpBar = wizard.experience
         ScreenPacket.sendPacket(syncId, WizardPackets.EXP_BAR, false, playerInventory.player as ServerPlayerEntity) {
             it.writeDouble(
