@@ -3,7 +3,6 @@ package fp.yeyu.mixins;
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
 import fp.yeyu.monsterfriend.mobs.entity.Wizard;
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardProfessionFactory;
-import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardUtil;
 import fp.yeyu.util.Transformable;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.MobEntity;
@@ -28,7 +27,8 @@ public abstract class WitchEntityMixin extends RaiderEntity implements Transform
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
         final ItemStack stackInHand = player.getStackInHand(hand);
         stackInHand.decrement(1);
-        if (!WizardProfessionFactory.INSTANCE.getProfessionMap().containsKey(stackInHand.getItem())) return super.interactMob(player, hand);
+        if (!WizardProfessionFactory.INSTANCE.getProfessionMap().containsKey(stackInHand.getItem()))
+            return super.interactMob(player, hand);
         if (random.nextFloat() > 0.15f) return super.interactMob(player, hand);
         final MobEntity mobEntity = transformTo(MobRegistry.INSTANCE.getWizard().getEntityType());
         mobEntity.playSpawnEffects();

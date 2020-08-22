@@ -37,10 +37,14 @@ object WizardUtil {
         fun createRandomPotion(random: Random): ItemStack {
             val potion: Potion =
                 getRandomPotion(random)
-            return setPotion(ItemStack(random.weightedChoice(
-                potionType,
-                potionWeight
-            )), potion)
+            return setPotion(
+                ItemStack(
+                    random.weightedChoice(
+                        potionType,
+                        potionWeight
+                    )
+                ), potion
+            )
         }
 
         private fun getRandomPotion(random: Random): Potion {
@@ -187,9 +191,10 @@ object WizardUtil {
         )
 
         fun createRandomItem(random: Random, withUnobtainables: Boolean): ItemStack {
-            return ItemStack(if (withUnobtainables) getRandomItemWithUnobtainables(
-                random
-            ) else getRandomItem(random)
+            return ItemStack(
+                if (withUnobtainables) getRandomItemWithUnobtainables(
+                    random
+                ) else getRandomItem(random)
             )
         }
 
@@ -223,8 +228,10 @@ object WizardUtil {
 
         fun createRandomEnchantedBook(level: Int, random: Random): ItemStack {
             val book = ENCHANTED_BOOK.copy()
-            val possibleEntries = EnchantmentHelper.getPossibleEntries(level,
-                BOOK, true)
+            val possibleEntries = EnchantmentHelper.getPossibleEntries(
+                level,
+                BOOK, true
+            )
             val enchantment: HashMap<Enchantment, Int> = random.choice(possibleEntries).toMap().apply {
                 keys.forEach {
                     this[it] = it.maxLevel

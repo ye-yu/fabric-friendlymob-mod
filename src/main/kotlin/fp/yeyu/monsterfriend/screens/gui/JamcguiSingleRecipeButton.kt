@@ -84,7 +84,7 @@ class JamcguiSingleRecipeButton(
         if (hovered) {
             screen.setItemToRenderTooltip(tooltipItem)
         }
-        
+
         drawItemStack(item1, drawX + Drawer.marginX, drawY + Drawer.marginY)
         drawItemStack(item2, drawX + Drawer.marginX + 25, drawY + Drawer.marginY)
         drawItemStack(toCraft, drawX + Drawer.marginX + 61, drawY + Drawer.marginY + 10)
@@ -111,16 +111,36 @@ class JamcguiSingleRecipeButton(
         hovered = isMouseOver(mouseX, mouseY)
         val (toCraft, item1, item2, flower, potion, _) = (handler as RecipeProvider).getRecipe(slot)
         if (toCraft.isEmpty) return
-        
+
         val hoverOffsetX = 2
         val hoverOffsetY = 6 + offsetY
 
         tooltipItem = when {
             isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX, Drawer.marginY + hoverOffsetY) -> item1
-            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX + 25, Drawer.marginY + hoverOffsetY) -> item2
-            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX + 61, Drawer.marginY + hoverOffsetY + 7) -> toCraft
-            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX, Drawer.marginY + hoverOffsetY + 16) -> flower
-            isMouseOverItemBound(mouseX, mouseY, Drawer.marginX + hoverOffsetX + 25, Drawer.marginY + hoverOffsetY + 16) -> potion
+            isMouseOverItemBound(
+                mouseX,
+                mouseY,
+                Drawer.marginX + hoverOffsetX + 25,
+                Drawer.marginY + hoverOffsetY
+            ) -> item2
+            isMouseOverItemBound(
+                mouseX,
+                mouseY,
+                Drawer.marginX + hoverOffsetX + 61,
+                Drawer.marginY + hoverOffsetY + 7
+            ) -> toCraft
+            isMouseOverItemBound(
+                mouseX,
+                mouseY,
+                Drawer.marginX + hoverOffsetX,
+                Drawer.marginY + hoverOffsetY + 16
+            ) -> flower
+            isMouseOverItemBound(
+                mouseX,
+                mouseY,
+                Drawer.marginX + hoverOffsetX + 25,
+                Drawer.marginY + hoverOffsetY + 16
+            ) -> potion
             else -> ItemStack.EMPTY
         }
 

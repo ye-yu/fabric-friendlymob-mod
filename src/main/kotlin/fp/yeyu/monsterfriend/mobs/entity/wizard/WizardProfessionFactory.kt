@@ -273,7 +273,7 @@ object WizardProfessionFactory {
                     this[Enchantments.FORTUNE] = Enchantments.FORTUNE.maxLevel
                 }, this)
             }
-       )
+        )
         override val fourthLevelGroup: List<ItemStack> = listOf(
             ItemStack(Items.ENCHANTED_BOOK).apply {
                 EnchantmentHelper.set(HashMap<Enchantment, Int>().apply {
@@ -288,7 +288,7 @@ object WizardProfessionFactory {
         )
     }
 
-    object Spawner: WizardProfession {
+    object Spawner : WizardProfession {
 
         override val firstLevelGroup: List<ItemStack> = listOf(
             // passives
@@ -365,7 +365,8 @@ object WizardProfessionFactory {
             return super.getRandom(random, level).apply { count = 20 + random.nextInt(10) }
         }
     }
-    object Spawner2: WizardProfession {
+
+    object Spawner2 : WizardProfession {
 
         override val firstLevelGroup: List<ItemStack> = listOf(
             // passives
@@ -411,7 +412,7 @@ object WizardProfessionFactory {
         }
     }
 
-    object Spawner3: WizardProfession {
+    object Spawner3 : WizardProfession {
 
         override val firstLevelGroup: List<ItemStack> = listOf(
             // passives
@@ -460,12 +461,12 @@ object WizardProfessionFactory {
             return Registry.ENCHANTMENT.stream().filter { it.isAcceptableItem(itemStack) }.toList().toMutableList()
         }
 
-        fun enchant(itemStack : ItemStack, level: Int): ItemStack {
+        fun enchant(itemStack: ItemStack, level: Int): ItemStack {
             val enchantments = getPossibleEnchants(itemStack)
             enchantments.shuffle()
             Logger.info("Shuffled entries for $itemStack")
             Logger.info("Entries: ${enchantments.map { it::class.simpleName }.joinToString()}")
-            EnchantmentHelper.set(HashMap<Enchantment, Int>().apply{
+            EnchantmentHelper.set(HashMap<Enchantment, Int>().apply {
                 var count = 0
                 for (enchantment in enchantments) {
                     if (!this.keys.all { it.canCombine(enchantment) }) continue
@@ -489,7 +490,7 @@ object WizardProfessionFactory {
             ItemStack(Items.IRON_HELMET),
             ItemStack(Items.GOLDEN_HELMET),
             ItemStack(Items.DIAMOND_HELMET),
-            ItemStack(Items.NETHERITE_HELMET)         
+            ItemStack(Items.NETHERITE_HELMET)
         )
 
         private val chestplates = listOf(
@@ -590,7 +591,7 @@ object WizardProfessionFactory {
             ItemStack(Items.STONE_SWORD),
             ItemStack(Items.WOODEN_AXE)
         )
-        
+
         override val secondLevelGroup: List<ItemStack> = listOf(
             ItemStack(Items.STONE_AXE),
             ItemStack(Items.GOLDEN_SWORD),
@@ -622,7 +623,7 @@ object WizardProfessionFactory {
             return ToolUtil.enchant(super.getRandom(random, level), level)
         }
     }
-    
+
     object Toolsmith : WizardProfession {
 
         override val firstLevelGroup: List<ItemStack> = listOf(
@@ -692,9 +693,9 @@ object WizardProfessionFactory {
             ItemStack(Items.SEA_LANTERN),
             ItemStack(Items.SEA_PICKLE),
             ItemStack(Items.GLOWSTONE),
-            ItemStack{Items.OBSERVER},
-            ItemStack{Items.DISPENSER},
-            ItemStack{Items.DROPPER}
+            ItemStack { Items.OBSERVER },
+            ItemStack { Items.DISPENSER },
+            ItemStack { Items.DROPPER }
         )
         override val fourthLevelGroup: List<ItemStack> = listOf(
             ItemStack(Items.TORCH),
@@ -707,7 +708,9 @@ object WizardProfessionFactory {
         )
 
         override fun getRandom(random: Random, level: Int): ItemStack {
-            return super.getRandom(random, level).apply { count = (maxCount - random.nextInt((0.2 * maxCount).toInt().coerceAtLeast(1))).coerceAtLeast(1) }
+            return super.getRandom(random, level).apply {
+                count = (maxCount - random.nextInt((0.2 * maxCount).toInt().coerceAtLeast(1))).coerceAtLeast(1)
+            }
         }
     }
 
@@ -721,7 +724,7 @@ object WizardProfessionFactory {
         override val fourthLevelGroup: List<ItemStack>
             get() = buffet
 
-        private val buffet = listOf (
+        private val buffet = listOf(
             ItemStack(Items.MUSIC_DISC_BLOCKS),
             ItemStack(Items.MUSIC_DISC_13),
             ItemStack(Items.MUSIC_DISC_CAT),

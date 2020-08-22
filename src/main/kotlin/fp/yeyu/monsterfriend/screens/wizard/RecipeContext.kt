@@ -12,7 +12,7 @@ class RecipeContext(recipes: LearntRecipe?) {
     var level = 0
 
     init {
-        while(level < 5 && !learntRecipe.recipes[level].toCraft.isEmpty) level++
+        while (level < 5 && !learntRecipe.recipes[level].toCraft.isEmpty) level++
     }
 
     fun sync(serverScreenHandler: ServerScreenHandler, packetName: String, player: ServerPlayerEntity) {

@@ -48,11 +48,15 @@ enum class Screens(
 
     companion object {
 
-        fun registerScreenHandlerTypes() = values().forEach { Logger.info("Triggered screen handler registration for ${it.pathName}@${it.screenHandlerType}") }
+        fun registerScreenHandlerTypes() =
+            values().forEach { Logger.info("Triggered screen handler registration for ${it.pathName}@${it.screenHandlerType}") }
 
         fun registerClientScreens() = values().forEach { it.registerScreen() }
 
-        private fun <T : ScreenHandler> register(name: String, entry: (Int, PlayerInventory) -> T): ScreenHandlerType<T> {
+        private fun <T : ScreenHandler> register(
+            name: String,
+            entry: (Int, PlayerInventory) -> T
+        ): ScreenHandlerType<T> {
             return ScreenHandlerRegistry.registerSimple<T>(
                 Identifier(BefriendMinecraft.NAMESPACE, name),
                 entry

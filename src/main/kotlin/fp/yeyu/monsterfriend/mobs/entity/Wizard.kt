@@ -44,7 +44,8 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     val remainingExp get() = WizardUtil.LevelUtil.getRemainderExp(experience)
 
     private var flower: ItemStack = ItemStack(flowers[0])
-    var profession: WizardProfession = WizardProfessionFactory.professionMap.getOrDefault(flower.item, WizardProfessionFactory.Enchanter)
+    var profession: WizardProfession =
+        WizardProfessionFactory.professionMap.getOrDefault(flower.item, WizardProfessionFactory.Enchanter)
 
     override var currentUser: PlayerEntity? = null
     private val screenFactory = WizardScreen(this)
@@ -159,7 +160,10 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         if (player == null) return super.interactMob(player, hand)
         if (learntRecipe.recipes[0].toCraft.isEmpty) {
             val stackInHand = player.getStackInHand(hand)
-            if (!WizardProfessionFactory.professionMap.containsKey(stackInHand.item)) return super.interactMob(player, hand)
+            if (!WizardProfessionFactory.professionMap.containsKey(stackInHand.item)) return super.interactMob(
+                player,
+                hand
+            )
             stackInHand.decrement(1)
             setFlower(stackInHand.copy().apply { count = 1 })
             makeNewCraft()

@@ -29,8 +29,10 @@ class WizardClientScreen<T : ScreenRendererHandler>(
     companion object {
 
         private val TEXTURE = Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/wizard/main.png")
-        private val SCROLLBAR_TEXTURE: Identifier = Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/wizard/scrollbar.png")
-        private val EXP_BAR_TEXTURE: Identifier = Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/wizard/expbar.png")
+        private val SCROLLBAR_TEXTURE: Identifier =
+            Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/wizard/scrollbar.png")
+        private val EXP_BAR_TEXTURE: Identifier =
+            Identifier(BefriendMinecraft.NAMESPACE, "textures/gui/wizard/expbar.png")
     }
 
     init {
@@ -147,7 +149,7 @@ class WizardClientScreen<T : ScreenRendererHandler>(
     }
 
     private fun createBlockInventorySlots() {
-        for(i in 0..3) createBlockInventorySlot(i)
+        for (i in 0..3) createBlockInventorySlot(i)
         val slot = InventoryPanel(
             relativeX = 162,
             relativeY = -36,
