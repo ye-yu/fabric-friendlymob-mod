@@ -34,7 +34,7 @@ class ServerWizardScreenHandler<T : ScreenRendererHandler>(
     }
 
     override fun close(player: PlayerEntity) {
-        for (index in 0 until suggestedCrafts.size()) {
+        for (index in 0 until suggestedCrafts.size() - 1) {
             val stack = suggestedCrafts.getStack(index)
             if (stack.isEmpty) continue
             player.dropItem(stack, false)
