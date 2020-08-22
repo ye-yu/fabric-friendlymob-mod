@@ -1,7 +1,7 @@
 package fp.yeyu.monsterfriend.mobs.entity.wizard
 
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.text.TranslatableText
 import java.util.*
 
 interface WizardProfession {
@@ -25,4 +25,9 @@ interface WizardProfession {
         else upperGroup[index - lowerGroup.size]
         return item.copy()
     }
+
+    val translationText: TranslatableText
+        get() = TranslatableText(
+            "container.friendlymob." + (this::class.simpleName?.toLowerCase() ?: "wizard_screen")
+        )
 }

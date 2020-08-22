@@ -87,22 +87,22 @@ object WizardUtil {
         )
 
         val flowers = listOf(
-            Items.DANDELION, // enchanter
-            Items.POPPY, // carpenter
-            Items.BLUE_ORCHID, // miner
-            Items.ALLIUM, //
-            Items.AZURE_BLUET,
-            Items.ORANGE_TULIP,
-            Items.PINK_TULIP,
-            Items.RED_TULIP,
-            Items.WHITE_TULIP,
-            Items.OXEYE_DAISY,
-            Items.CORNFLOWER,
-            Items.LILY_OF_THE_VALLEY,
-            Items.SUNFLOWER,
-            Items.LILAC,
-            Items.ROSE_BUSH,
-            Items.PEONY
+            Items.DANDELION, // enchanter 1
+            Items.POPPY, // enchanter 2
+            Items.BLUE_ORCHID, // enchanter 3
+            Items.ALLIUM, // spawner 1
+            Items.AZURE_BLUET, // spawner 2
+            Items.ORANGE_TULIP, // spawner 3
+            Items.PINK_TULIP, // armourer 1
+            Items.RED_TULIP, // armourer 2
+            Items.WHITE_TULIP, // weaponry
+            Items.OXEYE_DAISY, // toolsmith
+            Items.CORNFLOWER, // electrician
+            Items.LILY_OF_THE_VALLEY, // musician
+            Items.SUNFLOWER, // miner
+            Items.LILAC, // biome enthusiast
+            Items.ROSE_BUSH, // mob drop enthusiast
+            Items.PEONY // foodist
         )
 
         private val unobtainables = listOf(

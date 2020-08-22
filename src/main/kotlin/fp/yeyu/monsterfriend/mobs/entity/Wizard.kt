@@ -27,7 +27,6 @@ import net.minecraft.screen.ScreenHandler
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
-import net.minecraft.text.TranslatableText
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.math.MathHelper
@@ -151,7 +150,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         if (player == null) return super.interactMob(player, hand)
         if (learntRecipe.recipes[0].toCraft.isEmpty) {
             val stackInHand = player.getStackInHand(hand)
-            if (!flowers.contains(stackInHand.item)) return super.interactMob(player, hand)
+            if (!WizardProfessionFactory.professionMap.containsKey(stackInHand.item)) return super.interactMob(player, hand)
             stackInHand.decrement(1)
             setFlower(stackInHand.copy().apply { count = 1 })
             makeNewCraft()
@@ -311,7 +310,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         }
 
         override fun getDisplayName(): Text {
-            return TranslatableText(Screens.WIZARD_SCREEN.translationKey)
+            return who.profession.translationText
         }
     }
 }
