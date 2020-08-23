@@ -47,9 +47,7 @@ class ServerVindorScreenHandler<T : ScreenRendererHandler>(
 
     override fun close(player: PlayerEntity) {
         super.close(player)
-        val sendStack = blockInventory!!.getStack(0)
-        val receiveStack = blockInventory!!.getStack(1)
-        vindor.finishTrading(sendStack, receiveStack) // todo: cant vindor just read from his own inventory?
+        vindor.finishTrading()
     }
 
 }

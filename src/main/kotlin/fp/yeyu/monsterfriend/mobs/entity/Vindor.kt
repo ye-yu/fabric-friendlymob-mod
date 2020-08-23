@@ -287,8 +287,10 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
 
     override fun getDeathSound(): SoundEvent? = SoundEvents.ENTITY_VINDICATOR_DEATH
 
-    fun finishTrading(itemSlot1: ItemStack?, itemSlot2: ItemStack?) {
-        if (itemSlot1 != null && !itemSlot1.isEmpty) {
+    fun finishTrading() {
+        val itemSlot1 = inventory.getStack(0)
+        val itemSlot2 = inventory.getStack(1)
+        if (!itemSlot1.isEmpty) {
             getInventory().setStack(0, itemSlot1)
         } else {
             getInventory().setStack(0, ItemStack.EMPTY)
@@ -296,8 +298,8 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
 
         getInventory().setStack(1, ItemStack.EMPTY)
 
-        if (itemSlot2 != null && !itemSlot2.isEmpty) {
-            currentUser!!.dropStack(itemSlot2)
+        if (!itemSlot2.isEmpty) {
+            currentUser?.dropItem(itemSlot2, false)
         }
 
         wonderTick = if (inventory.getStack(0).isEmpty) -1
