@@ -1,7 +1,7 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardProfession
-import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardProfessionFactory
+import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardProfessionCollection
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardUtil
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardUtil.ItemUtil.flowers
 import fp.yeyu.monsterfriend.screens.Screens
@@ -44,14 +44,14 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
 
     private var flower: ItemStack = ItemStack(flowers[0])
     var profession: WizardProfession =
-        WizardProfessionFactory.professionMap.getOrDefault(flower.item, WizardProfessionFactory.Enchanter)
+        WizardProfessionCollection.professionMap.getOrDefault(flower.item, WizardProfessionCollection.Enchanter)
 
     override var currentUser: PlayerEntity? = null
     private val screenFactory = WizardScreen(this)
 
     fun setFlower(flower: ItemStack) {
         this.flower = flower
-        profession = WizardProfessionFactory.professionMap.getOrDefault(flower.item, WizardProfessionFactory.Enchanter)
+        profession = WizardProfessionCollection.professionMap.getOrDefault(flower.item, WizardProfessionCollection.Enchanter)
     }
 
     fun craftSuccessful(reward: Int) {
@@ -157,7 +157,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         if (player == null) return super.interactMob(player, hand)
         if (learntRecipe.recipes[0].toCraft.isEmpty) {
             val stackInHand = player.getStackInHand(hand)
-            if (!WizardProfessionFactory.professionMap.containsKey(stackInHand.item)) return super.interactMob(
+            if (!WizardProfessionCollection.professionMap.containsKey(stackInHand.item)) return super.interactMob(
                 player,
                 hand
             )

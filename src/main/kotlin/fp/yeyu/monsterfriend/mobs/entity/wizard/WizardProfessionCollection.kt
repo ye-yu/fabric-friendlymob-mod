@@ -12,8 +12,7 @@ import java.util.*
 import kotlin.collections.HashMap
 import kotlin.streams.toList
 
-@Suppress("unused")
-object WizardProfessionFactory {
+object WizardProfessionCollection {
     val professionMap = HashMap<Item, WizardProfession>().apply {
         this[Items.DANDELION] = Enchanter
         this[Items.POPPY] = Enchanter2
