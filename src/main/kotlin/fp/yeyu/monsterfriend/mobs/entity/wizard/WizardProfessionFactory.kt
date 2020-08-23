@@ -746,21 +746,29 @@ object WizardProfessionFactory {
     }
 
     object Miner : WizardProfession {
-
-        private val blocks = listOf(
-            Items.COAL_BLOCK,
-            Items.IRON_BLOCK,
-            Items.GOLD_BLOCK,
-            Items.LAPIS_BLOCK,
-            Items.DIAMOND_BLOCK,
-            Items.EMERALD_BLOCK
-        )
-
-        private val expensives = listOf(
-            Items.IRON_INGOT,
-            Items.GOLD_INGOT,
-            Items.DIAMOND,
-            Items.NETHERITE_INGOT
+        
+        private val expensiveToCheap = mapOf(
+            Items.NETHERITE_BLOCK to 1,
+            Items.NETHERITE_INGOT to 3,
+            Items.NETHERITE_SCRAP to 6,
+            Items.DIAMOND_BLOCK to 2,
+            Items.DIAMOND_ORE to 8,
+            Items.DIAMOND to 21,
+            Items.EMERALD_BLOCK to 2,
+            Items.EMERALD_ORE to 18,
+            Items.EMERALD to 21,
+            Items.GOLD_BLOCK to 3,
+            Items.GOLD_ORE to 25,
+            Items.GOLD_INGOT to 31,
+            Items.LAPIS_BLOCK to 4,
+            Items.LAPIS_ORE to 32,
+            Items.LAPIS_LAZULI to 40,
+            Items.IRON_BLOCK to 4,
+            Items.IRON_ORE to 32,
+            Items.IRON_INGOT to 40,
+            Items.COAL_BLOCK to 8,
+            Items.COAL_ORE to 52,
+            Items.COAL to 64
         )
 
         override val firstLevelGroup: List<ItemStack> = listOf(
@@ -807,11 +815,7 @@ object WizardProfessionFactory {
 
         override fun getRandom(random: Random, level: Int): ItemStack {
             return super.getRandom(random, level).apply {
-                count = when {
-                    blocks.contains(this.item) -> 3 + random.nextInt(3)
-                    expensives.contains(this.item) -> 5 + random.nextInt(5)
-                    else -> random.nextInt(10) + 8
-                }
+                count = (expensiveToCheap[item] ?: 1 + random.nextInt(3)).coerceAtMost(maxCount)
             }
         }
     }
