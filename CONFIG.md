@@ -1,5 +1,8 @@
 # Mod Configuration File
 
+Configuration file is temporary! This will be removed
+after the first complete release.
+
 The configuration file can be found in `mods/Befriend Minecraft/config.json`.
 However, this file will not appear unless the mod has been loaded at least once.
 
