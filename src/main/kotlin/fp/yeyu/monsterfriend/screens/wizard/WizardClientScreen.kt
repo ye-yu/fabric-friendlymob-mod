@@ -57,50 +57,9 @@ class WizardClientScreen<T : ScreenRendererHandler>(
             val panel = this
             addParent(panel)
 
-            // add scroll bar the panel
-            val scrollHeight = 141
-            JamcguiTwoStatesTexturedScrollBarWidget(
-                relativeX = 44,
-                relativeY = 17,
-                width = 6,
-                height = 27,
-                scrollHeight = scrollHeight,
-                texture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 0, 0, 6, 27, 0, 0, 12, 27),
-                inactiveTexture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 6, 0, 6, 27, 0, 0, 12, 27),
-                relativeBound = Rectangle(-89, 0, 95, scrollHeight),
-                name = WizardPackets.SCROLLBAR
-            ).apply {
-                addListener(this)
-                panel.add(this)
-            }.scrollablePredicate = { n: Int -> n > 3 }
-
-            // add title label
-            LabelWidget(
-                relativeX = 101 + (backgroundWidth - 101) / 2,
-                relativeY = 7,
-                horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
-                label = title,
-                shadow = false,
-                name = "title",
-                color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
-            ).apply {
-                panel.add(this)
-            }
-
-            // add a progress bar
-            JamcguiTexturedProgressBarWidget(
-                relativeX = 50 + (backgroundWidth - 101) / 2,
-                relativeY = 18,
-                width = 101,
-                height = 5,
-                growDirection = JamcguiTexturedProgressBarWidget.Direction.LEFT,
-                activeTexture = TextureDrawerHelper(EXP_BAR_TEXTURE, 0, 10, 101, 5, 0, 0, 101, 15),
-                bgTexture = TextureDrawerHelper(EXP_BAR_TEXTURE, 0, 5, 101, 5, 0, 0, 101, 15),
-                name = WizardPackets.EXP_BAR
-            ).apply {
-                panel.add(this)
-            }
-
+            addScrollbar(panel)
+            addTitleLabel(panel)
+            addExpBar(panel)
         }
 
         JamcguiRecipePanel(
@@ -113,6 +72,56 @@ class WizardClientScreen<T : ScreenRendererHandler>(
             addParent(this)
             addListener(this)
         }
+    }
+
+    private fun addExpBar(panel: Panel) {
+        // add a progress bar
+        JamcguiTexturedProgressBarWidget(
+            relativeX = 50 + (backgroundWidth - 101) / 2,
+            relativeY = 18,
+            width = 101,
+            height = 5,
+            growDirection = JamcguiTexturedProgressBarWidget.Direction.LEFT,
+            activeTexture = TextureDrawerHelper(EXP_BAR_TEXTURE, 0, 10, 101, 5, 0, 0, 101, 15),
+            bgTexture = TextureDrawerHelper(EXP_BAR_TEXTURE, 0, 5, 101, 5, 0, 0, 101, 15),
+            name = WizardPackets.EXP_BAR
+        ).apply {
+            panel.add(this)
+        }
+    }
+
+    private fun addTitleLabel(panel: Panel) {
+        // add title label
+        LabelWidget(
+            relativeX = 101 + (backgroundWidth - 101) / 2,
+            relativeY = 7,
+            horizontalAnchor = ParentWidget.AnchorType.MIDDLE,
+            label = title,
+            shadow = false,
+            name = "title",
+            color = DrawerUtil.constructColor(0x3a, 0x3b, 0x4a, 0xff)
+        ).apply {
+            panel.add(this)
+        }
+    }
+
+    private fun addScrollbar(panel: Panel) {
+        // add scroll bar the panel
+        val scrollHeight = 141
+        JamcguiTwoStatesTexturedScrollBarWidget(
+            relativeX = 44,
+            relativeY = 17,
+            width = 6,
+            height = 27,
+            scrollHeight = scrollHeight,
+            texture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 0, 0, 6, 27, 0, 0, 12, 27),
+            inactiveTexture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 6, 0, 6, 27, 0, 0, 12, 27),
+            relativeBound = Rectangle(-89, 0, 95, scrollHeight),
+            name = WizardPackets.SCROLLBAR
+        ).apply {
+            addListener(this)
+            panel.add(this)
+        }.scrollablePredicate = { n: Int -> n > 3 }
     }
 
     private fun createPlayerInventorySlots() {

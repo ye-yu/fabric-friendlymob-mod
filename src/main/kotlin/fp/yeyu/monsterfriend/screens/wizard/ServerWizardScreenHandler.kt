@@ -57,6 +57,7 @@ class ServerWizardScreenHandler<T : ScreenRendererHandler>(
     override fun sendContentUpdates() {
         refreshContent()
         super.sendContentUpdates()
+        recipeTick()
         if (lastExpBar == wizard.experience && !recipeContext.learntRecipe.popDirty()) return
         lastExpBar = wizard.experience
         ScreenPacket.sendPacket(syncId, WizardPackets.EXP_BAR, false, playerInventory.player as ServerPlayerEntity) {
@@ -69,6 +70,9 @@ class ServerWizardScreenHandler<T : ScreenRendererHandler>(
         recipeContext.level = wizard.currentLevel
         recipeContext.sync(this, WizardPackets.SYNC_PACKET, playerInventory.player as ServerPlayerEntity)
     }
+
+    private fun recipeTick() =
+        recipeContext.tick(this, WizardPackets.RECIPE_TICK, playerInventory.player as ServerPlayerEntity)
 
     private fun refreshContent() {
         val item1 = constrainedSlots[playerInventory.size()].stack

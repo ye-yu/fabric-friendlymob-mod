@@ -30,6 +30,9 @@ class JamcguiSingleRecipeButton(
     override val height: Int = 47
 
     var offsetY = 0
+    private val progressBar = JamcguiWizardRecipeProgressBar(
+        relativeX, relativeY, 72, 1, slotNumber = slot
+    )
 
     internal object Drawer {
         val background = TextureDrawerHelper(
@@ -90,6 +93,8 @@ class JamcguiSingleRecipeButton(
         drawItemStack(toCraft, drawX + Drawer.marginX + 61, drawY + Drawer.marginY + 10)
         drawItemStack(flower, drawX + Drawer.marginX, drawY + Drawer.marginY + 18)
         drawItemStack(potion, drawX + Drawer.marginX + 25, drawY + Drawer.marginY + 18)
+
+        progressBar.withPosition(drawX + 8, drawY + 4).render(matrices, relativeMouseX, relativeMouseY, screen)
     }
 
     override fun setFocused(focused: Boolean) {

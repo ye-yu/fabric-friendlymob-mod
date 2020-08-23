@@ -234,11 +234,13 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         val potion: ItemStack,
         val expReward: Int
     ) {
-        private var tick = 60 * 60 * 20
+        var tick = MAX_DEFAULT_TICK
 
         fun tick() {
             tick = (--tick).coerceAtLeast(0)
         }
+
+        fun getTickProgress(): Double = tick.toDouble() / MAX_DEFAULT_TICK.toDouble()
 
         val expired: Boolean get() = tick == 0
 
@@ -269,6 +271,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
             private const val FLOWER = "-item-flower"
             private const val POTION = "-item-potion"
             private const val REWARD = "-reward"
+            private const val MAX_DEFAULT_TICK = 60 * 60 * 20
 
             val EMPTY =
                 CustomRecipe(
@@ -308,7 +311,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
                     ItemStack.fromTag(tag.getCompound("$TAG_PREFIX$index$POTION")),
                     tag.getInt("$TAG_PREFIX$index$REWARD")
                 ).apply {
-                    this.tick = if (tag.contains("craft-tick")) tag.getInt("craft-tick") else 50
+                    this.tick = if (tag.contains("craft-tick")) tag.getInt("craft-tick").coerceAtMost(MAX_DEFAULT_TICK) else MAX_DEFAULT_TICK
                 }
             }
         }

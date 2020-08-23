@@ -27,6 +27,7 @@ class ClientWizardScreenHandler<T : ScreenRendererHandler>(
         when (action) {
             WizardPackets.SYNC_PACKET -> recipeContext.sync(buf)
             WizardPackets.EXP_BAR -> experience = buf.readDouble()
+            WizardPackets.RECIPE_TICK -> recipeContext.tick(buf)
             else -> super.onServer2Client(action, context, buf)
         }
     }
