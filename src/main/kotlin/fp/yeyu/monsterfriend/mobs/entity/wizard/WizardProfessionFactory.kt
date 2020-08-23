@@ -857,7 +857,7 @@ object WizardProfessionFactory {
         )
 
         override fun getRandom(random: Random, level: Int): ItemStack {
-            return super.getRandom(random, level).apply { count = 8 + random.nextInt(15) }
+            return super.getRandom(random, level).apply { count = 21 + random.nextInt(8) }
         }
     }
 
@@ -899,7 +899,7 @@ object WizardProfessionFactory {
         )
 
         override fun getRandom(random: Random, level: Int): ItemStack {
-            return super.getRandom(random, level).apply { count = 8 + random.nextInt(15) }
+            return super.getRandom(random, level).apply { count = 13 + random.nextInt(15) }
         }
     }
 
@@ -940,7 +940,7 @@ object WizardProfessionFactory {
         )
 
         override fun getRandom(random: Random, level: Int): ItemStack {
-            return super.getRandom(random, level).apply { count = (5 + random.nextInt(8)).coerceAtMost(maxCount) }
+            return super.getRandom(random, level).apply { count = (25 + random.nextInt(8)).coerceAtMost(maxCount) }
         }
     }
 
