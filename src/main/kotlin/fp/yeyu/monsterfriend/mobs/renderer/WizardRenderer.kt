@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.renderer
 
+import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.mobs.entity.Wizard
 import fp.yeyu.monsterfriend.mobs.renderer.feature.FoldedHandHeldItemFeatureRenderer
 import fp.yeyu.monsterfriend.mobs.renderer.model.WizardEntityModel
@@ -15,8 +16,7 @@ class WizardRenderer(entityRenderDispatcher: EntityRenderDispatcher?) :
     init {
         addFeature(FoldedHandHeldItemFeatureRenderer(this))
     }
-
-    private val texture = Identifier("textures/entity/witch.png")
+    private val texture = Identifier(BefriendMinecraft.NAMESPACE, "textures/entity/wizard.png")
     override fun getTexture(entity: Wizard?): Identifier = texture
 
     override fun scale(entity: Wizard, matrices: MatrixStack, amount: Float) {
