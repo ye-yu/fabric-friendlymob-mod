@@ -18,7 +18,6 @@ import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
-import java.awt.Rectangle
 
 class WizardClientScreen<T : ScreenRendererHandler>(
     handler: T,
@@ -116,7 +115,6 @@ class WizardClientScreen<T : ScreenRendererHandler>(
             scrollHeight = scrollHeight,
             texture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 0, 0, 6, 27, 0, 0, 12, 27),
             inactiveTexture = TextureDrawerHelper(SCROLLBAR_TEXTURE, 6, 0, 6, 27, 0, 0, 12, 27),
-            relativeBound = Rectangle(-89, 0, 95, scrollHeight),
             name = WizardPackets.SCROLLBAR
         ).apply {
             addListener(this)
