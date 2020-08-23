@@ -473,9 +473,7 @@ object WizardProfessionCollection {
                     count++
                     if (count > 2) break
                 }
-                if (!this.containsKey(Enchantments.UNBREAKING)) {
-                    this[Enchantments.UNBREAKING] = 3 + level
-                }
+                this[Enchantments.UNBREAKING] = 3 + level
             }, itemStack)
             return itemStack
         }
