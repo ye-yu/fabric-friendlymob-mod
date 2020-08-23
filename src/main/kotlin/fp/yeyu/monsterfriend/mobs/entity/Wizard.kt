@@ -6,7 +6,6 @@ import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardUtil
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardUtil.ItemUtil.flowers
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.screens.wizard.ServerWizardScreenHandler
-import io.github.yeyu.util.Logger
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.RangedAttackMob
@@ -73,7 +72,6 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
     }
 
     private fun refreshCraft(index: Int) {
-        Logger.info("Making new craft at index $index")
         val craftMaker: () -> ItemStack = { profession.getRandom(random, index) }
         val itemMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomItem(random, false) }
         val flowerMaker: () -> ItemStack = { WizardUtil.ItemUtil.createRandomFlower(random) }
@@ -90,7 +88,6 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
             )
         } while (!learntRecipe.canAdd(newCraft))
         learntRecipe.recipes[index] = newCraft
-        Logger.info("Created: ${learntRecipe.recipes[index]}")
     }
 
     fun prepareCraft(item1: ItemStack, item2: ItemStack, flower: ItemStack, potion: ItemStack): ItemStack {
@@ -323,7 +320,6 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         fun fromTag(tag: CompoundTag) {
             for (i in recipes.indices) {
                 recipes[i] = CustomRecipe.fromTag(i, tag)
-                Logger.info("Deserialised: ${recipes[i]}")
             }
         }
 
