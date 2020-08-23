@@ -20,7 +20,7 @@ class ClientWizardScreenHandler<T : ScreenRendererHandler>(
     RecipeProvider,
     RecipeClickListener {
 
-    var recipeContext = RecipeContext(null)
+    var recipeContext = RecipeContext()
     var experience: Double = 0.0
 
     override fun onServer2Client(action: String, context: PacketContext, buf: PacketByteBuf) {

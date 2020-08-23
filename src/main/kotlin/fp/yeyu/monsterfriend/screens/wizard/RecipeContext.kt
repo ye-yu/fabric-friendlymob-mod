@@ -7,13 +7,9 @@ import io.github.yeyu.packet.ScreenPacket
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.network.ServerPlayerEntity
 
-class RecipeContext(recipes: LearntRecipe?) {
-    val learntRecipe: LearntRecipe = recipes ?: LearntRecipe()
-    var level = 0
+class RecipeContext(val learntRecipe: LearntRecipe = LearntRecipe()) {
 
-    init {
-        while (level < 5 && !learntRecipe.recipes[level].toCraft.isEmpty) level++
-    }
+    var level = 0
 
     fun sync(serverScreenHandler: ServerScreenHandler, packetName: String, player: ServerPlayerEntity) {
         ScreenPacket.sendPacket(serverScreenHandler.syncId, packetName, false, player) {
