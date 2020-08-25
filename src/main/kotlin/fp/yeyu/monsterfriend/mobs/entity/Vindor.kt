@@ -5,6 +5,7 @@ import fp.yeyu.monsterfriend.screens.vindor.ServerVindorScreenHandler
 import fp.yeyu.monsterfriend.utils.wondertrade.WonderTrade
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
+import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityType
@@ -65,6 +66,7 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
 
     init {
         equipStack(EquipmentSlot.MAINHAND, ItemStack(Items.IRON_AXE))
+        (currentUser as ClientPlayerEntity).server
     }
 
     override fun canBeLeashedBy(player: PlayerEntity?): Boolean {

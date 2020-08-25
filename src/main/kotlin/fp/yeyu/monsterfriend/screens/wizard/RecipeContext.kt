@@ -39,7 +39,7 @@ class RecipeContext(val learntRecipe: LearntRecipe = LearntRecipe()) {
             if (learntRecipe.recipes[index].toCraft.isEmpty) continue
         }
     }
-    
+
     fun tick(serverScreenHandler: ServerScreenHandler, packetName: String, player: ServerPlayerEntity) {
         ScreenPacket.sendPacket(serverScreenHandler.syncId, packetName, false, player) {
             for (recipe in learntRecipe.recipes)

@@ -51,7 +51,8 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
 
     fun setFlower(flower: ItemStack) {
         this.flower = flower
-        profession = WizardProfessionCollection.professionMap.getOrDefault(flower.item, WizardProfessionCollection.Enchanter)
+        profession =
+            WizardProfessionCollection.professionMap.getOrDefault(flower.item, WizardProfessionCollection.Enchanter)
     }
 
     fun craftSuccessful(reward: Int) {
@@ -308,7 +309,8 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
                     ItemStack.fromTag(tag.getCompound("$TAG_PREFIX$index$POTION")),
                     tag.getInt("$TAG_PREFIX$index$REWARD")
                 ).apply {
-                    this.tick = if (tag.contains("craft-tick")) tag.getInt("craft-tick").coerceAtMost(MAX_DEFAULT_TICK) else MAX_DEFAULT_TICK
+                    this.tick = if (tag.contains("craft-tick")) tag.getInt("craft-tick")
+                        .coerceAtMost(MAX_DEFAULT_TICK) else MAX_DEFAULT_TICK
                 }
             }
         }

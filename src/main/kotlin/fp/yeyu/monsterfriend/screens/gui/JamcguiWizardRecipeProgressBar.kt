@@ -15,7 +15,16 @@ class JamcguiWizardRecipeProgressBar(
     private val color: Int = DrawerUtil.constructColor(0xFF, 0xFF, 0xFF, 0xFF),
     private val backgroundColor: Int = DrawerUtil.constructColor(0x50, 0x50, 0x50, 0xFF),
     private val slotNumber: Int
-) : JamcguiProgressBarWidget(relativeX, relativeY, width, height, growDirection, color, backgroundColor, "wizard-recipe"), DynamicPositionChildWidget {
+) : JamcguiProgressBarWidget(
+    relativeX,
+    relativeY,
+    width,
+    height,
+    growDirection,
+    color,
+    backgroundColor,
+    "wizard-recipe"
+), DynamicPositionChildWidget {
     override var absoluteX: Int = relativeX
     override var absoluteY: Int = relativeY
 

@@ -743,7 +743,7 @@ object WizardProfessionCollection {
     }
 
     object Miner : WizardProfession {
-        
+
         private val expensiveToCheap = mapOf(
             Items.NETHERITE_BLOCK to 1,
             Items.NETHERITE_INGOT to 3,

@@ -16,6 +16,7 @@ class WizardRenderer(entityRenderDispatcher: EntityRenderDispatcher?) :
     init {
         addFeature(FoldedHandHeldItemFeatureRenderer(this))
     }
+
     private val texture = Identifier(BefriendMinecraft.NAMESPACE, "textures/entity/wizard.png")
     override fun getTexture(entity: Wizard?): Identifier = texture
 

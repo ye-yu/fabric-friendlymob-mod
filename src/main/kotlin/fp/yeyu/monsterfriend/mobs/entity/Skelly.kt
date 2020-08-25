@@ -12,8 +12,6 @@ import net.minecraft.entity.mob.Angerable
 import net.minecraft.entity.mob.CreeperEntity
 import net.minecraft.entity.mob.HostileEntity
 import net.minecraft.entity.mob.PathAwareEntity
-import net.minecraft.entity.passive.IronGolemEntity
-import net.minecraft.entity.passive.TurtleEntity
 import net.minecraft.entity.passive.WolfEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.projectile.PersistentProjectileEntity

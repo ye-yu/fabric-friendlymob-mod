@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.renderer
 
+import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.mobs.entity.Skelly
 import fp.yeyu.monsterfriend.mobs.renderer.model.SkellyEntityModel
 import net.minecraft.client.render.entity.BipedEntityRenderer
@@ -10,7 +11,7 @@ import net.minecraft.util.Identifier
 class SkellyRenderer(entityRenderDispatcher: EntityRenderDispatcher?) :
     BipedEntityRenderer<Skelly, SkellyEntityModel>(entityRenderDispatcher, SkellyEntityModel(), 0.5f) {
     private val texture =
-        Identifier("textures/entity/skeleton/skeleton.png")
+        Identifier(BefriendMinecraft.NAMESPACE, "textures/entity/skelly.png")
 
     init {
         this.addFeature(
