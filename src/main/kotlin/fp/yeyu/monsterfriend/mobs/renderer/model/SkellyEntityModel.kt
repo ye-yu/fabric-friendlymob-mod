@@ -11,7 +11,8 @@ import net.minecraft.util.Arm
 import net.minecraft.util.Hand
 import net.minecraft.util.math.MathHelper
 
-class SkellyEntityModel(stretch: Float = 0f, isClothing: Boolean = false) : BipedEntityModel<Skelly>(stretch) {
+class SkellyEntityModel(stretch: Float = 0f, isClothing: Boolean = false) :
+    BipedEntityModel<Skelly>(stretch, 0f, 64, 64) {
     init {
         if (!isClothing) {
             rightArm = ModelPart(this, 40, 16)
@@ -28,6 +29,14 @@ class SkellyEntityModel(stretch: Float = 0f, isClothing: Boolean = false) : Bipe
             leftLeg.mirror = true
             leftLeg.addCuboid(-1.0f, 0.0f, -1.0f, 2.0f, 12.0f, 2.0f, stretch)
             leftLeg.setPivot(2.0f, 12.0f, 0.0f)
+
+            head.addChild(ModelPart(this, 0, 32).also {
+                it.addCuboid(-5.0f, -6.0f, -5.0f, 10.0f, 1.0f, 10.0f, stretch)
+            })
+
+//            head.addChild(ModelPart(this, 24, 0).also {
+//                it.addCuboid(-5.0f, -6.0f, 4.0f, 10.0f, 1.0f, 1.0f, stretch)
+//            })
         }
     }
 
@@ -77,6 +86,10 @@ class SkellyEntityModel(stretch: Float = 0f, isClothing: Boolean = false) : Bipe
         modelPart.pivotX += f
         modelPart.rotate(matrices)
         modelPart.pivotX -= f
+    }
+
+    override fun getHeadParts(): MutableIterable<ModelPart> {
+        return mutableListOf(head)
     }
 
 }
