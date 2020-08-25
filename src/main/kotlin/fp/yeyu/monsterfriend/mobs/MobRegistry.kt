@@ -2,12 +2,15 @@ package fp.yeyu.monsterfriend.mobs
 
 import fp.yeyu.monsterfriend.BefriendMinecraft
 import fp.yeyu.monsterfriend.mobs.egg.EvioneEgg
+import fp.yeyu.monsterfriend.mobs.egg.SkellyEgg
 import fp.yeyu.monsterfriend.mobs.egg.VindorEgg
 import fp.yeyu.monsterfriend.mobs.egg.WizardEgg
 import fp.yeyu.monsterfriend.mobs.entity.Evione
+import fp.yeyu.monsterfriend.mobs.entity.Skelly
 import fp.yeyu.monsterfriend.mobs.entity.Vindor
 import fp.yeyu.monsterfriend.mobs.entity.Wizard
 import fp.yeyu.monsterfriend.mobs.renderer.EvioneRenderer
+import fp.yeyu.monsterfriend.mobs.renderer.SkellyRenderer
 import fp.yeyu.monsterfriend.mobs.renderer.VindorRenderer
 import fp.yeyu.monsterfriend.mobs.renderer.WizardRenderer
 import io.github.yeyu.util.Logger
@@ -15,7 +18,7 @@ import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricEntityTypeBuilde
 import net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry
 import net.minecraft.client.render.entity.EntityRenderDispatcher
 import net.minecraft.client.render.entity.MobEntityRenderer
-import net.minecraft.client.render.entity.model.CompositeEntityModel
+import net.minecraft.client.render.entity.model.EntityModel
 import net.minecraft.entity.EntityDimensions
 import net.minecraft.entity.EntityType
 import net.minecraft.entity.SpawnGroup
@@ -36,7 +39,9 @@ object MobRegistry {
         MobStruct(::Evione, ::EvioneRenderer, EggAttr(::EvioneEgg, 0xFFF5500, 0xF006634), ModelAttr(), "evione")
     val wizard =
         MobStruct(::Wizard, ::WizardRenderer, EggAttr(::WizardEgg, 0xF0055FF, 0xF006634), ModelAttr(), "wizard")
-    private val registry = listOf(vindor, evione, wizard)
+    val skelly =
+        MobStruct(::Skelly, ::SkellyRenderer, EggAttr(::SkellyEgg, 0xFFAFAFA, 0xFFF6633), ModelAttr(), "skelly")
+    private val registry = listOf(vindor, evione, wizard, skelly)
 
     fun registerMobs() {
         registry.forEach { it.registerMob() }
@@ -50,7 +55,7 @@ object MobRegistry {
         registry.forEach { it.registerEgg() }
     }
 
-    class MobStruct<T : MobEntity, V : CompositeEntityModel<T>, E : SpawnEggItem>(
+    class MobStruct<T : MobEntity, V : EntityModel<T>, E : SpawnEggItem>(
         private val entityFactory: KFunction2<
                 @ParameterName(name = "entityType") EntityType<T>,
                 @ParameterName(name = "world") World,

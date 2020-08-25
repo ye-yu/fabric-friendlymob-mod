@@ -5,6 +5,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.DefaultAttributeRegistry;
+import net.minecraft.entity.mob.MobEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,7 +16,7 @@ public class DefaultAttributeRegistryMixin {
     @Inject(at = @At("RETURN"), method = "get", cancellable = true)
     private static void getMixin(EntityType<? extends LivingEntity> type, CallbackInfoReturnable<DefaultAttributeContainer> cir) {
         if (cir.getReturnValue() == null) {
-            cir.setReturnValue(AttributeRegistry.INSTANCE.getAttributes().get(type));
+            cir.setReturnValue(AttributeRegistry.INSTANCE.getAttributes().getOrDefault(type, MobEntity.createMobAttributes().build()));
         }
     }
 }
