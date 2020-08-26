@@ -83,9 +83,4 @@ class SkellyEntityModel(stretch: Float = 0f, isClothing: Boolean = false) :
         modelPart.rotate(matrices)
         modelPart.pivotX -= f
     }
-
-    override fun getHeadParts(): MutableIterable<ModelPart> {
-        return mutableListOf(head)
-    }
-
 }
