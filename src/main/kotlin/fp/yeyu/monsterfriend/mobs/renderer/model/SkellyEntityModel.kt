@@ -33,10 +33,6 @@ class SkellyEntityModel(stretch: Float = 0f, isClothing: Boolean = false) :
             head.addChild(ModelPart(this, 0, 32).also {
                 it.addCuboid(-5.0f, -6.0f, -5.0f, 10.0f, 1.0f, 10.0f, stretch)
             })
-
-//            head.addChild(ModelPart(this, 24, 0).also {
-//                it.addCuboid(-5.0f, -6.0f, 4.0f, 10.0f, 1.0f, 1.0f, stretch)
-//            })
         }
     }
 
