@@ -9,8 +9,10 @@ import net.minecraft.util.registry.Registry
 
 object ItemRegistry {
     val vexEssence: Item = Item(Item.Settings().group(ItemGroup.MISC).rarity(Rarity.RARE).maxCount(64))
+    val strawHat = Item(Item.Settings().group(ItemGroup.MISC).rarity(Rarity.COMMON).maxCount(64))
 
     fun registerItem() {
         Registry.register(Registry.ITEM, Identifier(BefriendMinecraft.NAMESPACE, "vex_essence"), vexEssence)
+        Registry.register(Registry.ITEM, Identifier(BefriendMinecraft.NAMESPACE, "straw_hat"), strawHat)
     }
 }
