@@ -50,7 +50,7 @@ class Evione(
     private var spellCastingPoseTick: Int = -1
     override var currentUser: PlayerEntity? = null
     private val inventory = EvioneInventory(this)
-    private val guiHandler = EvioneGuiHandler(this)
+    override val guiFactory = EvioneScreenFactory(this)
     private var synthesisProgress = 0
 
     companion object {
@@ -325,14 +325,14 @@ class Evione(
     private fun speakWith(player: PlayerEntity) {
         if (currentUser != null) return
         currentUser = player
-        player.openHandledScreen(guiHandler)
+        player.openHandledScreen(guiFactory)
     }
 
     fun endInteraction() {
         currentUser = null
     }
 
-    class EvioneGuiHandler(private val evione: Evione) : NamedScreenHandlerFactory {
+    class EvioneScreenFactory(private val evione: Evione) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
             return EvioneServerScreenHandler(
                 Screens.EVIONE_SCREEN.screenHandlerType,

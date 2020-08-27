@@ -48,7 +48,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         WizardProfessionCollection.professionMap.getOrDefault(flower.item, WizardProfessionCollection.Enchanter)
 
     override var currentUser: PlayerEntity? = null
-    private val screenFactory = WizardScreen(this)
+    override val guiFactory = WizardScreenFactory(this)
 
     fun setFlower(flower: ItemStack) {
         this.flower = flower
@@ -170,7 +170,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         }
         if (currentUser != null) return super.interactMob(player, hand)
         currentUser = player
-        currentUser!!.openHandledScreen(screenFactory)
+        currentUser!!.openHandledScreen(guiFactory)
         return ActionResult.CONSUME
     }
 
@@ -353,7 +353,7 @@ class Wizard(entityType: EntityType<out PathAwareEntity>?, world: World?) : Path
         }
     }
 
-    class WizardScreen(private val who: Wizard) : NamedScreenHandlerFactory {
+    class WizardScreenFactory(private val who: Wizard) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler {
             return ServerWizardScreenHandler(Screens.WIZARD_SCREEN.screenHandlerType, syncId, player.inventory, who)
         }

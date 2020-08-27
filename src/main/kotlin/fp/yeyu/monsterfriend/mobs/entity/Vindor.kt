@@ -47,7 +47,7 @@ import java.util.function.Predicate
 class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(entityType, world), Angerable,
     GuiProvider {
 
-    private val guiHandler = VindorGuiHandler(this)
+    override val guiFactory = VindorScreenFactory(this)
     private val inventory = VindorInventory()
 
     override var currentUser: PlayerEntity? = null
@@ -150,7 +150,7 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
     private fun trade(player: PlayerEntity?): ActionResult {
         if (player == null) return ActionResult.success(this.world.isClient)
         if (currentUser != null) return ActionResult.success(this.world.isClient)
-        player.openHandledScreen(guiHandler)
+        player.openHandledScreen(guiFactory)
         currentUser = player
         return ActionResult.success(this.world.isClient)
     }
@@ -344,7 +344,7 @@ class Vindor(entityType: EntityType<Vindor>, world: World?) : PathAwareEntity(en
 
     fun getInventory(): Inventory = inventory
 
-    class VindorGuiHandler(private val who: Vindor) : NamedScreenHandlerFactory {
+    class VindorScreenFactory(private val who: Vindor) : NamedScreenHandlerFactory {
         override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity?): ScreenHandler? {
             who.wonderTick = -1
             return ServerVindorScreenHandler(
