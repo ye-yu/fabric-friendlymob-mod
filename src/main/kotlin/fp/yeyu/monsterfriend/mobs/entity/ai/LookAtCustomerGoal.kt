@@ -1,5 +1,6 @@
-package fp.yeyu.monsterfriend.mobs.entity
+package fp.yeyu.monsterfriend.mobs.entity.ai
 
+import fp.yeyu.monsterfriend.mobs.entity.GuiProvider
 import net.minecraft.entity.ai.goal.LookAtEntityGoal
 import net.minecraft.entity.mob.MobEntity
 import net.minecraft.entity.player.PlayerEntity

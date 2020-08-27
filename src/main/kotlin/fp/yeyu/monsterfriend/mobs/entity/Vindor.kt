@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
+import fp.yeyu.monsterfriend.mobs.entity.ai.LookAtCustomerGoal
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.screens.vindor.ServerVindorScreenHandler
 import fp.yeyu.monsterfriend.utils.wondertrade.WonderTrade

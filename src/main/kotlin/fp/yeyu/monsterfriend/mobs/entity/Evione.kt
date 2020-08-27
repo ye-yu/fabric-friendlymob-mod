@@ -1,6 +1,7 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
 import fp.yeyu.monsterfriend.item.ItemRegistry
+import fp.yeyu.monsterfriend.mobs.entity.ai.LookAtCustomerGoal
 import fp.yeyu.monsterfriend.screens.Screens
 import fp.yeyu.monsterfriend.screens.evione.EvioneServerScreenHandler
 import fp.yeyu.monsterfriend.utils.ConfigFile

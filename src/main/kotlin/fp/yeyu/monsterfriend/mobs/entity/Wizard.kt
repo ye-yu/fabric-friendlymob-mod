@@ -1,5 +1,6 @@
 package fp.yeyu.monsterfriend.mobs.entity
 
+import fp.yeyu.monsterfriend.mobs.entity.ai.LookAtCustomerGoal
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardProfession
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardProfessionCollection
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardUtil
