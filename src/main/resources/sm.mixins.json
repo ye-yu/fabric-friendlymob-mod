@@ -8,6 +8,7 @@
     "FishingBobberMixin",
     "HayBlockMixin",
     "MobEntityMixin",
+    "SkeletonEntityMixin",
     "VindicatorEntityMixin",
     "WitchEntityMixin"
   ],
