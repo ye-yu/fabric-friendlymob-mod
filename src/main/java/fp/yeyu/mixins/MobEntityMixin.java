@@ -1,5 +1,6 @@
 package fp.yeyu.mixins;
 
+import fp.yeyu.util.DislikeParticlePlayer;
 import fp.yeyu.util.Transformable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -16,7 +17,7 @@ import javax.annotation.Nullable;
 import java.util.stream.IntStream;
 
 @Mixin(MobEntity.class)
-public abstract class MobEntityMixin extends Entity implements Transformable {
+public abstract class MobEntityMixin extends Entity implements Transformable, DislikeParticlePlayer {
     public MobEntityMixin(EntityType<?> type, World world) {
         super(type, world);
     }
@@ -48,6 +49,36 @@ public abstract class MobEntityMixin extends Entity implements Transformable {
                 );
             });
             ci.cancel();
+        }
+    }
+
+    @Inject(method = "handleStatus", at = @At("HEAD"), cancellable = true)
+    public void handleStatusMixin(byte status, CallbackInfo ci) {
+        if (status == DISLIKE_STATUS_NUMBER) {
+            playDislikeParticle();
+            ci.cancel();
+        }
+    }
+
+    @Override
+    public void playDislikeParticle() {
+        if (world.isClient) {
+            IntStream.range(0, 20).forEach((i) -> {
+                double particleX = getBlockPos().getX() + random.nextDouble();
+                double particleY = getRandomBodyY() - random.nextGaussian() * 0.02;
+                double particleZ = getBlockPos().getZ() + random.nextDouble();
+                world.addParticle(
+                        ParticleTypes.SMOKE,
+                        particleX,
+                        particleY,
+                        particleZ,
+                        particleX * 0.02,
+                        particleY * 0.02,
+                        particleZ * 0.02
+                );
+            });
+        } else {
+            world.sendEntityStatus(this, DISLIKE_STATUS_NUMBER);
         }
     }
 }

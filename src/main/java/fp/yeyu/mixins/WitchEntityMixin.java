@@ -3,6 +3,7 @@ package fp.yeyu.mixins;
 import fp.yeyu.monsterfriend.mobs.MobRegistry;
 import fp.yeyu.monsterfriend.mobs.entity.Wizard;
 import fp.yeyu.monsterfriend.mobs.entity.wizard.WizardProfessionCollection;
+import fp.yeyu.util.DislikeParticlePlayer;
 import fp.yeyu.util.Transformable;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.MobEntity;
@@ -17,7 +18,7 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(WitchEntity.class)
-public abstract class WitchEntityMixin extends RaiderEntity implements Transformable {
+public abstract class WitchEntityMixin extends RaiderEntity implements Transformable, DislikeParticlePlayer {
 
     protected WitchEntityMixin(EntityType<? extends RaiderEntity> entityType, World world) {
         super(entityType, world);
@@ -29,7 +30,10 @@ public abstract class WitchEntityMixin extends RaiderEntity implements Transform
         stackInHand.decrement(1);
         if (!WizardProfessionCollection.INSTANCE.getProfessionMap().containsKey(stackInHand.getItem()))
             return super.interactMob(player, hand);
-        if (random.nextFloat() > 0.15f) return super.interactMob(player, hand);
+        if (random.nextFloat() > 0.15f) {
+            playDislikeParticle();
+            return super.interactMob(player, hand);
+        }
         final MobEntity mobEntity = transformTo(MobRegistry.INSTANCE.getWizard().getEntityType());
         mobEntity.playSpawnEffects();
         final ItemStack flower = stackInHand.copy();
