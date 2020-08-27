@@ -30,6 +30,7 @@ object WizardProfessionCollection {
         this[Items.ROSE_BUSH] = MobDropHoarder
         this[Items.PEONY] = Foodist
         this[Items.WITHER_ROSE] = BlackMarketer
+        this[Items.LILY_OF_THE_VALLEY] = Musician
     }
 
     object Enchanter : WizardProfession {
